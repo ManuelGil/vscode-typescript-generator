@@ -117,7 +117,9 @@ export class FileGeneratorService {
       relativeFolderPath,
       (path) =>
         !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
-          ? l10n.t('The folder name is invalid!')
+          ? l10n.t(
+              'The folder name is invalid! Please enter a valid folder name',
+            )
           : undefined,
     );
 
@@ -127,11 +129,14 @@ export class FileGeneratorService {
 
     const entityName = await this.promptInput(
       l10n.t('Enter the {0} name', entityType),
-      l10n.t('Enter the {0} name, e.g. User, ProductService, etc.', entityType),
+      l10n.t('Enter the {0} name, e.g. user, product, order, etc.', entityType),
       undefined,
       (name) =>
         !/^[a-zA-Z]+?$/.test(name)
-          ? l10n.t('The {0} name is invalid!', entityType)
+          ? l10n.t(
+              'The {0} name is invalid! Please enter a valid name',
+              entityType,
+            )
           : undefined,
     );
 
@@ -142,11 +147,17 @@ export class FileGeneratorService {
     const entityTypeName = allowEntityTypeInput
       ? await this.promptInput(
           l10n.t('Enter the {0} type (optional)', entityType),
-          l10n.t('Enter the {0} type, e.g. model, service, etc.', entityType),
+          l10n.t(
+            'Enter the {0} type, e.g. model, service, util, etc.',
+            entityType,
+          ),
           undefined,
           (name) =>
             !/(^[a-z]+$)|(^$)/.test(name)
-              ? l10n.t('The {0} type is invalid!', entityType)
+              ? l10n.t(
+                  'The {0} type is invalid! Please enter a valid type',
+                  entityType,
+                )
               : undefined,
         )
       : undefined;
@@ -433,18 +444,18 @@ export class FileGeneratorService {
    * @example
    * controller.saveFile('path', 'filename', 'data');
    *
-   * @param {string} path - The path
-   * @param {string} filename - The filename
-   * @param {string} data - The data
+   * @param {string} directoryPath - The path
+   * @param {string} fileName - The filename
+   * @param {string} fileContent - The data
    *
    * @returns {Promise<void>} - The promise with no return value
    */
   private async saveFile(
-    path: string,
-    filename: string,
-    data: string,
+    directoryPath: string,
+    fileName: string,
+    fileContent: string,
   ): Promise<void> {
-    const file = join(path, filename);
+    const file = join(directoryPath, fileName);
 
     if (!existsSync(dirname(file))) {
       mkdirSync(dirname(file), { recursive: true });
@@ -454,14 +465,14 @@ export class FileGeneratorService {
       if (err) {
         open(file, 'w+', (err: any, fd: any) => {
           if (err) {
-            const message = l10n.t('The file has not been created!');
+            const message = l10n.t('The file has not been created! Please try again');
             window.showErrorMessage(message);
             return;
           }
 
-          writeFile(fd, data, 'utf8', (err: any) => {
+          writeFile(fd, fileContent, 'utf8', (err: any) => {
             if (err) {
-              const message = l10n.t('The file has not been created!');
+              const message = l10n.t('The {0} has been created successfully', fileName);
               window.showErrorMessage(message);
               return;
             }
@@ -478,7 +489,9 @@ export class FileGeneratorService {
         const message = l10n.t('File created successfully!');
         window.showInformationMessage(message);
       } else {
-        const message = l10n.t('The file name already exists!');
+        const message = l10n.t(
+          'The file name already exists! Please enter a different name',
+        );
         window.showWarningMessage(message);
       }
     });
@@ -522,7 +535,9 @@ export class FileGeneratorService {
       const barrelFileUri = Uri.file(join(targetDirectoryPath, barrelFileName));
 
       if (!existsSync(barrelFileUri.fsPath)) {
-        const message = l10n.t('The barrel file does not exist!');
+        const message = l10n.t(
+          'The barrel file does not exist! Please create a barrel file first',
+        );
         window.showErrorMessage(message);
         return;
       }
@@ -530,7 +545,7 @@ export class FileGeneratorService {
       const document = await workspace.openTextDocument(barrelFileUri);
 
       if (!document) {
-        const message = l10n.t('The barrel file could not be opened!');
+        const message = l10n.t('The barrel file could not be opened! Please try again');
         window.showErrorMessage(message);
         return;
       }
@@ -573,7 +588,7 @@ export class FileGeneratorService {
       );
       window.showInformationMessage(message);
     } catch (error) {
-      const message = l10n.t('Auto-imported failed!');
+      const message = l10n.t('Auto-imported failed! Please try again');
       window.showErrorMessage(message);
     }
   }

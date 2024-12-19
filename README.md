@@ -62,6 +62,16 @@ Configure your project by creating or updating a settings.json file at the proje
     ```json
     {
         "autoTS.enable": true,
+        "autoTS.files.fileExtension": "ts",
+        "autoTS.files.autoImport": false,
+        "autoTS.files.defaultBarrelFileName": "index.ts",
+        "autoTS.formatting.useSingleQuotes": true,
+        "autoTS.formatting.excludeSemiColonAtEndOfLine": false,
+        "autoTS.formatting.keepExtensionOnExport": false,
+        "autoTS.formatting.endOfLine": "lf",
+        "autoTS.formatting.useStrict": false,
+        "autoTS.formatting.headerCommentTemplate": [],
+        "autoTS.formatting.insertFinalNewline": true,
     }
     ```
 
@@ -74,6 +84,16 @@ Your project is now set up to automatically format code upon saving.
 Configure Auto TS Generator settings in your `.vscode/settings.json` file to customize the extension's behavior. The following settings are available:
 
 - `autoTS.enable`: Enable or disable Auto TS Generator. Default is `true`.
+- `autoTS.files.fileExtension`: The file extension for generated files. Default is `ts`.
+- `autoTS.files.autoImport`: Automatically import generated files. Default is `false`.
+- `autoTS.files.defaultBarrelFileName`: The default name for barrel files. Default is `index.ts`.
+- `autoTS.formatting.useSingleQuotes`: Use single quotes for strings. Default is `true`.
+- `autoTS.formatting.excludeSemiColonAtEndOfLine`: Exclude semicolons at the end of lines. Default is `false`.
+- `autoTS.formatting.keepExtensionOnExport`: Keep file extension on export. Default is `false`.
+- `autoTS.formatting.endOfLine`: The end-of-line character. Default is `lf`.
+- `autoTS.formatting.useStrict`: Use strict mode in generated files. Default is `false`.
+- `autoTS.formatting.headerCommentTemplate`: A template for header comments. Default is `[]`.
+- `autoTS.formatting.insertFinalNewline`: Insert a newline at the end of files. Default is `true`.
 
 For more information on configuring Auto TS Generator settings, refer to the [Project Settings](#project-settings) section.
 
