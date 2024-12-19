@@ -1,0 +1,76 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"autoTS.enable": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "Enable or disable Auto TS Generator"
+		},
+		"autoTS.files.fileExtension": {
+			"type": "string",
+			"default": "ts",
+			"enum": ["ts", "tsx"],
+			"enumDescriptions": ["TypeScript", "TypeScript React"],
+			"scope": "resource",
+			"description": "File extension for generated files"
+		},
+		"autoTS.files.autoImport": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Automatically import generated files"
+		},
+		"autoTS.files.defaultBarrelFileName": {
+			"type": "string",
+			"default": "index.ts",
+			"scope": "resource",
+			"description": "Default name for barrel files"
+		},
+		"autoTS.formatting.useSingleQuotes": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "Use single quotes instead of double quotes"
+		},
+		"autoTS.formatting.excludeSemiColonAtEndOfLine": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Exclude semicolon at the end of line"
+		},
+		"autoTS.formatting.keepExtensionOnExport": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Keep extension on export"
+		},
+		"autoTS.formatting.endOfLine": {
+			"type": "string",
+			"default": "lf",
+			"enum": ["crlf", "lf"],
+			"enumDescriptions": ["Windows (CRLF)", "Unix (LF)"],
+			"scope": "resource",
+			"description": "End of line character"
+		},
+		"autoTS.formatting.useStrict": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Use strict mode"
+		},
+		"autoTS.formatting.headerCommentTemplate": {
+			"type": "array",
+			"default": [],
+			"scope": "resource",
+			"description": "Header comment template"
+		},
+		"autoTS.formatting.insertFinalNewline": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "Insert final newline"
+		}
+	}
+}

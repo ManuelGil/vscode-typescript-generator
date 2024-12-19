@@ -1,0 +1,19 @@
+{
+	"autoTS.enable": "Enable or disable Auto TS Generator",
+	"autoTS.files.fileExtension": "File extension for generated files",
+	"autoTS.files.autoImport": "Automatically import generated files",
+	"autoTS.files.defaultBarrelFileName": "Default name for barrel files",
+	"autoTS.formatting.useSingleQuotes": "Use single quotes instead of double quotes",
+	"autoTS.formatting.excludeSemiColonAtEndOfLine": "Exclude semicolon at the end of line",
+	"autoTS.formatting.keepExtensionOnExport": "Keep extension on export",
+	"autoTS.formatting.endOfLine": "End of line character",
+	"autoTS.formatting.useStrict": "Use strict mode",
+	"autoTS.formatting.headerCommentTemplate": "Header comment template",
+	"autoTS.formatting.insertFinalNewline": "Insert final newline",
+	"autoTS.generateClass": "Generate Class",
+	"autoTS.generateInterface": "Generate Interface",
+	"autoTS.generateEnum": "Generate Enum",
+	"autoTS.generateType": "Generate Type",
+	"autoTS.generateFunction": "Generate Function",
+	"autoTS.generateVariable": "Generate Variable"
+}

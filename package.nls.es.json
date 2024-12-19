@@ -1,0 +1,19 @@
+{
+	"autoTS.enable": "Habilitar o deshabilitar Auto TS Generator",
+	"autoTS.files.fileExtension": "Extensión de archivo para archivos generados",
+	"autoTS.files.autoImport": "Importar archivos generados automáticamente",
+	"autoTS.files.defaultBarrelFileName": "Nombre predeterminado para archivos de barril",
+	"autoTS.formatting.useSingleQuotes": "Usar comillas simples en lugar de comillas dobles",
+	"autoTS.formatting.excludeSemiColonAtEndOfLine": "Excluir punto y coma al final de la línea",
+	"autoTS.formatting.keepExtensionOnExport": "Mantener extensión en exportación",
+	"autoTS.formatting.endOfLine": "Carácter de fin de línea",
+	"autoTS.formatting.useStrict": "Usar modo estricto",
+	"autoTS.formatting.headerCommentTemplate": "Plantilla de comentario de encabezado",
+	"autoTS.formatting.insertFinalNewline": "Insertar nueva línea final",
+	"autoTS.generateClass": "Generar Clase",
+	"autoTS.generateInterface": "Generar Interfaz",
+	"autoTS.generateEnum": "Generar Enum",
+	"autoTS.generateType": "Generar Tipo",
+	"autoTS.generateFunction": "Generar Función",
+	"autoTS.generateVariable": "Generar Variable"
+}

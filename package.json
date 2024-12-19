@@ -1,0 +1,241 @@
+{
+	"name": "vscode-typescript-generator",
+	"displayName": "Auto TS Generator",
+	"description": "Simplifies TypeScript development by providing customizable templates for generating TypeScript classes, interfaces, enums, types, functions, and variables directly from VS Code",
+	"version": "1.0.0",
+	"preview": true,
+	"icon": "icon.png",
+	"galleryBanner": {
+		"color": "#007ACC",
+		"theme": "dark"
+	},
+	"pricing": "Free",
+	"license": "MIT",
+	"publisher": "imgildev",
+	"author": "ManuelGil",
+	"sponsor": {
+		"url": "https://github.com/sponsors/ManuelGil"
+	},
+	"engines": {
+		"vscode": "^1.80.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"Linters",
+		"Other"
+	],
+	"keywords": [
+		"typescript",
+		"generator",
+		"auto",
+		"ts",
+		"auto-ts",
+		"auto-ts-generator"
+	],
+	"homepage": "https://github.com/ManuelGil/vscode-typescript-generator",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ManuelGil/vscode-typescript-generator"
+	},
+	"bugs": {
+		"url": "https://github.com/ManuelGil/vscode-typescript-generator/issues"
+	},
+	"activationEvents": [
+		"onLanguage:typeScript",
+		"onLanguage:typeScriptReact"
+	],
+	"main": "./out/extension.js",
+	"l10n": "./l10n",
+	"contributes": {
+		"configuration": {
+			"title": "Auto TS Generator Configuration",
+			"properties": {
+				"autoTS.enable": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%autoTS.enable%"
+				},
+				"autoTS.files.fileExtension": {
+					"type": "string",
+					"default": "ts",
+					"enum": [
+						"ts",
+						"tsx"
+					],
+					"enumDescriptions": [
+						"TypeScript",
+						"TypeScript React"
+					],
+					"scope": "resource",
+					"description": "%autoTS.files.fileExtension%"
+				},
+				"autoTS.files.autoImport": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%autoTS.files.autoImport%"
+				},
+				"autoTS.files.defaultBarrelFileName": {
+					"type": "string",
+					"default": "index.ts",
+					"scope": "resource",
+					"description": "%autoTS.files.defaultBarrelFileName%"
+				},
+				"autoTS.formatting.useSingleQuotes": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%autoTS.formatting.useSingleQuotes%"
+				},
+				"autoTS.formatting.excludeSemiColonAtEndOfLine": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%autoTS.formatting.excludeSemiColonAtEndOfLine%"
+				},
+				"autoTS.formatting.keepExtensionOnExport": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%autoTS.formatting.keepExtensionOnExport%"
+				},
+				"autoTS.formatting.endOfLine": {
+					"type": "string",
+					"default": "lf",
+					"enum": [
+						"crlf",
+						"lf"
+					],
+					"enumDescriptions": [
+						"Windows (CRLF)",
+						"Unix (LF)"
+					],
+					"scope": "resource",
+					"description": "%autoTS.formatting.endOfLine%"
+				},
+				"autoTS.formatting.useStrict": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%autoTS.formatting.useStrict%"
+				},
+				"autoTS.formatting.headerCommentTemplate": {
+					"type": "array",
+					"default": [],
+					"scope": "resource",
+					"description": "%autoTS.formatting.headerCommentTemplate%"
+				},
+				"autoTS.formatting.insertFinalNewline": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%autoTS.formatting.insertFinalNewline%"
+				}
+			}
+		},
+		"commands": [
+			{
+				"command": "autoTS.generateClass",
+				"title": "%autoTS.generateClass%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateInterface",
+				"title": "%autoTS.generateInterface%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateEnum",
+				"title": "%autoTS.generateEnum%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateType",
+				"title": "%autoTS.generateType%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateFunction",
+				"title": "%autoTS.generateFunction%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateVariable",
+				"title": "%autoTS.generateVariable%",
+				"category": "Auto TS Generator"
+			}
+		],
+		"submenus": [
+			{
+				"id": "autoTS.folder.submenu",
+				"label": "Auto TS Generator"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"submenu": "autoTS.folder.submenu",
+					"group": "2_workspace",
+					"when": "explorerViewletFocus && explorerResourceIsFolder && !explorerResourceIsRoot"
+				}
+			],
+			"autoTS.folder.submenu": [
+				{
+					"command": "autoTS.generateClass"
+				},
+				{
+					"command": "autoTS.generateInterface"
+				},
+				{
+					"command": "autoTS.generateEnum"
+				},
+				{
+					"command": "autoTS.generateType"
+				},
+				{
+					"command": "autoTS.generateFunction"
+				},
+				{
+					"command": "autoTS.generateVariable"
+				}
+			]
+		},
+		"jsonValidation": [
+			{
+				"fileMatch": ".vscode/settings.json",
+				"url": "./schemas/config.schema.json"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "rimraf out && tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"format": "biome format --write src",
+		"lint": "biome lint --write src",
+		"lint:check": "biome check --write src",
+		"test": "node ./out/test/runTest.js",
+		"compodoc": "npx compodoc -p tsconfig.doc.json -d compodoc --theme readthedocs -s",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@commitlint/cli": "^19.5.0",
+		"@commitlint/config-conventional": "^19.5.0",
+		"@compodoc/compodoc": "^1.1.26",
+		"@types/babel__traverse": "^7.20.6",
+		"@types/mocha": "^10.0.9",
+		"@types/node": "^22.9.0",
+		"@types/vscode": "^1.80.0",
+		"@vscode/l10n-dev": "^0.0.35",
+		"glob": "^11.0.0",
+		"husky": "^9.1.6",
+		"lint-staged": "^15.2.10",
+		"mocha": "^10.8.2",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.6.3",
+		"vscode-test": "^1.6.1"
+	}
+}
