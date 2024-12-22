@@ -13,9 +13,9 @@ import {
 import {
   EXTENSION_DISPLAY_NAME,
   EXTENSION_ID,
+  EXTENSION_NAME,
   ExtensionConfig,
-  MARKETPLACE_URL,
-  REPOSITORY_URL,
+  USER_PUBLISHER,
 } from './app/configs';
 import { CommandInvoker } from './app/controllers';
 
@@ -25,11 +25,11 @@ export async function activate(context: vscode.ExtensionContext) {
   // The code you place here will be executed every time your command is executed
   let resource: vscode.WorkspaceFolder | undefined;
 
+  // Check if there are workspace folders
   if (
     !vscode.workspace.workspaceFolders ||
     vscode.workspace.workspaceFolders.length === 0
   ) {
-    // Check if there are workspace folders
     const message = vscode.l10n.t(
       'No workspace folders are open. Please open a workspace folder to use this extension',
     );
@@ -37,8 +37,8 @@ export async function activate(context: vscode.ExtensionContext) {
     return;
   }
 
+  // Optionally, prompt the user to select a workspace folder if multiple are available
   if (vscode.workspace.workspaceFolders.length === 1) {
-    // Optionally, prompt the user to select a workspace folder if multiple are available
     resource = vscode.workspace.workspaceFolders[0];
   } else {
     const placeHolder = vscode.l10n.t(
@@ -99,8 +99,8 @@ export async function activate(context: vscode.ExtensionContext) {
   // Get the current version of the extension
   const currentVersion = context.extension.packageJSON.version;
 
+  // Check if the extension is running for the first time
   if (!previousVersion) {
-    // Check if the extension is running for the first time
     const message = vscode.l10n.t(
       'Welcome to {0} version {1}! The extension is now active',
       [EXTENSION_DISPLAY_NAME, currentVersion],
@@ -111,14 +111,11 @@ export async function activate(context: vscode.ExtensionContext) {
     context.globalState.update('version', currentVersion);
   }
 
+  // Check if the extension has been updated
   if (previousVersion && previousVersion !== currentVersion) {
-    // Check if the extension has been updated
     const actions: vscode.MessageItem[] = [
       {
         title: vscode.l10n.t('Release Notes'),
-      },
-      {
-        title: vscode.l10n.t('Rate Us'),
       },
       {
         title: vscode.l10n.t('Close'),
@@ -138,13 +135,9 @@ export async function activate(context: vscode.ExtensionContext) {
     switch (option?.title) {
       case actions[0].title:
         vscode.env.openExternal(
-          vscode.Uri.parse(`${REPOSITORY_URL}/blob/main/CHANGELOG.md`),
-        );
-        break;
-
-      case actions[1].title:
-        vscode.env.openExternal(
-          vscode.Uri.parse(`${MARKETPLACE_URL}&ssr=false#review-details`),
+          vscode.Uri.parse(
+            `https://marketplace.visualstudio.com/items/${USER_PUBLISHER}.${EXTENSION_NAME}/changelog`,
+          ),
         );
         break;
     }

@@ -7,7 +7,6 @@
 	"Welcome to {0} version {1}! The extension is now active": "¡Bienvenido a {0} versión {1}! La extensión ahora está activa",
 	"New version of {0} is available. Check out the release notes for version {1}": "Hay disponible una nueva versión de {0}. Consulte las notas de la versión {1}",
 	"Release Notes": "Notas de la versión",
-	"Rate Us": "Califícanos",
 	"Close": "Cerrar",
 	"Select a workspace folder to use. This folder will be used to generate the file": "Selecciona una carpeta de espacio de trabajo para usar. Esta carpeta se utilizará para generar el archivo",
 	"The workspace folder does not exist. Please select a valid workspace folder to use": "La carpeta de espacio de trabajo no existe. Seleccione una carpeta de espacio de trabajo válida para usar",
