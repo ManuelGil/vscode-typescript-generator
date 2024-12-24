@@ -1,6 +1,7 @@
 {
 	"autoTS.enable": "Habilitar o deshabilitar Auto TS Generator",
 	"autoTS.files.fileExtension": "Extensión de archivo para archivos generados",
+	"autoTS.files.skipFolderConfirmation": "Omitir confirmación de carpeta de destino al generar archivos",
 	"autoTS.files.autoImport": "Importar archivos generados automáticamente",
 	"autoTS.files.defaultBarrelFileName": "Nombre predeterminado para archivos de barril",
 	"autoTS.formatting.useSingleQuotes": "Usar comillas simples en lugar de comillas dobles",

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-12-24
+
+### Added
+
+- Add `fileGenerator.skipFolderConfirmation` settings to skip the folder confirmation when generating a file
+
 ## [1.1.0] - 2024-12-22
 
 ### Added
@@ -31,7 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.1.0...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/ManuelGil/vscode-typescript-generator/releases/tag/v1.0.0

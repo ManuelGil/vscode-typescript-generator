@@ -1,6 +1,7 @@
 {
 	"autoTS.enable": "Enable or disable Auto TS Generator",
 	"autoTS.files.fileExtension": "File extension for generated files",
+	"autoTS.files.skipFolderConfirmation": "Skip destination folder confirmation when generating files",
 	"autoTS.files.autoImport": "Automatically import generated files",
 	"autoTS.files.defaultBarrelFileName": "Default name for barrel files",
 	"autoTS.formatting.useSingleQuotes": "Use single quotes instead of double quotes",

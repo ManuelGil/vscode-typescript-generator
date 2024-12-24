@@ -10,6 +10,7 @@ import {
   DEFAULT_HEADER_COMMENT_TEMPLATE,
   DEFAULT_INSERT_FINAL_NEWLINE,
   DEFAULT_KEEP_EXTENSION_ON_EXPORT,
+  DEFAULT_SKIP_FOLDER_CONFIRMATION,
   DEFAULT_USE_SINGLE_QUOTES,
   DEFAULT_USE_STRICT,
 } from './constants.config';
@@ -23,6 +24,17 @@ import {
  * @public
  * @property {WorkspaceConfiguration} config - The workspace configuration
  * @property {boolean} enable - The enable the extension
+ * @property {'ts' | 'tsx'} fileExtension - The file extension
+ * @property {boolean} skipFolderConfirmation - The skip folder confirmation
+ * @property {boolean} autoImport - The auto import
+ * @property {string} defaultBarrelFileName - The default barrel file name
+ * @property {boolean} useSingleQuotes - The use single quotes
+ * @property {boolean} excludeSemiColonAtEndOfLine - The exclude semi-colon at the end of line
+ * @property {boolean} keepExtensionOnExport - The keep extension on export
+ * @property {'crlf' | 'lf'} endOfLine - The end of line
+ * @property {boolean} useStrict - The use strict
+ * @property {string[]} headerCommentTemplate - The header comment template
+ * @property {boolean} insertFinalNewline - The insert final newline
  * @example
  * const config = new Config(workspace.getConfiguration());
  * console.log(config.enable);
@@ -56,6 +68,18 @@ export class ExtensionConfig {
    * @default 'ts'
    */
   fileExtension: 'ts' | 'tsx';
+
+  /**
+   * The skip folder confirmation.
+   * @type {boolean}
+   * @public
+   * @memberof Config
+   * @example
+   * const config = new Config(workspace.getConfiguration());
+   * console.log(config.skipFolderConfirmation);
+   * @default false
+   */
+  skipFolderConfirmation: boolean;
 
   /**
    * The auto import.
@@ -183,6 +207,10 @@ export class ExtensionConfig {
       'files.fileExtension',
       DEFAULT_FILE_EXTENSION,
     );
+    this.skipFolderConfirmation = config.get<boolean>(
+      'files.skipFolderConfirmation',
+      DEFAULT_SKIP_FOLDER_CONFIRMATION,
+    );
     this.autoImport = config.get<boolean>(
       'files.autoImport',
       DEFAULT_AUTO_IMPORT,
@@ -242,6 +270,10 @@ export class ExtensionConfig {
     this.fileExtension = config.get<'ts' | 'tsx'>(
       'files.fileExtension',
       this.fileExtension,
+    );
+    this.skipFolderConfirmation = config.get<boolean>(
+      'files.skipFolderConfirmation',
+      this.skipFolderConfirmation,
     );
     this.autoImport = config.get<boolean>('files.autoImport', this.autoImport);
     this.defaultBarrelFileName = config.get<string>(

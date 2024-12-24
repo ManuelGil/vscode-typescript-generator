@@ -82,7 +82,13 @@ export class FileGeneratorService {
     folderPath?: Uri,
     allowEntityTypeInput = false,
   ): Promise<void> {
-    const { fileExtension, autoImport, defaultBarrelFileName } = this.config;
+    const {
+      fileExtension,
+      skipFolderConfirmation,
+      autoImport,
+      defaultBarrelFileName,
+    } = this.config;
+
     let workspaceFolder: WorkspaceFolder | undefined;
     let relativeFolderPath: string = '';
 
@@ -111,20 +117,29 @@ export class FileGeneratorService {
       return;
     }
 
-    const folderName = await this.promptInput(
-      l10n.t('Enter the folder name where the {0} will be created', entityType),
-      l10n.t('Enter the folder name, e.g. models, services, utils, etc.'),
-      relativeFolderPath,
-      (path) =>
-        !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
-          ? l10n.t(
-              'The folder name is invalid! Please enter a valid folder name',
-            )
-          : undefined,
-    );
+    let folderName: string | undefined;
 
-    if (!folderName) {
-      return;
+    if (!folderPath || !skipFolderConfirmation) {
+      folderName = await this.promptInput(
+        l10n.t(
+          'Enter the folder name where the {0} will be created',
+          entityType,
+        ),
+        l10n.t('Enter the folder name, e.g. models, services, utils, etc.'),
+        relativeFolderPath,
+        (path) =>
+          !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
+            ? l10n.t(
+                'The folder name is invalid! Please enter a valid folder name',
+              )
+            : undefined,
+      );
+
+      if (!folderName) {
+        return;
+      }
+    } else {
+      folderName = relativeFolderPath;
     }
 
     const entityName = await this.promptInput(
@@ -465,14 +480,19 @@ export class FileGeneratorService {
       if (err) {
         open(file, 'w+', (err: any, fd: any) => {
           if (err) {
-            const message = l10n.t('The file has not been created! Please try again');
+            const message = l10n.t(
+              'The file has not been created! Please try again',
+            );
             window.showErrorMessage(message);
             return;
           }
 
           writeFile(fd, fileContent, 'utf8', (err: any) => {
             if (err) {
-              const message = l10n.t('The {0} has been created successfully', fileName);
+              const message = l10n.t(
+                'The {0} has been created successfully',
+                fileName,
+              );
               window.showErrorMessage(message);
               return;
             }
@@ -545,7 +565,9 @@ export class FileGeneratorService {
       const document = await workspace.openTextDocument(barrelFileUri);
 
       if (!document) {
-        const message = l10n.t('The barrel file could not be opened! Please try again');
+        const message = l10n.t(
+          'The barrel file could not be opened! Please try again',
+        );
         window.showErrorMessage(message);
         return;
       }

@@ -107,6 +107,18 @@ export const DEFAULT_ENABLE: boolean = true;
 export const DEFAULT_FILE_EXTENSION: 'ts' | 'tsx' = 'ts';
 
 /**
+ * DEFAULT_SKIP_FOLDER_CONFIRMATION: The default skip folder confirmation of the extension.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_SKIP_FOLDER_CONFIRMATION);
+ *
+ * @returns {boolean} - The default skip folder confirmation of the extension
+ */
+export const DEFAULT_SKIP_FOLDER_CONFIRMATION: boolean = false;
+
+/**
  * DEFAULT_AUTO_IMPORT: The default auto import of the extension.
  * @type {boolean}
  * @public

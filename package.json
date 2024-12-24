@@ -2,11 +2,11 @@
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
 	"description": "Simplifies TypeScript development by providing customizable templates for generating TypeScript classes, interfaces, enums, types, functions, and variables directly from VS Code",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"preview": true,
 	"icon": "icon.png",
 	"galleryBanner": {
-		"color": "#0099FF",
+		"color": "#00A2FF",
 		"theme": "dark"
 	},
 	"pricing": "Free",
@@ -216,7 +216,7 @@
 		"format": "biome format --write src",
 		"lint": "biome lint --write src",
 		"lint:check": "biome check --write src",
-		"test": "node ./out/test/runTest.js",
+		"test": "vscode-test",
 		"compodoc": "npx compodoc -p tsconfig.doc.json -d compodoc --theme readthedocs -s",
 		"prepare": "husky"
 	},

@@ -37,7 +37,7 @@ With a few clicks, you can create:
 
 ## Requirements
 
-- VSCode 1.76.0 or later
+- VSCode 1.88.0 or later
 
 ## Key Features
 
@@ -63,6 +63,7 @@ Configure your project by creating or updating a settings.json file at the proje
     {
         "autoTS.enable": true,
         "autoTS.files.fileExtension": "ts",
+        "autoTS.files.skipFolderConfirmation" false,
         "autoTS.files.autoImport": false,
         "autoTS.files.defaultBarrelFileName": "index.ts",
         "autoTS.formatting.useSingleQuotes": true,
@@ -85,6 +86,7 @@ Configure Auto TS Generator settings in your `.vscode/settings.json` file to cus
 
 - `autoTS.enable`: Enable or disable Auto TS Generator. Default is `true`.
 - `autoTS.files.fileExtension`: The file extension for generated files. Default is `ts`.
+- `autoTS.files.skipFolderConfirmation`: Skip the folder confirmation dialog. Default is `false`.
 - `autoTS.files.autoImport`: Automatically import generated files. Default is `false`.
 - `autoTS.files.defaultBarrelFileName`: The default name for barrel files. Default is `index.ts`.
 - `autoTS.formatting.useSingleQuotes`: Use single quotes for strings. Default is `true`.
