@@ -61,18 +61,18 @@ Configure your project by creating or updating a settings.json file at the proje
 
     ```json
     {
-        "autoTS.enable": true,
-        "autoTS.files.fileExtension": "ts",
-        "autoTS.files.skipFolderConfirmation" false,
-        "autoTS.files.autoImport": false,
-        "autoTS.files.defaultBarrelFileName": "index.ts",
-        "autoTS.formatting.useSingleQuotes": true,
-        "autoTS.formatting.excludeSemiColonAtEndOfLine": false,
-        "autoTS.formatting.keepExtensionOnExport": false,
-        "autoTS.formatting.endOfLine": "lf",
-        "autoTS.formatting.useStrict": false,
-        "autoTS.formatting.headerCommentTemplate": [],
-        "autoTS.formatting.insertFinalNewline": true,
+        "autoTS.enable": true, // Enable or disable Auto TS Generator
+        "autoTS.files.fileExtension": "ts", // The file extension for generated files
+        "autoTS.files.skipFolderConfirmation": false, // Skip the folder confirmation dialog
+        "autoTS.files.autoImport": false, // Automatically import generated files
+        "autoTS.files.defaultBarrelFileName": "index.ts", // The default name for barrel files
+        "autoTS.formatting.useSingleQuotes": true, // Use single quotes for strings
+        "autoTS.formatting.excludeSemiColonAtEndOfLine": false, // Exclude semicolons at the end of lines
+        "autoTS.formatting.keepExtensionOnExport": false, // Keep file extension on export
+        "autoTS.formatting.endOfLine": "lf", // The end-of-line character
+        "autoTS.formatting.useStrict": false, // Use strict mode in generated files
+        "autoTS.formatting.headerCommentTemplate": [], // A template for header comments
+        "autoTS.formatting.insertFinalNewline": true, // Insert a newline at the end of files
     }
     ```
 
@@ -115,7 +115,7 @@ This extension was created using [VSXpert](https://vsxpert.com), a template that
 - [Angular File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-angular-generator)
 - [NestJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nestjs-generator)
 - [T3 Stack / NextJS / ReactJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nextjs-generator)
-- [Auto TS Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-typescript-generator)
+- [Auto Barrel](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-auto-barrel)
 - [CodeIgniter 4 Spark](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-codeigniter4-spark)
 
 ## Contributing
