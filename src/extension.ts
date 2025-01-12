@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 
 import {
   GenerateClassCommad,
+  GenerateCustomComponentCommad,
   GenerateEnumCommad,
   GenerateFunctionCommad,
   GenerateInterfaceCommad,
@@ -126,21 +127,25 @@ export async function activate(context: vscode.ExtensionContext) {
       'New version of {0} is available. Check out the release notes for version {1}',
       [EXTENSION_DISPLAY_NAME, currentVersion],
     );
-    const option = await vscode.window.showInformationMessage(
-      message,
-      ...actions,
-    );
+    vscode.window.showInformationMessage(message, ...actions).then((option) => {
+      if (!option) {
+        return;
+      }
 
-    // Handle the actions
-    switch (option?.title) {
-      case actions[0].title:
-        vscode.env.openExternal(
-          vscode.Uri.parse(
-            `https://marketplace.visualstudio.com/items/${USER_PUBLISHER}.${EXTENSION_NAME}/changelog`,
-          ),
-        );
-        break;
-    }
+      // Handle the actions
+      switch (option.title) {
+        case actions[0].title:
+          vscode.env.openExternal(
+            vscode.Uri.parse(
+              `https://marketplace.visualstudio.com/items/${USER_PUBLISHER}.${EXTENSION_NAME}/changelog`,
+            ),
+          );
+          break;
+
+        default:
+          break;
+      }
+    });
 
     // Update the version in the global state
     context.globalState.update('version', currentVersion);
@@ -161,6 +166,10 @@ export async function activate(context: vscode.ExtensionContext) {
     { name: 'generateType', handler: new GenerateTypeCommad(config) },
     { name: 'generateFunction', handler: new GenerateFunctionCommad(config) },
     { name: 'generateVariable', handler: new GenerateVariableCommad(config) },
+    {
+      name: 'generateCustomComponent',
+      handler: new GenerateCustomComponentCommad(config),
+    },
   ];
 
   // Register the commands dynamically and push them to the context subscriptions

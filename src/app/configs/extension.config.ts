@@ -1,6 +1,8 @@
 import { WorkspaceConfiguration } from 'vscode';
 
 import {
+  ContentTemplate,
+  DEFAULT_CONTENT_TEMPLATES,
   DEFAULT_AUTO_IMPORT,
   DEFAULT_BARREL_FILE_NAME,
   DEFAULT_ENABLE,
@@ -35,6 +37,7 @@ import {
  * @property {boolean} useStrict - The use strict
  * @property {string[]} headerCommentTemplate - The header comment template
  * @property {boolean} insertFinalNewline - The insert final newline
+ * @property {ContentTemplate[]} customComponents - The custom components
  * @example
  * const config = new Config(workspace.getConfiguration());
  * console.log(config.enable);
@@ -189,6 +192,17 @@ export class ExtensionConfig {
    */
   insertFinalNewline: boolean;
 
+  /**
+   * The custom components.
+   * @type {object[]}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new ExtensionConfig(workspace.getConfiguration());
+   * console.log(config.customComponents);
+   */
+  customComponents: ContentTemplate[];
+
   // -----------------------------------------------------------------
   // Constructor
   // -----------------------------------------------------------------
@@ -246,6 +260,10 @@ export class ExtensionConfig {
     this.insertFinalNewline = config.get<boolean>(
       'formatting.insertFinalNewline',
       DEFAULT_INSERT_FINAL_NEWLINE,
+    );
+    this.customComponents = config.get<ContentTemplate[]>(
+      'templates.customComponents',
+      DEFAULT_CONTENT_TEMPLATES,
     );
   }
 
@@ -307,6 +325,10 @@ export class ExtensionConfig {
     this.insertFinalNewline = config.get<boolean>(
       'formatting.insertFinalNewline',
       this.insertFinalNewline,
+    );
+    this.customComponents = config.get<ContentTemplate[]>(
+      'templates.customComponents',
+      this.customComponents,
     );
   }
 }

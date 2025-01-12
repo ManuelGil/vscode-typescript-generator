@@ -2,7 +2,7 @@
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
 	"description": "Simplifies TypeScript development by providing customizable templates for generating TypeScript classes, interfaces, enums, types, functions, and variables directly from VS Code",
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"icon": "icon.png",
 	"galleryBanner": {
 		"color": "#0091FF",
@@ -40,8 +40,8 @@
 		"url": "https://github.com/ManuelGil/vscode-typescript-generator/issues"
 	},
 	"activationEvents": [
-		"onLanguage:typeScript",
-		"onLanguage:typeScriptReact"
+		"onLanguage:typescript",
+		"onLanguage:typescriptreact"
 	],
 	"main": "./out/extension.js",
 	"l10n": "./l10n",
@@ -130,6 +130,12 @@
 					"default": true,
 					"scope": "resource",
 					"description": "%autoTS.formatting.insertFinalNewline%"
+				},
+				"autoTS.templates.customComponents": {
+					"type": "array",
+					"default": [],
+					"scope": "resource",
+					"description": "%autoTS.templates.customComponents%"
 				}
 			}
 		},
@@ -163,6 +169,11 @@
 				"command": "autoTS.generateVariable",
 				"title": "%autoTS.generateVariable%",
 				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateCustomComponent",
+				"title": "%autoTS.generateCustomComponent%",
+				"category": "Auto TS Generator"
 			}
 		],
 		"submenus": [
@@ -181,22 +192,32 @@
 			],
 			"autoTS.folder.submenu": [
 				{
-					"command": "autoTS.generateClass"
+					"command": "autoTS.generateClass",
+					"group": "1_generics@1"
 				},
 				{
-					"command": "autoTS.generateInterface"
+					"command": "autoTS.generateInterface",
+					"group": "1_generics@2"
 				},
 				{
-					"command": "autoTS.generateEnum"
+					"command": "autoTS.generateEnum",
+					"group": "1_generics@3"
 				},
 				{
-					"command": "autoTS.generateType"
+					"command": "autoTS.generateType",
+					"group": "1_generics@4"
 				},
 				{
-					"command": "autoTS.generateFunction"
+					"command": "autoTS.generateFunction",
+					"group": "1_generics@5"
 				},
 				{
-					"command": "autoTS.generateVariable"
+					"command": "autoTS.generateVariable",
+					"group": "1_generics@6"
+				},
+				{
+					"command": "autoTS.generateCustomComponent",
+					"group": "2_custom@1"
 				}
 			]
 		},

@@ -77,6 +77,12 @@
 			"default": true,
 			"scope": "resource",
 			"description": "Insert final newline"
+		},
+		"autoTS.templates.customComponents": {
+			"type": "array",
+			"default": [],
+			"scope": "resource",
+			"description": "Templates for custom components"
 		}
 	}
 }

@@ -17,6 +17,7 @@ With a few clicks, you can create:
 - **Types**: Generate type aliases to streamline your code.
 - **Functions**: Boilerplate code for reusable logic.
 - **Variables**: Predefined variables for consistent coding.
+- **Custom Components**: Create custom components with your own templates.
 
 ## Table of Contents
 
@@ -73,6 +74,46 @@ Configure your project by creating or updating a settings.json file at the proje
         "autoTS.formatting.useStrict": false, // Use strict mode in generated files
         "autoTS.formatting.headerCommentTemplate": [], // A template for header comments
         "autoTS.formatting.insertFinalNewline": true, // Insert a newline at the end of files
+        "autoTS.templates.customComponents": [
+            {
+                "name": "Service",
+                "description": "Creates a service file",
+                "type": "service",
+                "template": [
+                    "import { Injectable } from '@angular/core';",
+                    "",
+                    "@Injectable({",
+                    "  providedIn: 'root'",
+                    "})",
+                    "export class {{ComponentName}}Service {",
+                    "",
+                    "  constructor() { }",
+                    "",
+                    "}"
+                ]
+            },
+            {
+                "name": "Component",
+                "description": "Creates a component file",
+                "type": "component",
+                "template": [
+                    "import { Component, OnInit } from '@angular/core';",
+                    "",
+                    "@Component({",
+                    "  selector: 'app-{{ComponentName}}',",
+                    "  templateUrl: './{{ComponentName}}.component.html',",
+                    "  styleUrls: ['./{{ComponentName}}.component.scss']",
+                    "})",
+                    "export class {{ComponentName}}Component implements OnInit {",
+                    "",
+                    "  constructor() { }",
+                    "",
+                    "  ngOnInit(): void { }",
+                    "",
+                    "}"
+                ]
+            },
+        ], // Custom components templates
     }
     ```
 
@@ -96,6 +137,14 @@ Configure Auto TS Generator settings in your `.vscode/settings.json` file to cus
 - `autoTS.formatting.useStrict`: Use strict mode in generated files. Default is `false`.
 - `autoTS.formatting.headerCommentTemplate`: A template for header comments. Default is `[]`.
 - `autoTS.formatting.insertFinalNewline`: Insert a newline at the end of files. Default is `true`.
+- `autoTS.templates.customComponents`: Custom components templates. Default is `[]`.
+
+The `autoTS.templates.customComponents` setting is an array of objects with the following properties:
+
+- `name`: The name of the template. Example: "Service".
+- `description`: A description of the template. Example: "Creates a service file".
+- `type`: The type of component. Example: "service".
+- `template`: The template content for the file. Use `{{ComponentName}}` as a placeholder for the component name.
 
 For more information on configuring Auto TS Generator settings, refer to the [Project Settings](#project-settings) section.
 

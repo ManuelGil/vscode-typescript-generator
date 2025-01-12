@@ -1,5 +1,5 @@
 import { access, existsSync, mkdirSync, open, writeFile } from 'fs';
-import { basename, dirname, extname, join } from 'path';
+import { basename, dirname, extname, join, relative } from 'path';
 import {
   Position,
   Uri,
@@ -11,27 +11,6 @@ import {
   workspace,
 } from 'vscode';
 import { ExtensionConfig } from '../configs';
-
-/**
- * The FileEntityType type.
- *
- * @type {FileEntityType}
- * @public
- * @memberof FileGeneratorService
- * @example
- * const entityType: FileEntityType = 'class';
- *
- * @property {'class' | 'interface' | 'enum' | 'type' | 'function' | 'variable'} FileEntityType - The file entity type
- *
- * @default 'class'
- */
-type FileEntityType =
-  | 'class'
-  | 'interface'
-  | 'enum'
-  | 'type'
-  | 'function'
-  | 'variable';
 
 /**
  * The FileGeneratorService class.
@@ -62,6 +41,201 @@ export class FileGeneratorService {
   // Public methods
 
   /**
+   * The generateClass method.
+   *
+   * @function generateClass
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateClass(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateClass(folderPath?: Uri): Promise<void> {
+    await this.generateEntity('class', folderPath, true);
+  }
+
+  /**
+   * The generateInterface method.
+   *
+   * @function generateInterface
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateInterface(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateInterface(folderPath?: Uri): Promise<void> {
+    await this.generateEntity('interface', folderPath, true);
+  }
+
+  /**
+   * The generateEnum method.
+   *
+   * @function generateEnum
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateEnum(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateEnum(folderPath?: Uri): Promise<void> {
+    await this.generateEntity('enum', folderPath);
+  }
+
+  /**
+   * The generateType method.
+   *
+   * @function generateType
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateType(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateType(folderPath?: Uri): Promise<void> {
+    await this.generateEntity('type', folderPath);
+  }
+
+  /**
+   * The generateFunction method.
+   *
+   * @function generateFunction
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateFunction(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateFunction(folderPath?: Uri): Promise<void> {
+    await this.generateEntity('function', folderPath);
+  }
+
+  /**
+   * The generateVariable method.
+   *
+   * @function generateVariable
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateVariable(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateVariable(folderPath?: Uri): Promise<void> {
+    await this.generateEntity('variable', folderPath);
+  }
+
+  /**
+   * The generateCustomComponent method.
+   *
+   * @function generateCustomComponent
+   * @public
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.generateCustomComponent(Uri.parse('path'));
+   *
+   * @param {Uri} folderPath - The folder path
+   *
+   * @returns {Promise<void>} - The promise with no return value
+   */
+  async generateCustomComponent(folderPath?: Uri): Promise<void> {
+    await this.generateComponentTemplate(folderPath);
+  }
+
+  // Private methods
+
+  /**
+   * The promptInput method.
+   *
+   * @function promptInput
+   * @private
+   * @async
+   * @memberof FilesController
+   * @example
+   * controller.promptInput('prompt', 'placeHolder', 'value', (input) => 'error');
+   *
+   * @param {string} prompt - The prompt
+   * @param {string} placeHolder - The place holder
+   * @param {string} value - The value
+   * @param {(input: string) => string | undefined} validateInput - The validate input
+   *
+   * @returns {Promise<string | undefined>} - The promise with the return value
+   */
+  private async promptInput(
+    prompt: string,
+    placeHolder: string,
+    value?: string,
+    validateInput?: (input: string) => string | undefined,
+  ): Promise<string | undefined> {
+    return await window.showInputBox({
+      prompt,
+      placeHolder,
+      value,
+      validateInput,
+    });
+  }
+
+  /**
+   * The toTitleCase method.
+   * Converts the first character of a string to uppercase.
+   *
+   * @function toTitleCase
+   * @private
+   * @memberof FilesController
+   * @example
+   * controller.toTitleCase('input');
+   *
+   * @param {string} input - The input string
+   *
+   * @returns {string} - The title case string
+   */
+  private toTitleCase(input: string) {
+    return input.charAt(0).toUpperCase() + input.slice(1);
+  }
+
+  /**
+   * The toDashedString method.
+   * Converts a camelCase string to a dashed string.
+   *
+   * @function toDashedString
+   * @private
+   * @memberof FilesController
+   * @example
+   * controller.toDashedString('input');
+   *
+   * @param {string} input - The input string
+   *
+   * @returns {string} - The dashed string
+   */
+  private toDashedString(input: string) {
+    return input.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  }
+
+  /**
    * The generateEntity method.
    *
    * @function generateEntity
@@ -77,8 +251,8 @@ export class FileGeneratorService {
    *
    * @returns {Promise<void>} - The promise with no return value
    */
-  async generateEntity(
-    entityType: FileEntityType,
+  private async generateEntity(
+    entityType: string,
     folderPath?: Uri,
     allowEntityTypeInput = false,
   ): Promise<void> {
@@ -199,180 +373,144 @@ export class FileGeneratorService {
   }
 
   /**
-   * The generateClass method.
+   * The generateComponentTemplate method.
    *
-   * @function generateClass
+   * @function generateComponentTemplate
    * @public
    * @async
    * @memberof FilesController
    * @example
-   * controller.generateClass(Uri.parse('path'));
+   * controller.generateComponentTemplate(Uri.parse('path'));
    *
    * @param {Uri} folderPath - The folder path
    *
    * @returns {Promise<void>} - The promise with no return value
    */
-  async generateClass(folderPath?: Uri): Promise<void> {
-    await this.generateEntity('class', folderPath, true);
-  }
+  private async generateComponentTemplate(folderPath?: Uri): Promise<void> {
+    const {
+      fileExtension,
+      skipFolderConfirmation,
+      autoImport,
+      defaultBarrelFileName,
+      customComponents,
+    } = this.config;
 
-  /**
-   * The generateInterface method.
-   *
-   * @function generateInterface
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateInterface(Uri.parse('path'));
-   *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async generateInterface(folderPath?: Uri): Promise<void> {
-    await this.generateEntity('interface', folderPath, true);
-  }
+    let workspaceFolder: WorkspaceFolder | undefined;
+    let relativeFolderPath: string = '';
 
-  /**
-   * The generateEnum method.
-   *
-   * @function generateEnum
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateEnum(Uri.parse('path'));
-   *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async generateEnum(folderPath?: Uri): Promise<void> {
-    await this.generateEntity('enum', folderPath);
-  }
+    if (folderPath) {
+      workspaceFolder = workspace.getWorkspaceFolder(folderPath);
+      relativeFolderPath = workspace.asRelativePath(folderPath);
+    } else if (
+      workspace.workspaceFolders &&
+      workspace.workspaceFolders.length === 1
+    ) {
+      workspaceFolder = workspace.workspaceFolders[0];
+    } else {
+      const placeHolder = l10n.t(
+        'Select a workspace folder to use. This folder will be used to generate the file',
+      );
+      workspaceFolder = await window.showWorkspaceFolderPick({
+        placeHolder,
+      });
+    }
 
-  /**
-   * The generateType method.
-   *
-   * @function generateType
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateType(Uri.parse('path'));
-   *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async generateType(folderPath?: Uri): Promise<void> {
-    await this.generateEntity('type', folderPath);
-  }
+    if (!workspaceFolder) {
+      const message = l10n.t(
+        'The workspace folder does not exist. Please select a valid workspace folder to use',
+      );
+      window.showErrorMessage(message);
+      return;
+    }
 
-  /**
-   * The generateFunction method.
-   *
-   * @function generateFunction
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateFunction(Uri.parse('path'));
-   *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async generateFunction(folderPath?: Uri): Promise<void> {
-    await this.generateEntity('function', folderPath);
-  }
+    let folderName: string | undefined;
 
-  /**
-   * The generateVariable method.
-   *
-   * @function generateVariable
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateVariable(Uri.parse('path'));
-   *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async generateVariable(folderPath?: Uri): Promise<void> {
-    await this.generateEntity('variable', folderPath);
-  }
+    if (!folderPath || !skipFolderConfirmation) {
+      folderName = await this.promptInput(
+        l10n.t(
+          'Enter the folder name where the custom component will be created',
+        ),
+        l10n.t('Enter the folder name, e.g. components, shared, etc.'),
+        relativeFolderPath,
+        (path) =>
+          !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
+            ? l10n.t(
+                'The folder name is invalid! Please enter a valid folder name',
+              )
+            : undefined,
+      );
 
-  // Private methods
+      if (!folderName) {
+        return;
+      }
+    } else {
+      folderName = relativeFolderPath;
+    }
 
-  /**
-   * The promptInput method.
-   *
-   * @function promptInput
-   * @private
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.promptInput('prompt', 'placeHolder', 'value', (input) => 'error');
-   *
-   * @param {string} prompt - The prompt
-   * @param {string} placeHolder - The place holder
-   * @param {string} value - The value
-   * @param {(input: string) => string | undefined} validateInput - The validate input
-   *
-   * @returns {Promise<string | undefined>} - The promise with the return value
-   */
-  private async promptInput(
-    prompt: string,
-    placeHolder: string,
-    value?: string,
-    validateInput?: (input: string) => string | undefined,
-  ): Promise<string | undefined> {
-    return await window.showInputBox({
-      prompt,
-      placeHolder,
-      value,
-      validateInput,
+    if (customComponents.length === 0) {
+      const message = l10n.t(
+        'The custom components list is empty. Please add custom components to the configuration',
+      );
+      window.showErrorMessage(message);
+      return;
+    }
+
+    const items = customComponents.map((item: any) => {
+      return {
+        label: item.name,
+        description: item.description,
+        detail: item.type,
+      };
     });
-  }
 
-  /**
-   * The toTitleCase method.
-   * Converts the first character of a string to uppercase.
-   *
-   * @function toTitleCase
-   * @private
-   * @memberof FilesController
-   * @example
-   * controller.toTitleCase('input');
-   *
-   * @param {string} input - The input string
-   *
-   * @returns {string} - The title case string
-   */
-  private toTitleCase(input: string) {
-    return input.charAt(0).toUpperCase() + input.slice(1);
-  }
+    const option = await window.showQuickPick(items, {
+      placeHolder: l10n.t(
+        'Select the template for the custom element generation',
+      ),
+    });
 
-  /**
-   * The toDashedString method.
-   * Converts a camelCase string to a dashed string.
-   *
-   * @function toDashedString
-   * @private
-   * @memberof FilesController
-   * @example
-   * controller.toDashedString('input');
-   *
-   * @param {string} input - The input string
-   *
-   * @returns {string} - The dashed string
-   */
-  private toDashedString(input: string) {
-    return input.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    if (option === undefined) {
+      return;
+    }
+
+    const entityName = await this.promptInput(
+      l10n.t('Enter the component name'),
+      l10n.t('Enter the component name, e.g. User, Product, Order, etc.'),
+      undefined,
+    );
+
+    if (!entityName) {
+      return;
+    }
+
+    const template = customComponents.find(
+      (item: any) => item.name === option.label,
+    );
+
+    if (!template) {
+      const message = l10n.t(
+        'The template for the custom component does not exist. Please try again',
+      );
+      window.showErrorMessage(message);
+      return;
+    }
+
+    const fullEntityName = entityName;
+    const resolvedFolderPath = join(workspaceFolder.uri.fsPath, folderName);
+    const fileName = `${this.toDashedString(entityName)}.${template.type}.${fileExtension}`;
+    const content = this.fileContentTemplate(fullEntityName, template.template);
+
+    this.saveFile(resolvedFolderPath, fileName, content);
+
+    if (autoImport) {
+      this.autoImport(
+        resolvedFolderPath,
+        fileName,
+        fullEntityName,
+        defaultBarrelFileName,
+        false,
+      );
+    }
   }
 
   /**
@@ -388,7 +526,7 @@ export class FileGeneratorService {
    *
    * @returns {string} - The file content
    */
-  private fileContent(entityName: string, type: FileEntityType): string {
+  private fileContent(entityName: string, type: string): string {
     const {
       useSingleQuotes,
       excludeSemiColonAtEndOfLine,
@@ -440,6 +578,51 @@ export class FileGeneratorService {
       default:
         break;
     }
+
+    // Add a final newline
+    if (insertFinalNewline) {
+      content += newline;
+    }
+
+    return content;
+  }
+
+  /**
+   * The fileContentTemplate method.
+   *
+   * @function fileContentTemplate
+   * @param {string} entityName - The entity name
+   * @param {string[]} template - The template
+   * @memberof FilesController
+   * @private
+   * @example
+   * controller.fileContentTemplate('entityName', ['template']);
+   *
+   * @returns {string} - The file content
+   */
+  private fileContentTemplate(entityName: string, template: string[]): string {
+    const {
+      useSingleQuotes,
+      endOfLine,
+      useStrict,
+      headerCommentTemplate,
+      insertFinalNewline,
+    } = this.config;
+
+    const quote = useSingleQuotes ? "'" : '"';
+    const newline = endOfLine === 'crlf' ? '\r\n' : '\n';
+
+    let content: string = '';
+
+    if (headerCommentTemplate.length > 0) {
+      content += headerCommentTemplate.join(newline) + newline + newline;
+    }
+
+    if (useStrict) {
+      content += `${quote}use strict${quote};${newline}${newline}`;
+    }
+
+    content += template.join(newline).replace(/{{ComponentName}}/g, entityName);
 
     // Add a final newline
     if (insertFinalNewline) {
@@ -552,14 +735,20 @@ export class FileGeneratorService {
     const semi = excludeSemiColonAtEndOfLine ? '' : ';';
 
     try {
-      const barrelFileUri = Uri.file(join(targetDirectoryPath, barrelFileName));
+      let barrelFileUri = Uri.file(join(targetDirectoryPath, barrelFileName));
 
       if (!existsSync(barrelFileUri.fsPath)) {
-        const message = l10n.t(
-          'The barrel file does not exist! Please create a barrel file first',
-        );
-        window.showErrorMessage(message);
-        return;
+        const resolvedDirectoryPath = join(targetDirectoryPath, '..');
+
+        barrelFileUri = Uri.file(join(resolvedDirectoryPath, barrelFileName));
+
+        if (!existsSync(barrelFileUri.fsPath)) {
+          const message = l10n.t(
+            'The barrel file does not exist! Please create a barrel file first',
+          );
+          window.showErrorMessage(message);
+          return;
+        }
       }
 
       const document = await workspace.openTextDocument(barrelFileUri);
@@ -570,6 +759,15 @@ export class FileGeneratorService {
         );
         window.showErrorMessage(message);
         return;
+      }
+
+      let relativePath = relative(
+        dirname(barrelFileUri.fsPath),
+        targetDirectoryPath,
+      ).replace(/\\/g, '/');
+
+      if (relativePath !== '') {
+        relativePath = relativePath + '/';
       }
 
       let fileName: string;
@@ -586,13 +784,13 @@ export class FileGeneratorService {
         edit.insert(
           barrelFileUri,
           new Position(0, 0),
-          `export type { ${entityImportName} } from ${quote}./${fileName}${quote}${semi}\n`,
+          `export type { ${entityImportName} } from ${quote}./${relativePath}${fileName}${quote}${semi}\n`,
         );
       } else {
         edit.insert(
           barrelFileUri,
           new Position(0, 0),
-          `export * from ${quote}./${fileName}${quote}${semi}\n`,
+          `export * from ${quote}./${relativePath}${fileName}${quote}${semi}\n`,
         );
       }
 

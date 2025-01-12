@@ -11,10 +11,12 @@
 	"autoTS.formatting.useStrict": "Usar modo estricto",
 	"autoTS.formatting.headerCommentTemplate": "Plantilla de comentario de encabezado",
 	"autoTS.formatting.insertFinalNewline": "Insertar nueva línea final",
+	"autoTS.templates.customComponents": "Templates de componentes personalizados",
 	"autoTS.generateClass": "Generar Clase",
 	"autoTS.generateInterface": "Generar Interfaz",
 	"autoTS.generateEnum": "Generar Enum",
 	"autoTS.generateType": "Generar Tipo",
 	"autoTS.generateFunction": "Generar Función",
-	"autoTS.generateVariable": "Generar Variable"
+	"autoTS.generateVariable": "Generar Variable",
+	"autoTS.generateCustomComponent": "Generar Componente Personalizado"
 }

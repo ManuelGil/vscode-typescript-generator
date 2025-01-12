@@ -225,3 +225,32 @@ export const DEFAULT_HEADER_COMMENT_TEMPLATE: string[] = [];
  * @returns {boolean} - The default insert final newline of the extension
  */
 export const DEFAULT_INSERT_FINAL_NEWLINE: boolean = true;
+
+/**
+ * ContentTemplate: The custom component template.
+ * @interface
+ * @public
+ * @memberof Constants
+ * @property {string} name - The name of the template
+ * @property {string} description - The description of the template
+ * @property {string} extension - The extension of the template
+ * @property {string[]} template - The template to generate
+ */
+export interface ContentTemplate {
+  name: string;
+  description: string;
+  type: string;
+  template: string[];
+}
+
+/**
+ * CUSTOM_COMPONENTS: The custom components to generate.
+ * @type {ContentTemplate[]}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(CUSTOM_COMPONENTS);
+ *
+ * @returns {ContentTemplate[]} - The custom components to generate
+ */
+export const DEFAULT_CONTENT_TEMPLATES: ContentTemplate[] = [];

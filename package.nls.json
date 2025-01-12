@@ -11,10 +11,12 @@
 	"autoTS.formatting.useStrict": "Use strict mode",
 	"autoTS.formatting.headerCommentTemplate": "Header comment template",
 	"autoTS.formatting.insertFinalNewline": "Insert final newline",
+	"autoTS.templates.customComponents": "Custom components templates",
 	"autoTS.generateClass": "Generate Class",
 	"autoTS.generateInterface": "Generate Interface",
 	"autoTS.generateEnum": "Generate Enum",
 	"autoTS.generateType": "Generate Type",
 	"autoTS.generateFunction": "Generate Function",
-	"autoTS.generateVariable": "Generate Variable"
+	"autoTS.generateVariable": "Generate Variable",
+	"autoTS.generateCustomComponent": "Generate Custom Component"
 }
