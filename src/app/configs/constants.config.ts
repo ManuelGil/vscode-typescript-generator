@@ -95,6 +95,18 @@ export const MARKETPLACE_URL: string = `https://marketplace.visualstudio.com/ite
 export const DEFAULT_ENABLE: boolean = true;
 
 /**
+ * DEFAULT_LANGUAGE: The default language of the extension.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_LANGUAGE);
+ *
+ * @returns {string} - The default language of the extension
+ */
+export const DEFAULT_LANGUAGE: 'TypeScript' | 'JavaScript' = 'TypeScript';
+
+/**
  * DEFAULT_FILE_EXTENSION: The default file extension of the extension.
  * @type {'ts' | 'tsx'}
  * @public
@@ -140,7 +152,7 @@ export const DEFAULT_AUTO_IMPORT: boolean = false;
  *
  * @returns {string} - The default barrel file name of the extension
  */
-export const DEFAULT_BARREL_FILE_NAME: string = 'index.ts';
+export const DEFAULT_BARREL_FILE_NAME: string = 'index';
 
 /**
  * DEFAULT_USE_SINGLE_QUOTES: The default use single quotes of the extension.

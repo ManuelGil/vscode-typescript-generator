@@ -7,7 +7,7 @@
 [![GitHub Repo stars](https://img.shields.io/github/stars/ManuelGil/vscode-typescript-generator?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-typescript-generator)
 [![GitHub license](https://img.shields.io/github/license/ManuelGil/vscode-typescript-generator?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/LICENSE)
 
-**Auto TS File Generator** is a VS Code extension designed to boost productivity in TypeScript projects. It allows developers to generate TypeScript files with customizable configurations effortlessly.
+**Auto TS File Generator** is a VS Code extension designed to boost productivity in TypeScript projects. It allows developers to generate TypeScript files with customizable configurations effortlessly and auto import them into their projects.
 
 With a few clicks, you can create:
 
@@ -44,7 +44,8 @@ With a few clicks, you can create:
 
 - **Custom Configurations**: Choose formatting, strict mode, and comment options to match your project's style.
 - **Integrated Workflow**: Seamlessly create files in your workspace folders.
-- **Extensibility**: Easily extend the generator for additional use cases.
+- **Custom Templates**: Create custom components with your own templates.
+- **Auto Import**: Automatically import generated files into your project.
 - **Open Source**: Auto TS Generator is open-source software, so you can contribute to its development and help make it even better.
 
 ## Project Settings
@@ -63,10 +64,11 @@ Configure your project by creating or updating a settings.json file at the proje
     ```json
     {
         "autoTS.enable": true, // Enable or disable Auto TS Generator
+        "autoTS.files.defaultLanguage": "TypeScript", // The default language for generated files
         "autoTS.files.fileExtension": "ts", // The file extension for generated files
         "autoTS.files.skipFolderConfirmation": false, // Skip the folder confirmation dialog
         "autoTS.files.autoImport": false, // Automatically import generated files
-        "autoTS.files.defaultBarrelFileName": "index.ts", // The default name for barrel files
+        "autoTS.files.defaultBarrelFileName": "index", // The default name for barrel files
         "autoTS.formatting.useSingleQuotes": true, // Use single quotes for strings
         "autoTS.formatting.excludeSemiColonAtEndOfLine": false, // Exclude semicolons at the end of lines
         "autoTS.formatting.keepExtensionOnExport": false, // Keep file extension on export
@@ -126,10 +128,11 @@ Your project is now set up to automatically format code upon saving.
 Configure Auto TS Generator settings in your `.vscode/settings.json` file to customize the extension's behavior. The following settings are available:
 
 - `autoTS.enable`: Enable or disable Auto TS Generator. Default is `true`.
+- `autoTS.files.defaultLanguage`: The default language for generated files. Default is `TypeScript`.
 - `autoTS.files.fileExtension`: The file extension for generated files. Default is `ts`.
 - `autoTS.files.skipFolderConfirmation`: Skip the folder confirmation dialog. Default is `false`.
 - `autoTS.files.autoImport`: Automatically import generated files. Default is `false`.
-- `autoTS.files.defaultBarrelFileName`: The default name for barrel files. Default is `index.ts`.
+- `autoTS.files.defaultBarrelFileName`: The default name for barrel files. Default is `index`.
 - `autoTS.formatting.useSingleQuotes`: Use single quotes for strings. Default is `true`.
 - `autoTS.formatting.excludeSemiColonAtEndOfLine`: Exclude semicolons at the end of lines. Default is `false`.
 - `autoTS.formatting.keepExtensionOnExport`: Keep file extension on export. Default is `false`.

@@ -260,6 +260,7 @@ export class FileGeneratorService {
       fileExtension,
       skipFolderConfirmation,
       autoImport,
+      defaultLanguage,
       defaultBarrelFileName,
     } = this.config;
 
@@ -361,12 +362,15 @@ export class FileGeneratorService {
 
     this.saveFile(resolvedFolderPath, fileName, content);
 
+    const barrelFileExtension = defaultLanguage === 'TypeScript' ? 'ts' : 'js';
+    const barrelFileName = `.${defaultBarrelFileName}.${barrelFileExtension}`;
+
     if (autoImport) {
       this.autoImport(
         resolvedFolderPath,
         fileName,
         fullEntityName,
-        defaultBarrelFileName,
+        barrelFileName,
         entityType === 'interface' || entityType === 'type',
       );
     }
@@ -391,6 +395,7 @@ export class FileGeneratorService {
       fileExtension,
       skipFolderConfirmation,
       autoImport,
+      defaultLanguage,
       defaultBarrelFileName,
       customComponents,
     } = this.config;
@@ -469,7 +474,7 @@ export class FileGeneratorService {
       ),
     });
 
-    if (option === undefined) {
+    if (!option) {
       return;
     }
 
@@ -502,12 +507,15 @@ export class FileGeneratorService {
 
     this.saveFile(resolvedFolderPath, fileName, content);
 
+    const barrelFileExtension = defaultLanguage === 'TypeScript' ? 'ts' : 'js';
+    const barrelFileName = `.${defaultBarrelFileName}.${barrelFileExtension}`;
+
     if (autoImport) {
       this.autoImport(
         resolvedFolderPath,
         fileName,
         fullEntityName,
-        defaultBarrelFileName,
+        barrelFileName,
         false,
       );
     }

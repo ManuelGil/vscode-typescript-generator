@@ -2,9 +2,9 @@ import { WorkspaceConfiguration } from 'vscode';
 
 import {
   ContentTemplate,
-  DEFAULT_CONTENT_TEMPLATES,
   DEFAULT_AUTO_IMPORT,
   DEFAULT_BARREL_FILE_NAME,
+  DEFAULT_CONTENT_TEMPLATES,
   DEFAULT_ENABLE,
   DEFAULT_END_OF_LINE,
   DEFAULT_EXCLUDE_SEMI_COLON_AT_END_OF_LINE,
@@ -12,6 +12,7 @@ import {
   DEFAULT_HEADER_COMMENT_TEMPLATE,
   DEFAULT_INSERT_FINAL_NEWLINE,
   DEFAULT_KEEP_EXTENSION_ON_EXPORT,
+  DEFAULT_LANGUAGE,
   DEFAULT_SKIP_FOLDER_CONFIRMATION,
   DEFAULT_USE_SINGLE_QUOTES,
   DEFAULT_USE_STRICT,
@@ -26,7 +27,8 @@ import {
  * @public
  * @property {WorkspaceConfiguration} config - The workspace configuration
  * @property {boolean} enable - The enable the extension
- * @property {'ts' | 'tsx'} fileExtension - The file extension
+ * @property {'TypeScript' | 'JavaScript'} defaultLanguage - The default language
+ * @property {'ts' | 'tsx' | 'js' | 'jsx'} fileExtension - The file extension
  * @property {boolean} skipFolderConfirmation - The skip folder confirmation
  * @property {boolean} autoImport - The auto import
  * @property {string} defaultBarrelFileName - The default barrel file name
@@ -61,8 +63,20 @@ export class ExtensionConfig {
   enable: boolean;
 
   /**
+   * The default language.
+   * @type {'TypeScript' | 'JavaScript'}
+   * @public
+   * @memberof Config
+   * @example
+   * const config = new Config(workspace.getConfiguration());
+   * console.log(config.defaultLanguage);
+   * @default 'TypeScript'
+   */
+  defaultLanguage: 'TypeScript' | 'JavaScript';
+
+  /**
    * The file extension.
-   * @type {'ts' | 'tsx'}
+   * @type {'ts' | 'tsx' | 'js' | 'jsx'}
    * @public
    * @memberof Config
    * @example
@@ -70,7 +84,7 @@ export class ExtensionConfig {
    * console.log(config.fileExtension);
    * @default 'ts'
    */
-  fileExtension: 'ts' | 'tsx';
+  fileExtension: 'ts' | 'tsx' | 'js' | 'jsx';
 
   /**
    * The skip folder confirmation.
@@ -217,7 +231,11 @@ export class ExtensionConfig {
    */
   constructor(readonly config: WorkspaceConfiguration) {
     this.enable = config.get<boolean>('enable', DEFAULT_ENABLE);
-    this.fileExtension = config.get<'ts' | 'tsx'>(
+    this.defaultLanguage = config.get<'TypeScript' | 'JavaScript'>(
+      'files.defaultLanguage',
+      DEFAULT_LANGUAGE,
+    );
+    this.fileExtension = config.get<'ts' | 'tsx' | 'js' | 'jsx'>(
       'files.fileExtension',
       DEFAULT_FILE_EXTENSION,
     );
@@ -285,7 +303,11 @@ export class ExtensionConfig {
    */
   update(config: WorkspaceConfiguration): void {
     this.enable = config.get<boolean>('enable', this.enable);
-    this.fileExtension = config.get<'ts' | 'tsx'>(
+    this.defaultLanguage = config.get<'TypeScript' | 'JavaScript'>(
+      'files.defaultLanguage',
+      this.defaultLanguage,
+    );
+    this.fileExtension = config.get<'ts' | 'tsx' | 'js' | 'jsx'>(
       'files.fileExtension',
       this.fileExtension,
     );

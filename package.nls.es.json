@@ -1,5 +1,6 @@
 {
 	"autoTS.enable": "Habilitar o deshabilitar Auto TS Generator",
+	"autoTS.files.defaultLanguage": "Lenguaje predeterminado para archivos generados",
 	"autoTS.files.fileExtension": "Extensión de archivo para archivos generados",
 	"autoTS.files.skipFolderConfirmation": "Omitir confirmación de carpeta de destino al generar archivos",
 	"autoTS.files.autoImport": "Importar archivos generados automáticamente",

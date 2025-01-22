@@ -8,6 +8,13 @@
 			"scope": "resource",
 			"description": "Enable or disable Auto TS Generator"
 		},
+		"autoTS.files.defaultLanguage": {
+			"type": "string",
+			"default": "TypeScript",
+			"enum": ["TypeScript", "JavaScript"],
+			"scope": "resource",
+			"description": "Default language for generated files"
+		},
 		"autoTS.files.fileExtension": {
 			"type": "string",
 			"default": "ts",
@@ -30,7 +37,7 @@
 		},
 		"autoTS.files.defaultBarrelFileName": {
 			"type": "string",
-			"default": "index.ts",
+			"default": "index",
 			"scope": "resource",
 			"description": "Default name for barrel files"
 		},

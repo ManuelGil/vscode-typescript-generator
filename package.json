@@ -2,7 +2,7 @@
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
 	"description": "Simplifies TypeScript development by providing customizable templates for generating TypeScript classes, interfaces, enums, types, functions, and variables directly from VS Code",
-	"version": "1.3.1",
+	"version": "1.4.0",
 	"icon": "icon.png",
 	"galleryBanner": {
 		"color": "#0091FF",
@@ -24,12 +24,59 @@
 		"Other"
 	],
 	"keywords": [
-		"typescript",
-		"generator",
-		"auto",
-		"ts",
+		"angular",
+		"auto-ts-generator",
 		"auto-ts",
-		"auto-ts-generator"
+		"auto",
+		"automation",
+		"boilerplate",
+		"code generator",
+		"code",
+		"codegen",
+		"codegenerator",
+		"coding",
+		"command",
+		"component",
+		"create",
+		"custom structure",
+		"custom",
+		"dev",
+		"development tools",
+		"development",
+		"extension",
+		"file structure",
+		"file templates",
+		"file-generator",
+		"file",
+		"files",
+		"folder",
+		"framework",
+		"frontend",
+		"generate",
+		"generator",
+		"html",
+		"javascript",
+		"js",
+		"json",
+		"jsx",
+		"language",
+		"layout",
+		"next",
+		"nextjs",
+		"page",
+		"pages",
+		"project scaffolding",
+		"react",
+		"template",
+		"tool",
+		"tools",
+		"ts",
+		"tsx",
+		"typescript",
+		"vscode extension",
+		"vscode",
+		"web apps",
+		"web development"
 	],
 	"homepage": "https://github.com/ManuelGil/vscode-typescript-generator",
 	"repository": {
@@ -55,16 +102,30 @@
 					"scope": "resource",
 					"description": "%autoTS.enable%"
 				},
+				"autoTS.files.defaultLanguage": {
+					"type": "string",
+					"default": "TypeScript",
+					"enum": [
+						"TypeScript",
+						"JavaScript"
+					],
+					"scope": "resource",
+					"description": "%autoTS.files.defaultLanguage%"
+				},
 				"autoTS.files.fileExtension": {
 					"type": "string",
 					"default": "ts",
 					"enum": [
 						"ts",
-						"tsx"
+						"tsx",
+						"js",
+						"jsx"
 					],
 					"enumDescriptions": [
 						"TypeScript",
-						"TypeScript React"
+						"TypeScript React",
+						"JavaScript",
+						"JavaScript React"
 					],
 					"scope": "resource",
 					"description": "%autoTS.files.fileExtension%"
@@ -83,7 +144,7 @@
 				},
 				"autoTS.files.defaultBarrelFileName": {
 					"type": "string",
-					"default": "index.ts",
+					"default": "index",
 					"scope": "resource",
 					"description": "%autoTS.files.defaultBarrelFileName%"
 				},
