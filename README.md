@@ -7,79 +7,68 @@
 [![GitHub Repo stars](https://img.shields.io/github/stars/ManuelGil/vscode-typescript-generator?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-typescript-generator)
 [![GitHub license](https://img.shields.io/github/license/ManuelGil/vscode-typescript-generator?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/LICENSE)
 
-**Auto TS File Generator** is a VS Code extension designed to boost productivity in TypeScript projects. It allows developers to generate TypeScript files with customizable configurations effortlessly and auto import them into their projects.
+**Auto TS Generator** is a Visual Studio Code extension that streamlines TypeScript development by generating commonly used TypeScript files with customizable templates. Whether you're working on a class, interface, enum, or custom component, Auto TS Generator helps you automate the process with ease.
 
-With a few clicks, you can create:
-
-- **Classes**: Fully structured with constructors and placeholders for methods.
-- **Interfaces**: Ready-to-use templates for defining object shapes.
-- **Enums**: Easily define enumerations for your projects.
-- **Types**: Generate type aliases to streamline your code.
-- **Functions**: Boilerplate code for reusable logic.
-- **Variables**: Predefined variables for consistent coding.
-- **Custom Components**: Create custom components with your own templates.
-
-## Table of Contents
+## Index
 
 - [Auto TS Generator](#auto-ts-generator)
-  - [Table of Contents](#table-of-contents)
-  - [Requirements](#requirements)
+  - [Index](#index)
   - [Key Features](#key-features)
-  - [Project Settings](#project-settings)
-  - [Settings Options](#settings-options)
+  - [Requirements](#requirements)
+  - [Project Setup](#project-setup)
+  - [Settings Configuration](#settings-configuration)
   - [Follow Me](#follow-me)
   - [VSXpert Template](#vsxpert-template)
   - [Other Extensions](#other-extensions)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
   - [Changelog](#changelog)
-  - [Authors](#authors)
   - [License](#license)
-
-## Requirements
-
-- VSCode 1.88.0 or later
 
 ## Key Features
 
-- **Custom Configurations**: Choose formatting, strict mode, and comment options to match your project's style.
-- **Integrated Workflow**: Seamlessly create files in your workspace folders.
-- **Custom Templates**: Create custom components with your own templates.
-- **Auto Import**: Automatically import generated files into your project.
-- **Open Source**: Auto TS Generator is open-source software, so you can contribute to its development and help make it even better.
+- **Customizable Templates**: Tailor TypeScript file templates (e.g., classes, interfaces, enums, services, components) to your project’s needs.
+- **Auto Import**: Automatically imports generated files into your project for seamless integration.
+- **Project Configuration**: Easily set up project-level configurations for file formatting, structure, and more.
+- **Open Source**: Contribute to the project or simply benefit from the shared work of the community.
 
-## Project Settings
+## Requirements
 
-Configure your project by creating or updating a settings.json file at the project's root. If you already have a `.vscode/settings.json` file, skip the first two steps.
+- **VS Code 1.88.0** or higher.
 
-1. Open the command palette in VSCode:
+## Project Setup
 
-   - `CTRL + SHIFT + P` (Windows)
-   - `CMD + SHIFT + P` (Mac OS)
+To configure **Auto TS Generator** for your project, follow these steps:
 
-2. Type `Preferences: Open Workspace Settings (JSON)`.
+1. **Open VS Code Command Palette**:
+   - Windows: `CTRL + SHIFT + P`
+   - MacOS: `CMD + SHIFT + P`
 
-3. In the `.vscode/settings.json` file, copy and paste the following settings:
+2. **Open Workspace Settings**:
+   - Type `Preferences: Open Workspace Settings (JSON)`.
+
+3. **Add Configuration to `settings.json`**:
+   Copy the following configuration into your `.vscode/settings.json` file:
 
     ```json
     {
-        "autoTS.enable": true, // Enable or disable Auto TS Generator
-        "autoTS.files.defaultLanguage": "TypeScript", // The default language for generated files
-        "autoTS.files.fileExtension": "ts", // The file extension for generated files
-        "autoTS.files.skipFolderConfirmation": false, // Skip the folder confirmation dialog
-        "autoTS.files.autoImport": false, // Automatically import generated files
-        "autoTS.files.defaultBarrelFileName": "index", // The default name for barrel files
-        "autoTS.formatting.useSingleQuotes": true, // Use single quotes for strings
-        "autoTS.formatting.excludeSemiColonAtEndOfLine": false, // Exclude semicolons at the end of lines
-        "autoTS.formatting.keepExtensionOnExport": false, // Keep file extension on export
-        "autoTS.formatting.endOfLine": "lf", // The end-of-line character
-        "autoTS.formatting.useStrict": false, // Use strict mode in generated files
-        "autoTS.formatting.headerCommentTemplate": [], // A template for header comments
-        "autoTS.formatting.insertFinalNewline": true, // Insert a newline at the end of files
+        "autoTS.enable": true,
+        "autoTS.files.defaultLanguage": "TypeScript",
+        "autoTS.files.fileExtension": "ts",
+        "autoTS.files.skipFolderConfirmation": false,
+        "autoTS.files.autoImport": false,
+        "autoTS.files.defaultBarrelFileName": "index",
+        "autoTS.formatting.useSingleQuotes": true,
+        "autoTS.formatting.excludeSemiColonAtEndOfLine": false,
+        "autoTS.formatting.keepExtensionOnExport": false,
+        "autoTS.formatting.endOfLine": "lf",
+        "autoTS.formatting.useStrict": false,
+        "autoTS.formatting.headerCommentTemplate": [],
+        "autoTS.formatting.insertFinalNewline": true,
         "autoTS.templates.customComponents": [
             {
                 "name": "Service",
-                "description": "Creates a service file",
+                "description": "Generates a service file",
                 "type": "service",
                 "template": [
                     "import { Injectable } from '@angular/core';",
@@ -96,7 +85,7 @@ Configure your project by creating or updating a settings.json file at the proje
             },
             {
                 "name": "Component",
-                "description": "Creates a component file",
+                "description": "Generates a component file",
                 "type": "component",
                 "template": [
                     "import { Component, OnInit } from '@angular/core';",
@@ -114,55 +103,44 @@ Configure your project by creating or updating a settings.json file at the proje
                     "",
                     "}"
                 ]
-            },
-        ], // Custom components templates
+            }
+        ]
     }
     ```
 
-4. **Restart VS Code**
+4. **Restart VS Code** to apply the settings.
 
-Your project is now set up to automatically format code upon saving.
+## Settings Configuration
 
-## Settings Options
+You can customize the behavior of **Auto TS Generator** by modifying the settings in your `.vscode/settings.json` file. Below is a list of configurable options:
 
-Configure Auto TS Generator settings in your `.vscode/settings.json` file to customize the extension's behavior. The following settings are available:
-
-- `autoTS.enable`: Enable or disable Auto TS Generator. Default is `true`.
-- `autoTS.files.defaultLanguage`: The default language for generated files. Default is `TypeScript`.
-- `autoTS.files.fileExtension`: The file extension for generated files. Default is `ts`.
-- `autoTS.files.skipFolderConfirmation`: Skip the folder confirmation dialog. Default is `false`.
-- `autoTS.files.autoImport`: Automatically import generated files. Default is `false`.
-- `autoTS.files.defaultBarrelFileName`: The default name for barrel files. Default is `index`.
-- `autoTS.formatting.useSingleQuotes`: Use single quotes for strings. Default is `true`.
+- `autoTS.enable`: Toggle the extension on or off. Default is `true`.
+- `autoTS.files.defaultLanguage`: Set the default language for generated files. Default is `TypeScript`.
+- `autoTS.files.fileExtension`: Set the file extension for generated files. Default is `.ts`.
+- `autoTS.files.skipFolderConfirmation`: Skip the folder confirmation dialog when creating files. Default is `false`.
+- `autoTS.files.autoImport`: Automatically imports generated files. Default is `false`.
+- `autoTS.files.defaultBarrelFileName`: Default name for barrel files (e.g., `index`). Default is `index`.
+- `autoTS.formatting.useSingleQuotes`: Format code with single quotes. Default is `true`.
 - `autoTS.formatting.excludeSemiColonAtEndOfLine`: Exclude semicolons at the end of lines. Default is `false`.
-- `autoTS.formatting.keepExtensionOnExport`: Keep file extension on export. Default is `false`.
-- `autoTS.formatting.endOfLine`: The end-of-line character. Default is `lf`.
-- `autoTS.formatting.useStrict`: Use strict mode in generated files. Default is `false`.
-- `autoTS.formatting.headerCommentTemplate`: A template for header comments. Default is `[]`.
-- `autoTS.formatting.insertFinalNewline`: Insert a newline at the end of files. Default is `true`.
-- `autoTS.templates.customComponents`: Custom components templates. Default is `[]`.
-
-The `autoTS.templates.customComponents` setting is an array of objects with the following properties:
-
-- `name`: The name of the template. Example: "Service".
-- `description`: A description of the template. Example: "Creates a service file".
-- `type`: The type of component. Example: "service".
-- `template`: The template content for the file. Use `{{ComponentName}}` as a placeholder for the component name.
-
-For more information on configuring Auto TS Generator settings, refer to the [Project Settings](#project-settings) section.
+- `autoTS.formatting.keepExtensionOnExport`: Keep file extension on exports. Default is `false`.
+- `autoTS.formatting.endOfLine`: Set the end-of-line character (e.g., `lf`). Default is `lf`.
+- `autoTS.formatting.useStrict`: Enable strict mode in generated files. Default is `false`.
+- `autoTS.templates.customComponents`: Custom templates for generating components (e.g., services, components). Default is an empty array.
 
 ## Follow Me
 
-If you enjoy using Auto TS Generator, consider following me for updates on this and future projects:
+Stay updated on the latest features, improvements, and future projects by following me:
 
-[![GitHub followers](https://img.shields.io/github/followers/ManuelGil?style=for-the-badge&logo=github)](https://github.com/ManuelGil)
-[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/imgildev?style=for-the-badge&logo=x)](https://twitter.com/imgildev)
+- [GitHub](https://github.com/ManuelGil)
+- [Twitter (X)](https://twitter.com/imgildev)
 
 ## VSXpert Template
 
-This extension was created using [VSXpert](https://vsxpert.com), a template that helps you create Visual Studio Code extensions with ease. VSXpert provides a simple and easy-to-use structure to get you started quickly.
+This extension was created using [VSXpert](https://vsxpert.com), a template designed to help you quickly create Visual Studio Code extensions with ease.
 
 ## Other Extensions
+
+Explore other extensions developed by me:
 
 - [Angular File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-angular-generator)
 - [NestJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nestjs-generator)
@@ -172,24 +150,18 @@ This extension was created using [VSXpert](https://vsxpert.com), a template that
 
 ## Contributing
 
-Auto TS Generator is open-source software, and we welcome contributions from the community. If you'd like to contribute, please fork the [GitHub repository](https://github.com/ManuelGil/vscode-typescript-generator) and submit a pull request with your changes.
+We welcome contributions from the community! To contribute, fork the [GitHub repository](https://github.com/ManuelGil/vscode-typescript-generator) and submit a pull request.
 
-Before contributing, please read our [Contribution Guidelines](./CONTRIBUTING.md) for instructions on coding standards, testing, and more.
+Before contributing, please review our [Contribution Guidelines](./CONTRIBUTING.md) for details on coding standards and best practices.
 
 ## Code of Conduct
 
-We are committed to providing a friendly, safe, and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or similar personal characteristic. Please review our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating in our community.
+We strive to create a welcoming, inclusive, and respectful environment for all contributors. Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating in this project.
 
 ## Changelog
 
-For a complete list of changes, see the [CHANGELOG.md](./CHANGELOG.md)
-
-## Authors
-
-- **Manuel Gil** - _Owner_ - [ManuelGil](https://github.com/ManuelGil)
-
-See also the list of [contributors](https://github.com/ManuelGil/vscode-typescript-generator/contributors) who participated in this project.
+See the full list of changes in the [CHANGELOG.md](./CHANGELOG.md) file.
 
 ## License
 
-This extension is licensed under the MIT License. See the [MIT License](https://opensource.org/licenses/MIT) for details.
+This extension is licensed under the MIT License. See the [MIT License](https://opensource.org/licenses/MIT) for more details.

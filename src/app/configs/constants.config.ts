@@ -108,15 +108,15 @@ export const DEFAULT_LANGUAGE: 'TypeScript' | 'JavaScript' = 'TypeScript';
 
 /**
  * DEFAULT_FILE_EXTENSION: The default file extension of the extension.
- * @type {'ts' | 'tsx'}
+ * @type {'ts' | 'tsx' | 'js' | 'jsx'}
  * @public
  * @memberof Constants
  * @example
  * console.log(DEFAULT_FILE_EXTENSION);
  *
- * @returns {'ts' | 'tsx'} - The default file extension of the extension
+ * @returns {'ts' | 'tsx' | 'js' | 'jsx'} - The default file extension of the extension
  */
-export const DEFAULT_FILE_EXTENSION: 'ts' | 'tsx' = 'ts';
+export const DEFAULT_FILE_EXTENSION: 'ts' | 'tsx' | 'js' | 'jsx' = 'ts';
 
 /**
  * DEFAULT_SKIP_FOLDER_CONFIRMATION: The default skip folder confirmation of the extension.

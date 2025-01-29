@@ -119,7 +119,7 @@ export async function activate(context: vscode.ExtensionContext) {
         title: vscode.l10n.t('Release Notes'),
       },
       {
-        title: vscode.l10n.t('Close'),
+        title: vscode.l10n.t('Dismiss'),
       },
     ];
 

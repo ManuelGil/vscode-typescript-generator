@@ -18,8 +18,13 @@
 		"autoTS.files.fileExtension": {
 			"type": "string",
 			"default": "ts",
-			"enum": ["ts", "tsx"],
-			"enumDescriptions": ["TypeScript", "TypeScript React"],
+			"enum": ["ts", "tsx", "js", "jsx"],
+			"enumDescriptions": [
+				"TypeScript",
+				"TypeScript React",
+				"JavaScript",
+				"JavaScript React"
+			],
 			"scope": "resource",
 			"description": "File extension for generated files"
 		},
