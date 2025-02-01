@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-01-31
+
+### Added
+
+- Add new templates for TypeScript components and extend command functionalities
+- Add `includeTypeInFileName` setting to include the type in the file name
+- Add `skipTypeSelection` setting to skip the type selection when generating a file
+- Add `author` setting to set the author of the file
+- Add `owner` setting to set the owner of the file
+- Add `maintainers` setting to set the maintainers of the file
+- Add `license` setting to set the license of the file
+- Add `version` setting to set the version of the file
+
 ## [1.4.1] - 2025-01-29
 
 ### Fixed
@@ -77,7 +90,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.4.1...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.3.0...v1.3.1
