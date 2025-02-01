@@ -1,0 +1,12 @@
+{
+	"name": "Fastify Controller",
+	"description": "Template for generating a Fastify controller",
+	"type": "controller",
+	"template": [
+		"import { FastifyReply, FastifyRequest } from 'fastify';",
+		"",
+		"export async function {{fileNamePascalCase}}(req: FastifyRequest, res: FastifyReply) {",
+		"  res.send({ message: '{{fileNamePascalCase}} works!' });",
+		"}"
+	]
+}

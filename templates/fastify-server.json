@@ -1,0 +1,25 @@
+{
+	"name": "Fastify Server",
+	"description": "Template for generating a Fastify server",
+	"type": "server",
+	"template": [
+		"import Fastify from 'fastify';",
+		"import cors from '@fastify/cors';",
+		"",
+		"const fastify = Fastify({ logger: true });",
+		"",
+		"fastify.register(cors);",
+		"",
+		"fastify.get('/', async (req, res) => {",
+		"  return { message: 'Hello Fastify!' };",
+		"});",
+		"",
+		"fastify.listen({ port: 3000 }, (err, address) => {",
+		"  if (err) {",
+		"    fastify.log.error(err);",
+		"    process.exit(1);",
+		"  }",
+		"  console.log(`Server running at ${address}`);",
+		"});"
+	]
+}

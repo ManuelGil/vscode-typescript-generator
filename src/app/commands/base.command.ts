@@ -47,8 +47,8 @@ export abstract class BaseCommand implements Command {
    *
    * @param {ExtensionConfig} config - The extension configuration
    */
-  constructor(config: ExtensionConfig) {
-    this.service = new FileGeneratorService(config);
+  constructor(config: ExtensionConfig, extensionUri: Uri) {
+    this.service = new FileGeneratorService(config, extensionUri);
   }
 
   // -----------------------------------------------------------------

@@ -1,0 +1,15 @@
+{
+	"name": "Express Route",
+	"description": "Template for generating an Express.js route",
+	"type": "route",
+	"template": [
+		"import { Router } from 'express';",
+		"import { {{fileNamePascalCase}}{{fileTypeName}} } from '../controllers/{{fileName}}.{{fileType}}';",
+		"",
+		"const router = Router();",
+		"",
+		"router.get('/{{fileName}}', {{fileNamePascalCase}}{{fileTypeName}}.handle);",
+		"",
+		"export default router;"
+	]
+}

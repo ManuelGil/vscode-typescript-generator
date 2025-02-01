@@ -1,0 +1,10 @@
+{
+	"name": "Function Template",
+	"description": "Template for generating a TypeScript function",
+	"type": "function",
+	"template": [
+		"export function {{fileNameCamelCase}}(): void {",
+		"  // TODO: Implement function logic",
+		"}"
+	]
+}

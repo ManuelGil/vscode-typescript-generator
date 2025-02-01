@@ -1,0 +1,13 @@
+{
+	"name": "Fastify Route",
+	"description": "Template for generating a Fastify route",
+	"type": "route",
+	"template": [
+		"import { FastifyInstance } from 'fastify';",
+		"import { {{fileNamePascalCase}} } from '../controllers/{{fileName}}.{{fileType}}';",
+		"",
+		"export default async function (fastify: FastifyInstance) {",
+		"  fastify.get('/{{fileName}}', {{fileNamePascalCase}});",
+		"}"
+	]
+}

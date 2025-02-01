@@ -1,0 +1,10 @@
+{
+	"name": "Variable Template",
+	"description": "Template for generating a TypeScript variable",
+	"type": "variable",
+	"template": [
+		"export const {{fileNameCamelCase}} = {",
+		"  // Define variable properties here",
+		"};"
+	]
+}

@@ -1,0 +1,18 @@
+{
+	"name": "Express Controller",
+	"description": "Template for generating an Express.js controller",
+	"type": "controller",
+	"template": [
+		"import { Request, Response } from 'express';",
+		"",
+		"export class {{fileNamePascalCase}}{{fileTypeName}} {",
+		"  public static async handle(req: Request, res: Response): Promise<void> {",
+		"    try {",
+		"      res.json({ message: '{{fileNamePascalCase}} works!' });",
+		"    } catch (error) {",
+		"      res.status(500).json({ error: error.message });",
+		"    }",
+		"  }",
+		"}"
+	]
+}

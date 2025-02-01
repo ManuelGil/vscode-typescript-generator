@@ -2,6 +2,7 @@ import { WorkspaceConfiguration } from 'vscode';
 
 import {
   ContentTemplate,
+  DEFAULT_AUTHOR,
   DEFAULT_AUTO_IMPORT,
   DEFAULT_BARREL_FILE_NAME,
   DEFAULT_CONTENT_TEMPLATES,
@@ -10,12 +11,18 @@ import {
   DEFAULT_EXCLUDE_SEMI_COLON_AT_END_OF_LINE,
   DEFAULT_FILE_EXTENSION,
   DEFAULT_HEADER_COMMENT_TEMPLATE,
+  DEFAULT_INCLUDE_TYPE_IN_FILE_NAME,
   DEFAULT_INSERT_FINAL_NEWLINE,
   DEFAULT_KEEP_EXTENSION_ON_EXPORT,
   DEFAULT_LANGUAGE,
+  DEFAULT_LICENSE,
+  DEFAULT_MAINTAINERS,
+  DEFAULT_OWNER,
   DEFAULT_SKIP_FOLDER_CONFIRMATION,
+  DEFAULT_SKIP_TYPE_SELECTION,
   DEFAULT_USE_SINGLE_QUOTES,
   DEFAULT_USE_STRICT,
+  DEFAULT_VERSION,
 } from './constants.config';
 
 /**
@@ -30,6 +37,8 @@ import {
  * @property {'TypeScript' | 'JavaScript'} defaultLanguage - The default language
  * @property {'ts' | 'tsx' | 'js' | 'jsx'} fileExtension - The file extension
  * @property {boolean} skipFolderConfirmation - The skip folder confirmation
+ * @property {boolean} includeTypeInFileName - The include type in file name
+ * @property {boolean} skipTypeSelection - The skip type selection
  * @property {boolean} autoImport - The auto import
  * @property {string} defaultBarrelFileName - The default barrel file name
  * @property {boolean} useSingleQuotes - The use single quotes
@@ -39,6 +48,11 @@ import {
  * @property {boolean} useStrict - The use strict
  * @property {string[]} headerCommentTemplate - The header comment template
  * @property {boolean} insertFinalNewline - The insert final newline
+ * @property {string} author - The author
+ * @property {string} owner - The owner
+ * @property {string} maintainers - The maintainers
+ * @property {string} license - The license
+ * @property {string} version - The version
  * @property {ContentTemplate[]} customComponents - The custom components
  * @example
  * const config = new Config(workspace.getConfiguration());
@@ -54,7 +68,7 @@ export class ExtensionConfig {
    * The enable the extension.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.enable);
@@ -66,7 +80,7 @@ export class ExtensionConfig {
    * The default language.
    * @type {'TypeScript' | 'JavaScript'}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.defaultLanguage);
@@ -78,7 +92,7 @@ export class ExtensionConfig {
    * The file extension.
    * @type {'ts' | 'tsx' | 'js' | 'jsx'}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.fileExtension);
@@ -90,7 +104,7 @@ export class ExtensionConfig {
    * The skip folder confirmation.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.skipFolderConfirmation);
@@ -99,10 +113,34 @@ export class ExtensionConfig {
   skipFolderConfirmation: boolean;
 
   /**
+   * The include type in file name.
+   * @type {boolean}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new Config(workspace.getConfiguration());
+   * console.log(config.includeTypeInFileName);
+   * @default false
+   */
+  includeTypeInFileName: boolean;
+
+  /**
+   * The skip type selection.
+   * @type {boolean}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new Config(workspace.getConfiguration());
+   * console.log(config.skipTypeSelection);
+   * @default true
+   */
+  skipTypeSelection: boolean;
+
+  /**
    * The auto import.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.autoImport);
@@ -114,7 +152,7 @@ export class ExtensionConfig {
    * The default barrel file name.
    * @type {string}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.defaultBarrelFileName);
@@ -126,7 +164,7 @@ export class ExtensionConfig {
    * The use single quotes.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.useSingleQuotes);
@@ -138,7 +176,7 @@ export class ExtensionConfig {
    * The exclude semi-colon at the end of line.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.excludeSemiColonAtEndOfLine);
@@ -150,7 +188,7 @@ export class ExtensionConfig {
    * The keep extension on export.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.keepExtensionOnExport);
@@ -162,7 +200,7 @@ export class ExtensionConfig {
    * The end of line.
    * @type {'crlf' | 'lf'}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.endOfLine);
@@ -174,7 +212,7 @@ export class ExtensionConfig {
    * The use strict.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.useStrict);
@@ -186,7 +224,7 @@ export class ExtensionConfig {
    * The header comment template.
    * @type {string[]}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.headerCommentTemplate);
@@ -198,13 +236,73 @@ export class ExtensionConfig {
    * The insert final newline.
    * @type {boolean}
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * console.log(config.insertFinalNewline);
    * @default true
    */
   insertFinalNewline: boolean;
+
+  /**
+   * The author.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new ExtensionConfig(workspace.getConfiguration());
+   * console.log(config.author);
+   * @default ''
+   */
+  author: string;
+
+  /**
+   * The owner.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new ExtensionConfig(workspace.getConfiguration());
+   * console.log(config.owner);
+   * @default ''
+   */
+  owner: string;
+
+  /**
+   * The maintainers.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new ExtensionConfig(workspace.getConfiguration());
+   * console.log(config.maintainers);
+   * @default ''
+   */
+  maintainers: string;
+
+  /**
+   * The license.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new ExtensionConfig(workspace.getConfiguration());
+   * console.log(config.license);
+   * @default ''
+   */
+  license: string;
+
+  /**
+   * The version.
+   * @type {string}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new ExtensionConfig(workspace.getConfiguration());
+   * console.log(config.version);
+   * @default ''
+   */
+  version: string;
 
   /**
    * The custom components.
@@ -227,7 +325,7 @@ export class ExtensionConfig {
    * @constructor
    * @param {WorkspaceConfiguration} config - The workspace configuration
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    */
   constructor(readonly config: WorkspaceConfiguration) {
     this.enable = config.get<boolean>('enable', DEFAULT_ENABLE);
@@ -242,6 +340,14 @@ export class ExtensionConfig {
     this.skipFolderConfirmation = config.get<boolean>(
       'files.skipFolderConfirmation',
       DEFAULT_SKIP_FOLDER_CONFIRMATION,
+    );
+    this.includeTypeInFileName = config.get<boolean>(
+      'files.includeTypeInFileName',
+      DEFAULT_INCLUDE_TYPE_IN_FILE_NAME,
+    );
+    this.skipTypeSelection = config.get<boolean>(
+      'files.skipTypeSelection',
+      DEFAULT_SKIP_TYPE_SELECTION,
     );
     this.autoImport = config.get<boolean>(
       'files.autoImport',
@@ -279,6 +385,14 @@ export class ExtensionConfig {
       'formatting.insertFinalNewline',
       DEFAULT_INSERT_FINAL_NEWLINE,
     );
+    this.author = config.get<string>('project.author', DEFAULT_AUTHOR);
+    this.owner = config.get<string>('project.owner', DEFAULT_OWNER);
+    this.maintainers = config.get<string>(
+      'project.maintainers',
+      DEFAULT_MAINTAINERS,
+    );
+    this.license = config.get<string>('project.license', DEFAULT_LICENSE);
+    this.version = config.get<string>('project.version', DEFAULT_VERSION);
     this.customComponents = config.get<ContentTemplate[]>(
       'templates.customComponents',
       DEFAULT_CONTENT_TEMPLATES,
@@ -296,7 +410,7 @@ export class ExtensionConfig {
    * @function update
    * @param {WorkspaceConfiguration} config - The workspace configuration
    * @public
-   * @memberof Config
+   * @memberof ExtensionConfig
    * @example
    * const config = new Config(workspace.getConfiguration());
    * config.update(workspace.getConfiguration());
@@ -314,6 +428,14 @@ export class ExtensionConfig {
     this.skipFolderConfirmation = config.get<boolean>(
       'files.skipFolderConfirmation',
       this.skipFolderConfirmation,
+    );
+    this.includeTypeInFileName = config.get<boolean>(
+      'files.includeTypeInFileName',
+      this.includeTypeInFileName,
+    );
+    this.skipTypeSelection = config.get<boolean>(
+      'files.skipTypeSelection',
+      this.skipTypeSelection,
     );
     this.autoImport = config.get<boolean>('files.autoImport', this.autoImport);
     this.defaultBarrelFileName = config.get<string>(
@@ -348,6 +470,14 @@ export class ExtensionConfig {
       'formatting.insertFinalNewline',
       this.insertFinalNewline,
     );
+    this.author = config.get<string>('project.author', this.author);
+    this.owner = config.get<string>('project.owner', this.owner);
+    this.maintainers = config.get<string>(
+      'project.maintainers',
+      this.maintainers,
+    );
+    this.license = config.get<string>('project.license', this.license);
+    this.version = config.get<string>('project.version', this.version);
     this.customComponents = config.get<ContentTemplate[]>(
       'templates.customComponents',
       this.customComponents,

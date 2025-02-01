@@ -1,0 +1,13 @@
+{
+	"name": "Express Middleware",
+	"description": "Template for generating an Express.js middleware",
+	"type": "middleware",
+	"template": [
+		"import { Request, Response, NextFunction } from 'express';",
+		"",
+		"export function {{fileNamePascalCase}}(req: Request, res: Response, next: NextFunction): void {",
+		"  console.log('{{fileNamePascalCase}} executed');",
+		"  next();",
+		"}"
+	]
+}

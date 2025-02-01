@@ -15,6 +15,8 @@
 	"The folder name is invalid! Please enter a valid folder name": "¡El nombre de la carpeta no es válido! Por favor, introduzca un nombre de carpeta válido",
 	"Enter the {0} name": "Ingrese el nombre de {0}",
 	"Enter the {0} name, e.g. user, product, order, etc.": "Ingrese el nombre de {0}, por ejemplo, user, product, order, etc.",
+	"Enter the file name for the custom component. The file extension will be added automatically": "Ingrese el nombre del archivo para el componente personalizado. La extensión del archivo se agregará automáticamente",
+	"Enter the file name, e.g. User, Product, Order, etc.": "Ingrese el nombre del archivo, por ejemplo, User, Product, Order, etc.",
 	"The {0} name is invalid! Please enter a valid name": "¡El nombre de {0} no es válido! Por favor, introduzca un nombre válido",
 	"Enter the {0} type (optional)": "Ingrese el tipo de {0} (opcional)",
 	"Enter the {0} type, e.g. model, service, util, etc.": "Ingrese el tipo de {0}, por ejemplo, model, service, util, etc.",

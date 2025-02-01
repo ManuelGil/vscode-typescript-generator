@@ -1,0 +1,11 @@
+{
+	"name": "Enum Template",
+	"description": "Template for generating a TypeScript enum",
+	"type": "enum",
+	"template": [
+		"export enum {{fileNamePascalCase}} {",
+		"  VALUE_ONE = \"value_one\",",
+		"  VALUE_TWO = \"value_two\"",
+		"}"
+	]
+}

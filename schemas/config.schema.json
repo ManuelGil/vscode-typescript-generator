@@ -34,6 +34,18 @@
 			"scope": "resource",
 			"description": "Skip destination folder confirmation when generating files"
 		},
+		"autoTS.files.includeTypeInFileName": {
+			"type": "boolean",
+			"default": false,
+			"scope": "resource",
+			"description": "Include type in file name"
+		},
+		"autoTS.files.skipTypeSelection": {
+			"type": "boolean",
+			"default": true,
+			"scope": "resource",
+			"description": "Skip type selection when generating files"
+		},
 		"autoTS.files.autoImport": {
 			"type": "boolean",
 			"default": false,
@@ -90,8 +102,59 @@
 			"scope": "resource",
 			"description": "Insert final newline"
 		},
+		"autoTS.project.author": {
+			"type": "string",
+			"default": "",
+			"scope": "resource",
+			"description": "Project author"
+		},
+		"autoTS.project.owner": {
+			"type": "string",
+			"default": "",
+			"scope": "resource",
+			"description": "Project owner"
+		},
+		"autoTS.project.maintainers": {
+			"type": "string",
+			"default": "",
+			"scope": "resource",
+			"description": "Project maintainers"
+		},
+		"autoTS.project.license": {
+			"type": "string",
+			"default": "MIT",
+			"scope": "resource",
+			"description": "Project license"
+		},
+		"autoTS.project.version": {
+			"type": "string",
+			"default": "1.0.0",
+			"scope": "resource",
+			"description": "Project version"
+		},
 		"autoTS.templates.customComponents": {
 			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "Name of the template"
+					},
+					"description": {
+						"type": "string",
+						"description": "Description of the template"
+					},
+					"type": {
+						"type": "string",
+						"description": "The template type"
+					},
+					"template": {
+						"type": "array",
+						"description": "The template content"
+					}
+				}
+			},
 			"default": [],
 			"scope": "resource",
 			"description": "Templates for custom components"

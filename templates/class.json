@@ -1,0 +1,12 @@
+{
+	"name": "Class Template",
+	"description": "Template for generating a TypeScript class",
+	"type": "class",
+	"template": [
+		"export class {{fileNamePascalCase}}{{fileTypeName}} {",
+		"  constructor() {",
+		"    // TODO: Implement constructor logic",
+		"  }",
+		"}"
+	]
+}

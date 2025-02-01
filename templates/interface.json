@@ -1,0 +1,10 @@
+{
+	"name": "Interface Template",
+	"description": "Template for generating a TypeScript interface",
+	"type": "interface",
+	"template": [
+		"export interface {{fileNamePascalCase}} {",
+		"  // Define interface properties here",
+		"}"
+	]
+}

@@ -3,13 +3,23 @@
 import * as vscode from 'vscode';
 
 import {
-  GenerateClassCommad,
-  GenerateCustomComponentCommad,
-  GenerateEnumCommad,
-  GenerateFunctionCommad,
-  GenerateInterfaceCommad,
-  GenerateTypeCommad,
-  GenerateVariableCommad,
+  GenerateClassCommand,
+  GenerateCustomComponentCommand,
+  GenerateEnumCommand,
+  GenerateExpressControllerCommand,
+  GenerateExpressMiddlewareCommand,
+  GenerateExpressRouteCommand,
+  GenerateExpressServerCommand,
+  GenerateFastifyControllerCommand,
+  GenerateFastifyMiddlewareCommand,
+  GenerateFastifyRouteCommand,
+  GenerateFastifyServerCommand,
+  GenerateFunctionCommand,
+  GenerateInterfaceCommand,
+  GenerateNodeModuleCommand,
+  GenerateNodeServerCommand,
+  GenerateTypeCommand,
+  GenerateVariableCommand,
 } from './app/commands';
 import {
   EXTENSION_DISPLAY_NAME,
@@ -160,15 +170,85 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Define the commands and their corresponding handlers
   const commands = [
-    { name: 'generateClass', handler: new GenerateClassCommad(config) },
-    { name: 'generateInterface', handler: new GenerateInterfaceCommad(config) },
-    { name: 'generateEnum', handler: new GenerateEnumCommad(config) },
-    { name: 'generateType', handler: new GenerateTypeCommad(config) },
-    { name: 'generateFunction', handler: new GenerateFunctionCommad(config) },
-    { name: 'generateVariable', handler: new GenerateVariableCommad(config) },
+    {
+      name: 'generateClass',
+      handler: new GenerateClassCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateInterface',
+      handler: new GenerateInterfaceCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateEnum',
+      handler: new GenerateEnumCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateType',
+      handler: new GenerateTypeCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateFunction',
+      handler: new GenerateFunctionCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateVariable',
+      handler: new GenerateVariableCommand(config, context.extensionUri),
+    },
     {
       name: 'generateCustomComponent',
-      handler: new GenerateCustomComponentCommad(config),
+      handler: new GenerateCustomComponentCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateNodeModule',
+      handler: new GenerateNodeModuleCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateNodeServer',
+      handler: new GenerateNodeServerCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateExpressController',
+      handler: new GenerateExpressControllerCommand(
+        config,
+        context.extensionUri,
+      ),
+    },
+    {
+      name: 'generateExpressMiddleware',
+      handler: new GenerateExpressMiddlewareCommand(
+        config,
+        context.extensionUri,
+      ),
+    },
+    {
+      name: 'generateExpressRoute',
+      handler: new GenerateExpressRouteCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateExpressServer',
+      handler: new GenerateExpressServerCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateFastifyController',
+      handler: new GenerateFastifyControllerCommand(
+        config,
+        context.extensionUri,
+      ),
+    },
+    {
+      name: 'generateFastifyMiddleware',
+      handler: new GenerateFastifyMiddlewareCommand(
+        config,
+        context.extensionUri,
+      ),
+    },
+    {
+      name: 'generateFastifyRoute',
+      handler: new GenerateFastifyRouteCommand(config, context.extensionUri),
+    },
+    {
+      name: 'generateFastifyServer',
+      handler: new GenerateFastifyServerCommand(config, context.extensionUri),
     },
   ];
 

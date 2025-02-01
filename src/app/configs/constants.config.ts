@@ -131,6 +131,30 @@ export const DEFAULT_FILE_EXTENSION: 'ts' | 'tsx' | 'js' | 'jsx' = 'ts';
 export const DEFAULT_SKIP_FOLDER_CONFIRMATION: boolean = false;
 
 /**
+ * DEFAULT_INCLUDE_TYPE_IN_FILE_NAME: The default include type in file name of the extension.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_INCLUDE_TYPE_IN_FILE_NAME);
+ *
+ * @returns {boolean} - The default include type in file name of the extension
+ */
+export const DEFAULT_INCLUDE_TYPE_IN_FILE_NAME: boolean = false;
+
+/**
+ * DEFAULT_SKIP_TYPE_SELECTION: The default skip type selection of the extension.
+ * @type {boolean}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_SKIP_TYPE_SELECTION);
+ *
+ * @returns {boolean} - The default skip type selection of the extension
+ */
+export const DEFAULT_SKIP_TYPE_SELECTION: boolean = true;
+
+/**
  * DEFAULT_AUTO_IMPORT: The default auto import of the extension.
  * @type {boolean}
  * @public
@@ -239,13 +263,73 @@ export const DEFAULT_HEADER_COMMENT_TEMPLATE: string[] = [];
 export const DEFAULT_INSERT_FINAL_NEWLINE: boolean = true;
 
 /**
+ * DEFAULT_AUTHOR: The default author of the extension.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_AUTHOR);
+ *
+ * @returns {string} - The default author of the extension
+ */
+export const DEFAULT_AUTHOR: string = '';
+
+/**
+ * DEFAULT_OWNER: The default owner of the extension.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_OWNER);
+ *
+ * @returns {string} - The default owner of the extension
+ */
+export const DEFAULT_OWNER: string = '';
+
+/**
+ * DEFAULT_MAINTAINERS: The default maintainers of the extension.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_MAINTAINERS);
+ *
+ * @returns {string} - The default maintainers of the extension
+ */
+export const DEFAULT_MAINTAINERS: string = '';
+
+/**
+ * DEFAULT_LICENSE: The default license of the extension.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_LICENSE);
+ *
+ * @returns {string} - The default license of the extension
+ */
+export const DEFAULT_LICENSE: string = 'MIT';
+
+/**
+ * DEFAULT_VERSION: The default version of the extension.
+ * @type {string}
+ * @public
+ * @memberof Constants
+ * @example
+ * console.log(DEFAULT_VERSION);
+ *
+ * @returns {string} - The default version of the extension
+ */
+export const DEFAULT_VERSION: string = '1.0.0';
+
+/**
  * ContentTemplate: The custom component template.
  * @interface
  * @public
  * @memberof Constants
  * @property {string} name - The name of the template
  * @property {string} description - The description of the template
- * @property {string} extension - The extension of the template
+ * @property {string} type - The type of the template
  * @property {string[]} template - The template to generate
  */
 export interface ContentTemplate {

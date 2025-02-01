@@ -2,17 +2,17 @@ import { Uri } from 'vscode';
 import { BaseCommand } from './base.command';
 
 /**
- * The GenerateCustomComponentCommad class.
+ * The GenerateCustomComponentCommand class.
  *
  * @class
- * @classdesc The class that represents the generate variable command.
+ * @classdesc The class that represents the generate custom component command.
  * @extends {BaseCommand}
  * @export
  * @public
  * @example
- * const command = new GenerateCustomComponentCommad(config);
+ * const command = new GenerateCustomComponentCommand(config);
  */
-export class GenerateCustomComponentCommad extends BaseCommand {
+export class GenerateCustomComponentCommand extends BaseCommand {
   // -----------------------------------------------------------------
   // Methods
   // -----------------------------------------------------------------
@@ -25,7 +25,7 @@ export class GenerateCustomComponentCommad extends BaseCommand {
    * @async
    * @method execute
    * @public
-   * @memberof GenerateClassCommad
+   * @memberof GenerateCustomComponentCommand
    *
    * @param {Uri} folderPath - The folder path
    */

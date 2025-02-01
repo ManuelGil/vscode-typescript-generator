@@ -1,0 +1,10 @@
+{
+	"name": "Node.js Module",
+	"description": "Template for generating a Node.js module",
+	"type": "module",
+	"template": [
+		"export function {{fileNameCamelCase}}() {",
+		"  console.log('{{fileNameCamelCase}} loaded');",
+		"}"
+	]
+}

@@ -2,17 +2,17 @@ import { Uri } from 'vscode';
 import { BaseCommand } from './base.command';
 
 /**
- * The GenerateInterfaceCommand class.
+ * The GenerateExpressMiddlewareCommand class.
  *
  * @class
- * @classdesc The class that represents the generate interface command.
+ * @classdesc The class that represents the generate express middleware command.
  * @extends {BaseCommand}
  * @export
  * @public
  * @example
- * const command = new GenerateInterfaceCommand(config);
+ * const command = new GenerateExpressMiddlewareCommand(config);
  */
-export class GenerateInterfaceCommand extends BaseCommand {
+export class GenerateExpressMiddlewareCommand extends BaseCommand {
   // -----------------------------------------------------------------
   // Methods
   // -----------------------------------------------------------------
@@ -25,11 +25,11 @@ export class GenerateInterfaceCommand extends BaseCommand {
    * @async
    * @method execute
    * @public
-   * @memberof GenerateClassCommand
+   * @memberof GenerateExpressMiddlewareCommand
    *
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateComponent(folderPath, 'interface');
+    this.service.generateComponent(folderPath, 'express-middleware');
   }
 }

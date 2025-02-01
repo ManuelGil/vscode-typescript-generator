@@ -1,0 +1,10 @@
+{
+	"name": "Type Alias Template",
+	"description": "Template for generating a TypeScript type alias",
+	"type": "type",
+	"template": [
+		"export type {{fileNamePascalCase}} = {",
+		"  // Define type properties here",
+		"};"
+	]
+}

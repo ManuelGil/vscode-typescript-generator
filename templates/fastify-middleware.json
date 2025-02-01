@@ -1,0 +1,12 @@
+{
+	"name": "Fastify Middleware",
+	"description": "Template for generating a Fastify middleware",
+	"type": "middleware",
+	"template": [
+		"import { FastifyRequest, FastifyReply } from 'fastify';",
+		"",
+		"export async function {{fileNamePascalCase}}(req: FastifyRequest, res: FastifyReply) {",
+		"  console.log('{{fileNamePascalCase}} executed');",
+		"}"
+	]
+}

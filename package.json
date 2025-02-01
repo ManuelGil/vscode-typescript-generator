@@ -43,7 +43,11 @@
 		"dev",
 		"development tools",
 		"development",
+		"express.js",
+		"express",
+		"expressjs",
 		"extension",
+		"fastify",
 		"file structure",
 		"file templates",
 		"file-generator",
@@ -61,12 +65,18 @@
 		"jsx",
 		"language",
 		"layout",
+		"next.js",
 		"next",
 		"nextjs",
+		"node.js",
+		"node",
+		"nodejs",
 		"page",
 		"pages",
 		"project scaffolding",
+		"react.js",
 		"react",
+		"reactjs",
 		"template",
 		"tool",
 		"tools",
@@ -136,6 +146,18 @@
 					"scope": "resource",
 					"description": "%autoTS.files.skipFolderConfirmation%"
 				},
+				"autoTS.files.includeTypeInFileName": {
+					"type": "boolean",
+					"default": false,
+					"scope": "resource",
+					"description": "%autoTS.files.includeTypeInFileName%"
+				},
+				"autoTS.files.skipTypeSelection": {
+					"type": "boolean",
+					"default": true,
+					"scope": "resource",
+					"description": "%autoTS.files.skipTypeSelection%"
+				},
 				"autoTS.files.autoImport": {
 					"type": "boolean",
 					"default": false,
@@ -198,8 +220,59 @@
 					"scope": "resource",
 					"description": "%autoTS.formatting.insertFinalNewline%"
 				},
+				"autoTS.project.author": {
+					"type": "string",
+					"default": "",
+					"scope": "resource",
+					"description": "%autoTS.project.author%"
+				},
+				"autoTS.project.owner": {
+					"type": "string",
+					"default": "",
+					"scope": "resource",
+					"description": "%autoTS.project.owner%"
+				},
+				"autoTS.project.maintainers": {
+					"type": "string",
+					"default": "",
+					"scope": "resource",
+					"description": "%autoTS.project.maintainers%"
+				},
+				"autoTS.project.license": {
+					"type": "string",
+					"default": "MIT",
+					"scope": "resource",
+					"description": "%autoTS.project.license%"
+				},
+				"autoTS.project.version": {
+					"type": "string",
+					"default": "1.0.0",
+					"scope": "resource",
+					"description": "%autoTS.project.version%"
+				},
 				"autoTS.templates.customComponents": {
 					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"description": "Name of the template"
+							},
+							"description": {
+								"type": "string",
+								"description": "Description of the template"
+							},
+							"type": {
+								"type": "string",
+								"description": "The template type"
+							},
+							"template": {
+								"type": "array",
+								"description": "The template content"
+							}
+						}
+					},
 					"default": [],
 					"scope": "resource",
 					"description": "%autoTS.templates.customComponents%"
@@ -240,6 +313,56 @@
 			{
 				"command": "autoTS.generateCustomComponent",
 				"title": "%autoTS.generateCustomComponent%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateNodeModule",
+				"title": "%autoTS.generateNodeModule%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateNodeServer",
+				"title": "%autoTS.generateNodeServer%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateExpressController",
+				"title": "%autoTS.generateExpressController%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateExpressMiddleware",
+				"title": "%autoTS.generateExpressMiddleware%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateExpressRoute",
+				"title": "%autoTS.generateExpressRoute%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateExpressServer",
+				"title": "%autoTS.generateExpressServer%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateFastifyController",
+				"title": "%autoTS.generateFastifyController%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateFastifyMiddleware",
+				"title": "%autoTS.generateFastifyMiddleware%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateFastifyRoute",
+				"title": "%autoTS.generateFastifyRoute%",
+				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateFastifyServer",
+				"title": "%autoTS.generateFastifyServer%",
 				"category": "Auto TS Generator"
 			}
 		],
@@ -285,6 +408,46 @@
 				{
 					"command": "autoTS.generateCustomComponent",
 					"group": "2_custom@1"
+				},
+				{
+					"command": "autoTS.generateNodeModule",
+					"group": "3_node@1"
+				},
+				{
+					"command": "autoTS.generateNodeServer",
+					"group": "3_node@2"
+				},
+				{
+					"command": "autoTS.generateExpressController",
+					"group": "4_express@1"
+				},
+				{
+					"command": "autoTS.generateExpressMiddleware",
+					"group": "4_express@2"
+				},
+				{
+					"command": "autoTS.generateExpressRoute",
+					"group": "4_express@3"
+				},
+				{
+					"command": "autoTS.generateExpressServer",
+					"group": "4_express@4"
+				},
+				{
+					"command": "autoTS.generateFastifyController",
+					"group": "5_fastify@1"
+				},
+				{
+					"command": "autoTS.generateFastifyMiddleware",
+					"group": "5_fastify@2"
+				},
+				{
+					"command": "autoTS.generateFastifyRoute",
+					"group": "5_fastify@3"
+				},
+				{
+					"command": "autoTS.generateFastifyServer",
+					"group": "5_fastify@4"
 				}
 			]
 		},
@@ -313,6 +476,7 @@
 		"@commitlint/config-conventional": "^19.6.0",
 		"@compodoc/compodoc": "^1.1.26",
 		"@types/mocha": "^10.0.10",
+		"@types/mustache": "^4.2.5",
 		"@types/node": "^22.9.0",
 		"@types/vscode": "^1.88.0",
 		"@vscode/l10n-dev": "^0.0.35",
@@ -323,5 +487,8 @@
 		"lint-staged": "^15.2.11",
 		"rimraf": "^6.0.1",
 		"typescript": "^5.7.2"
+	},
+	"dependencies": {
+		"mustache": "^4.2.0"
 	}
 }
