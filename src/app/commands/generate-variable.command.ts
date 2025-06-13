@@ -2,17 +2,17 @@ import { Uri } from 'vscode';
 import { BaseCommand } from './base.command';
 
 /**
- * The GenerateFunctionCommand class.
+ * The GenerateVariableCommand class.
  *
  * @class
- * @classdesc The class that represents the generate function command.
+ * @classdesc The class that represents the generate variable command.
  * @extends {BaseCommand}
  * @export
  * @public
  * @example
- * const command = new GenerateFunctionCommand(config);
+ * const command = new GenerateVariableCommand(config);
  */
-export class GenerateFunctionCommand extends BaseCommand {
+export class GenerateVariableCommand extends BaseCommand {
   // -----------------------------------------------------------------
   // Methods
   // -----------------------------------------------------------------
@@ -30,6 +30,6 @@ export class GenerateFunctionCommand extends BaseCommand {
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateComponent(folderPath, 'function');
+    await this.service.generateComponent(folderPath, 'variable');
   }
 }

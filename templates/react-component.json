@@ -1,0 +1,23 @@
+{
+	"name": "React Component",
+	"description": "Template for generating a React functional component",
+	"type": "component",
+	"template": [
+		"// React Component",
+		"",
+		"interface {{fileNamePascalCase}}Props {",
+		"  // Define your props here",
+		"  children?: React.ReactNode;",
+		"}",
+		"",
+		"export function {{fileNamePascalCase}}({ children, ...props }: {{fileNamePascalCase}}Props) {",
+		"  return (",
+		"    <div className=\"{{fileNameKebabCase}}-container\">",
+		"      <h1>{{fileNamePascalCase}}</h1>",
+		"      {children}",
+		"    </div>",
+		"  );",
+		"}",
+		""
+	]
+}

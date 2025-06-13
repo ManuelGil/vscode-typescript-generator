@@ -30,6 +30,6 @@ export class GenerateFastifyControllerCommand extends BaseCommand {
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateComponent(folderPath, 'fastify-controller');
+    await this.service.generateComponent(folderPath, 'fastify-controller');
   }
 }

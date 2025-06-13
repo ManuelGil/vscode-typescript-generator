@@ -1,11 +1,11 @@
 {
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
-	"description": "Simplifies TypeScript development by providing customizable templates for generating TypeScript classes, interfaces, enums, types, functions, and variables directly from VS Code",
-	"version": "1.6.0",
+	"description": "Smart TypeScript file generator with customizable templates for classes, interfaces, types, and components. Boost your productivity!",
+	"version": "1.7.0",
 	"icon": "icon.png",
 	"galleryBanner": {
-		"color": "#0091FF",
+		"color": "#0066b8",
 		"theme": "dark"
 	},
 	"pricing": "Free",
@@ -364,6 +364,11 @@
 				"command": "autoTS.generateFastifyServer",
 				"title": "%autoTS.generateFastifyServer%",
 				"category": "Auto TS Generator"
+			},
+			{
+				"command": "autoTS.generateReactComponent",
+				"title": "%autoTS.generateReactComponent%",
+				"category": "Auto TS Generator"
 			}
 		],
 		"submenus": [
@@ -448,6 +453,10 @@
 				{
 					"command": "autoTS.generateFastifyServer",
 					"group": "5_fastify@4"
+				},
+				{
+					"command": "autoTS.generateReactComponent",
+					"group": "3_frameworks@9"
 				}
 			]
 		},
@@ -472,24 +481,24 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@commitlint/cli": "^19.6.1",
-		"@commitlint/config-conventional": "^19.6.0",
+		"@commitlint/cli": "^19.8.1",
+		"@commitlint/config-conventional": "^19.8.1",
 		"@compodoc/compodoc": "^1.1.26",
 		"@types/mocha": "^10.0.10",
-		"@types/mustache": "^4.2.5",
-		"@types/node": "^22.9.0",
+		"@types/mustache": "^4.2.6",
+		"@types/node": "^24.0.1",
 		"@types/vscode": "^1.88.0",
 		"@vscode/l10n-dev": "^0.0.35",
-		"@vscode/test-cli": "^0.0.10",
-		"@vscode/test-electron": "^2.4.1",
-		"glob": "^11.0.0",
+		"@vscode/test-cli": "^0.0.11",
+		"@vscode/test-electron": "^2.5.2",
+		"glob": "^11.0.3",
 		"husky": "^9.1.7",
-		"lint-staged": "^15.2.11",
+		"lint-staged": "^16.1.0",
 		"rimraf": "^6.0.1",
-		"typescript": "^5.7.2"
+		"typescript": "^5.8.3"
 	},
 	"dependencies": {
 		"mustache": "^4.2.0",
-		"vscode-marketplace-client": "^1.0.0"
+		"vscode-marketplace-client": "^1.1.0"
 	}
 }

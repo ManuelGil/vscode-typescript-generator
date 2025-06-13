@@ -30,6 +30,6 @@ export class GenerateExpressRouteCommand extends BaseCommand {
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateComponent(folderPath, 'express-route');
+    await this.service.generateComponent(folderPath, 'express-route');
   }
 }

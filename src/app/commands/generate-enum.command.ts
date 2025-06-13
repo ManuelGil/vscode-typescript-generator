@@ -2,17 +2,17 @@ import { Uri } from 'vscode';
 import { BaseCommand } from './base.command';
 
 /**
- * The GenerateCustomComponentCommand class.
+ * The GenerateEnumCommand class.
  *
  * @class
- * @classdesc The class that represents the generate custom component command.
+ * @classdesc The class that represents the generate enum command.
  * @extends {BaseCommand}
  * @export
  * @public
  * @example
- * const command = new GenerateCustomComponentCommand(config);
+ * const command = new GenerateEnumCommand(config);
  */
-export class GenerateCustomComponentCommand extends BaseCommand {
+export class GenerateEnumCommand extends BaseCommand {
   // -----------------------------------------------------------------
   // Methods
   // -----------------------------------------------------------------
@@ -25,11 +25,11 @@ export class GenerateCustomComponentCommand extends BaseCommand {
    * @async
    * @method execute
    * @public
-   * @memberof GenerateCustomComponentCommand
+   * @memberof GenerateClassCommand
    *
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateCustomComponent(folderPath);
+    await this.service.generateComponent(folderPath, 'enum');
   }
 }

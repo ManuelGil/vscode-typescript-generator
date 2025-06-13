@@ -2,17 +2,17 @@ import { Uri } from 'vscode';
 import { BaseCommand } from './base.command';
 
 /**
- * The GenerateEnumCommand class.
+ * The GenerateInterfaceCommand class.
  *
  * @class
- * @classdesc The class that represents the generate enum command.
+ * @classdesc The class that represents the generate interface command.
  * @extends {BaseCommand}
  * @export
  * @public
  * @example
- * const command = new GenerateEnumCommand(config);
+ * const command = new GenerateInterfaceCommand(config);
  */
-export class GenerateEnumCommand extends BaseCommand {
+export class GenerateInterfaceCommand extends BaseCommand {
   // -----------------------------------------------------------------
   // Methods
   // -----------------------------------------------------------------
@@ -30,6 +30,6 @@ export class GenerateEnumCommand extends BaseCommand {
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateComponent(folderPath, 'enum');
+    await this.service.generateComponent(folderPath, 'interface');
   }
 }

@@ -1,15 +1,9 @@
-import {
-  access,
-  existsSync,
-  mkdirSync,
-  open,
-  readFileSync,
-  writeFile,
-} from 'fs';
+import { existsSync, readFileSync } from 'fs';
+import { basename, dirname, extname, join, normalize, relative } from 'path';
 import * as mustache from 'mustache';
-import { basename, dirname, extname, join, relative } from 'path';
 import {
   Position,
+  ProgressLocation,
   Uri,
   WorkspaceEdit,
   WorkspaceFolder,
@@ -270,7 +264,7 @@ export class FileGeneratorService {
       : '';
     const fileName = `${componentFileName}${fileNameSuffix}.${fileExtension}`;
 
-    this.saveFile(resolvedFolderPath, fileName, fileContent);
+    await this.saveFile(resolvedFolderPath, fileName, fileContent);
 
     if (autoImport) {
       const barrelFileExtension =
@@ -439,7 +433,7 @@ export class FileGeneratorService {
     const fileNameSuffix = includeTypeInFileName ? `.${template.type}` : '';
     const fileName = `${componentFileName}${fileNameSuffix}.${fileExtension}`;
 
-    this.saveFile(resolvedFolderPath, fileName, fileContent);
+    await this.saveFile(resolvedFolderPath, fileName, fileContent);
 
     if (autoImport) {
       const barrelFileExtension =
@@ -597,9 +591,9 @@ export class FileGeneratorService {
       fileNameTitleCase: titleize(componentName),
       fileNamePluralCase: pluralize(componentName),
       fileNameSingularCase: singularize(componentName),
-      fileNameWithTypeAndExtention: `${componentName}.${fileType}.${fileExtension}`,
+      fileNameWithTypeAndExtension: `${componentName}.${fileType}.${fileExtension}`,
       fileNameWithType: `${componentName}.${fileType}`,
-      fileNameWithExtention: `${componentName}.${fileExtension}`,
+      fileNameWithExtension: `${componentName}.${fileExtension}`,
       folderName,
       fileType,
       fileTypeName: titleize(fileType),
@@ -615,7 +609,7 @@ export class FileGeneratorService {
       fileTypeNameUpperCase: fileType.toUpperCase(),
       fileTypeNamePlural: pluralize(fileType),
       fileTypeNameSingular: singularize(fileType),
-      fileTypeWithExtention: `${fileType}.${fileExtension}`,
+      fileTypeWithExtension: `${fileType}.${fileExtension}`,
       fileExtension,
       date: new Date().toISOString().split('T')[0],
       year: new Date().getFullYear(),
@@ -636,71 +630,76 @@ export class FileGeneratorService {
   }
 
   /**
-   * The saveFile method.
+   * Writes data to the file specified in the path. If the file does not exist then the function will create it.
    *
-   * @function saveFile
-   * @private
-   * @async
-   * @memberof FilesController
+   * @param {string} path - Path to the file
+   * @param {string} filename - Name of the file
+   * @param {string} data - Data to write to the file
    * @example
-   * controller.saveFile('path', 'filename', 'data');
+   * await saveFile('src', 'file.ts', 'console.log("Hello World")');
    *
-   * @param {string} directoryPath - The path
-   * @param {string} fileName - The filename
-   * @param {string} fileContent - The data
-   *
-   * @returns {Promise<void>} - The promise with no return value
+   * @returns {Promise<void>} - Confirmation of the write operation
    */
   private async saveFile(
-    directoryPath: string,
-    fileName: string,
-    fileContent: string,
+    path: string,
+    filename: string,
+    data: string,
   ): Promise<void> {
-    const file = join(directoryPath, fileName);
+    const dirUri = Uri.file(path);
+    const fileUri = Uri.joinPath(dirUri, filename);
 
-    if (!existsSync(dirname(file))) {
-      mkdirSync(dirname(file), { recursive: true });
-    }
+    await window.withProgress(
+      {
+        location: ProgressLocation.Notification,
+        title: `Creating file: ${filename}`,
+        cancellable: false,
+      },
+      async () => {
+        try {
+          await workspace.fs.createDirectory(dirUri);
 
-    access(file, (err: any) => {
-      if (err) {
-        open(file, 'w+', (err: any, fd: any) => {
-          if (err) {
+          let alreadyExists = false;
+
+          try {
+            await workspace.fs.stat(fileUri);
+            alreadyExists = true;
+          } catch (statError: any) {
+            if ((statError as { code?: string }).code !== 'FileNotFound') {
+              throw statError;
+            }
+          }
+
+          if (alreadyExists) {
             const message = l10n.t(
-              'The file has not been created! Please try again',
+              'File already exists: {0}. Please choose a different name.',
+              filename,
             );
             window.showErrorMessage(message);
             return;
           }
 
-          writeFile(fd, fileContent, 'utf8', (err: any) => {
-            if (err) {
-              const message = l10n.t(
-                'The {0} has been created successfully',
-                fileName,
-              );
-              window.showErrorMessage(message);
-              return;
-            }
+          const encoded = Buffer.from(data, 'utf8');
+          await workspace.fs.writeFile(fileUri, encoded);
 
-            const openPath = Uri.file(file);
+          const document = await workspace.openTextDocument(fileUri);
+          await window.showTextDocument(document);
 
-            workspace.openTextDocument(openPath).then(async (filename) => {
-              await commands.executeCommand('workbench.action.files.saveAll');
-              await window.showTextDocument(filename);
-            });
-          });
-        });
-
-        const message = l10n.t('File created successfully!');
-        window.showInformationMessage(message);
-      } else {
-        const message = l10n.t(
-          'The file name already exists! Please enter a different name',
-        );
-        window.showWarningMessage(message);
-      }
-    });
+          // Ensure the directory exists
+          const message = l10n.t(
+            'File created successfully: {0}',
+            normalize(fileUri.fsPath),
+          );
+          window.showInformationMessage(message);
+        } catch (err: any) {
+          // Handle errors during file creation
+          const message = l10n.t(
+            'Error creating file: {0}. Please check the path and try again.',
+            err.message ?? err,
+          );
+          window.showErrorMessage(message);
+        }
+      },
+    );
   }
 
   /**
@@ -739,19 +738,29 @@ export class FileGeneratorService {
 
     try {
       let barrelFileUri = Uri.file(join(targetDirectoryPath, barrelFileName));
+      let barrelFileFound = false;
 
-      if (!existsSync(barrelFileUri.fsPath)) {
+      // Check if barrel file exists in the current directory
+      if (existsSync(barrelFileUri.fsPath)) {
+        barrelFileFound = true;
+      } else {
+        // Try to find barrel file in parent directory
         const resolvedDirectoryPath = join(targetDirectoryPath, '..');
-
         barrelFileUri = Uri.file(join(resolvedDirectoryPath, barrelFileName));
 
-        if (!existsSync(barrelFileUri.fsPath)) {
-          const message = l10n.t(
-            'The barrel file does not exist! Please create a barrel file first',
-          );
-          window.showErrorMessage(message);
-          return;
+        if (existsSync(barrelFileUri.fsPath)) {
+          barrelFileFound = true;
         }
+      }
+
+      // If barrel file is not found in either location, show error and abort
+      if (!barrelFileFound) {
+        const message = l10n.t(
+          'The barrel file {0} does not exist! Please create a barrel file first',
+          barrelFileName,
+        );
+        window.showErrorMessage(message);
+        return;
       }
 
       const document = await workspace.openTextDocument(barrelFileUri);
@@ -805,13 +814,13 @@ export class FileGeneratorService {
       await commands.executeCommand('workbench.action.files.saveAll');
 
       const message = l10n.t(
-        'Auto-imported of {0} into {1} is successfully!',
+        'Auto-import of {0} into {1} is successful!',
         entityImportName,
         workspace.asRelativePath(barrelFileUri),
       );
       window.showInformationMessage(message);
     } catch (error) {
-      const message = l10n.t('Auto-imported failed! Please try again');
+      const message = l10n.t('Auto-import failed! Please try again');
       window.showErrorMessage(message);
     }
   }

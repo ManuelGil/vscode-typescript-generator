@@ -7,53 +7,77 @@
 [![GitHub Repo stars](https://img.shields.io/github/stars/ManuelGil/vscode-typescript-generator?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-typescript-generator)
 [![GitHub license](https://img.shields.io/github/license/ManuelGil/vscode-typescript-generator?style=for-the-badge&logo=github)](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/LICENSE)
 
-**Auto TS Generator** is a Visual Studio Code extension that streamlines TypeScript development by generating commonly used TypeScript files with customizable templates. Whether you're working on a class, interface, enum, or custom component, Auto TS Generator helps you automate the process with ease.
+_A powerful VSCode-based editor extension that accelerates TypeScript development by generating structured, customizable files with a single click._
+
+## Overview
+
+**Auto TS Generator** empowers you to scaffold TypeScript classes, interfaces, enums, functions, React components, Node/Express/Fastify modules and servers, and more, directly from VSCode, VSCodium, WindSurf, Cursor, or any compatible editor.
 
 ![Auto TS Generator](https://raw.githubusercontent.com/ManuelGil/vscode-typescript-generator/main/images/auto-ts-generator.gif)
 
 ## Index
 
 - [Auto TS Generator](#auto-ts-generator)
+  - [Overview](#overview)
   - [Index](#index)
   - [Key Features](#key-features)
-  - [Requirements](#requirements)
+  - [Usage](#usage)
   - [Project Setup](#project-setup)
   - [Settings Configuration](#settings-configuration)
   - [Custom Templates](#custom-templates)
   - [Template Variables](#template-variables)
-  - [Follow Me](#follow-me)
-  - [VSXpert Template](#vsxpert-template)
-  - [Other Extensions](#other-extensions)
+  - [Installation](#installation)
+  - [Resources](#resources)
   - [Contributing](#contributing)
   - [Code of Conduct](#code-of-conduct)
   - [Changelog](#changelog)
+  - [Authors](#authors)
+  - [Follow Me](#follow-me)
+  - [Other Extensions](#other-extensions)
   - [License](#license)
 
 ## Key Features
 
-- **Customizable Templates**: Tailor TypeScript file templates (e.g., classes, interfaces, enums, services, components) to your project’s needs.
-- **Dynamic Variables**: Use powerful variable placeholders to dynamically populate file names, extensions, dates, authors, and more.
-- **Auto Import**: Automatically imports generated files into your project for seamless integration.
-- **Project Configuration**: Easily set up project-level configurations for file formatting, structure, and more.
-- **Open Source**: Contribute to the project or simply benefit from the shared work of the community.
+| Feature                            | Description                                                                                                                                   |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Customizable Templates**         | Define your own boilerplate for classes, interfaces, enums, services, components, and more.                                                   |
+| **Dynamic Variables**              | Over 30 template placeholders, naming formats (`PascalCase`, `kebab-case`, etc.), dates, metadata.                                            |
+| **Auto Import**                    | Automatically add new exports to barrel files or insert import statements in open files.                                                      |
+| **Rich Command Palette**           | Commands for generating `class`, `interface`, `enum`, `type`, `function`, `variable` and framework artifacts (React, Node, Express, Fastify). |
+| **Context Menu Integration**       | Right-click on any folder in Explorer, choose **Auto TS Generator**, and pick your artifact.                                                  |
+| **Project-Level Configuration**    | Control file extensions, formatting, naming conventions, header comments, and more via `settings.json`.                                       |
+| **VSCode-based Editor Support**    | Compatible with VSCode, VSCodium, WindSurf, Cursor, and any editor implementing the VSCode extension API.                                     |
+| **Version & Update Notifications** | First-run welcome message, release notes prompt after upgrades, and auto-check for new releases.                                              |
 
-## Requirements
+## Usage
 
-- **VS Code 1.88.0** or higher.
+1. **Explorer Context Menu**
+   Right-click on a folder → **Auto TS Generator** → choose what to generate:
+
+   - **Generic**: Class · Interface · Enum · Type · Function · Variable
+   - **Custom Component**: Your own user-defined template
+   - **Node**: Module · Server
+   - **Express**: Controller · Middleware · Route · Server
+   - **Fastify**: Controller · Middleware · Route · Server
+   - **React**: Functional Component
+
+2. **Command Palette**
+   Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS), type `Auto TS`, and select any of the above commands.
+
+3. **Automatic Update Check**
+   On activation, the extension compares its version with the Marketplace's latest. If a newer version exists, you'll be prompted to update.
 
 ## Project Setup
 
-To configure **Auto TS Generator** for your project, follow these steps:
+1. **Open VS Code Command Palette**
 
-1. **Open VS Code Command Palette**:
-   - Windows: `CTRL + SHIFT + P`
-   - MacOS: `CMD + SHIFT + P`
+   - Windows: `Ctrl + Shift + P`
+   - macOS: `Cmd + Shift + P`
 
-2. **Open Workspace Settings**:
+2. **Open Workspace Settings**
    - Type `Preferences: Open Workspace Settings (JSON)`.
 
-3. **Add Configuration to `settings.json`**:
-   Copy the following configuration into your `.vscode/settings.json` file:
+3. **Add Configuration to `.vscode/settings.json`**
 
     ```json
     {
@@ -152,100 +176,147 @@ You can modify these settings to suit your project's requirements and coding sta
 
 ## Custom Templates
 
-You can create custom templates for generating TypeScript files by adding them to the `autoTS.templates.customComponents` array in your `.vscode/settings.json` file. Each template should include the following properties:
+Add user-defined templates under `autoTS.templates.customComponents`:
 
-- `name`: The name of the template (e.g., `Service`).
-- `description`: A brief description of the template (e.g., `Generates a service file`).
-- `type`: The type of file to generate (e.g., `service`). This value is used to set the file name when the `autoTS.files.includeTypeInFileName` setting is `true`.
-- `template`: An array of strings representing the template content. You can use template variables to dynamically populate file names and other values.
+- `name`: Template name (e.g., `Service`).
+- `description`: Brief description.
+- `type`: File type (e.g., `service`).
+- `template`: Array of strings representing file content; use template variables.
 
 ## Template Variables
 
-Auto TS Generator provides dynamic template variables for enhanced flexibility:
+| Variable                           | Description                          | Example Value            |
+| ---------------------------------- | ------------------------------------ | ------------------------ |
+| `{{fileName}}`                     | Original file name                   | `myNewFile`              |
+| `{{fileNameCamelCase}}`            | CamelCase                            | `myNewFile`              |
+| `{{fileNamePascalCase}}`           | PascalCase                           | `MyNewFile`              |
+| `{{fileNameKebabCase}}`            | kebab-case                           | `my-new-file`            |
+| `{{fileNameSnakeCase}}`            | snake\_case                          | `my_new_file`            |
+| `{{fileNameConstantCase}}`         | CONSTANT\_CASE                       | `MY_NEW_FILE`            |
+| `{{fileNameDotCase}}`              | dot.case                             | `my.new.file`            |
+| `{{fileNamePathCase}}`             | path/case                            | `my/new/file`            |
+| `{{fileNameSentenceCase}}`         | Sentence case                        | `My new file`            |
+| `{{fileNameLowerCase}}`            | Lowercase                            | `my new file`            |
+| `{{fileNameTitleCase}}`            | Title Case                           | `My New File`            |
+| `{{fileNamePluralCase}}`           | Pluralized                           | `myNewFiles`             |
+| `{{fileNameSingularCase}}`         | Singularized                         | `myNewFile`              |
+| `{{fileNameWithTypeAndExtension}}` | File name + type + extension         | `myNewFile.component.ts` |
+| `{{fileNameWithType}}`             | File name + type                     | `myNewFile.component`    |
+| `{{fileNameWithExtension}}`        | File name + extension                | `myNewFile.ts`           |
+| `{{folderName}}`                   | Parent folder name                   | `src/components`         |
+| `{{fileType}}`                     | File type (component, service, etc.) | `component`              |
+| `{{fileTypeName}}`                 | File type in Title Case              | `Service`                |
+| `{{fileTypeNameCamelCase}}`        | File type in camelCase               | `service`                |
+| `{{fileTypeNamePascalCase}}`       | File type in PascalCase              | `Service`                |
+| `{{fileTypeNameKebabCase}}`        | File type in kebab-case              | `service`                |
+| `{{fileTypeNameSnakeCase}}`        | File type in snake\_case             | `service`                |
+| `{{fileTypeNameConstantCase}}`     | File type in CONSTANT\_CASE          | `SERVICE`                |
+| `{{fileTypeNameDotCase}}`          | File type in dot.case                | `service`                |
+| `{{fileTypeNamePathCase}}`         | File type in path/case               | `service`                |
+| `{{fileTypeNameSentenceCase}}`     | File type in Sentence case           | `Service`                |
+| `{{fileTypeNameLowerCase}}`        | File type in lowercase               | `service`                |
+| `{{fileTypeNameUpperCase}}`        | File type in uppercase               | `SERVICE`                |
+| `{{fileTypeNamePlural}}`           | File type plural                     | `services`               |
+| `{{fileTypeNameSingular}}`         | File type singular                   | `service`                |
+| `{{fileTypeWithExtension}}`        | File type + extension                | `service.ts`             |
+| `{{fileExtension}}`                | File extension                       | `ts`                     |
+| `{{date}}`                         | Current date                         | `2025-01-31`             |
+| `{{year}}`                         | Current year                         | `2025`                   |
+| `{{time}}`                         | Current time                         | `12:34:56`               |
+| `{{timestamp}}`                    | Unix timestamp                       | `1672531199`             |
+| `{{timestampISO}}`                 | ISO timestamp                        | `2025-01-31T12:34:56Z`   |
+| `{{author}}`                       | Project author                       | `Jane Doe`               |
+| `{{owner}}`                        | Project owner                        | `Jane Doe`               |
+| `{{maintainers}}`                  | Project maintainers                  | `Jane Doe, John Doe`     |
+| `{{license}}`                      | Project license                      | `MIT`                    |
+| `{{version}}`                      | Project version                      | `1.0.0`                  |
 
-| Variable | Description | Example Value |
-|---------------------------|-------------------------------------------------------|------------------------|
-| `{{fileName}}` | Original file name | `myNewFile` |
-| `{{fileNameCamelCase}}` | CamelCase format | `myNewFile` |
-| `{{fileNamePascalCase}}` | PascalCase format | `MyNewFile` |
-| `{{fileNameKebabCase}}` | kebab-case format | `my-new-file` |
-| `{{fileNameSnakeCase}}` | snake_case format | `my_new_file` |
-| `{{fileNameConstantCase}}` | CONSTANT_CASE format | `MY_NEW_FILE` |
-| `{{fileNameDotCase}}` | dot.case format | `my.new.file` |
-| `{{fileNamePathCase}}` | path/case format | `my/new/file` |
-| `{{fileNameSentenceCase}}` | Sentence case format | `My new file` |
-| `{{fileNameLowerCase}}` | Lowercase format | `my new file` |
-| `{{fileNameTitleCase}}` | Title Case format | `My New File` |
-| `{{fileNamePluralCase}}` | Pluralized format | `myNewFiles` |
-| `{{fileNameSingularCase}}` | Singularized format | `myNewFile` |
-| `{{fileNameWithTypeAndExtention}}` | File name with type and extension | `myNewFile.component.ts` |
-| `{{fileNameWithType}}` | File name with type | `myNewFile.component` |
-| `{{fileNameWithExtention}}` | File name with extension | `myNewFile.ts` |
-| `{{folderName}}` | Parent folder name | `src/components` |
-| `{{fileType}}` | File type (component, service, etc.) | `component` |
-| `{{fileTypeName}}` | File type in Title Case format | `Service` |
-| `{{fileTypeNameCamelCase}}` | File type in camelCase format | `service` |
-| `{{fileTypeNamePascalCase}}` | File type in PascalCase format | `Service` |
-| `{{fileTypeNameKebabCase}}` | File type in kebab-case format | `service` |
-| `{{fileTypeNameSnakeCase}}` | File type in snake_case format | `service` |
-| `{{fileTypeNameConstantCase}}` | File type in CONSTANT_CASE format | `SERVICE` |
-| `{{fileTypeNameDotCase}}` | File type in dot.case format | `service` |
-| `{{fileTypeNamePathCase}}` | File type in path/case format | `service` |
-| `{{fileTypeNameSentenceCase}}` | File type in Sentence case format | `Service` |
-| `{{fileTypeNameLowerCase}}` | File type in lowercase | `service` |
-| `{{fileTypeNameUpperCase}}` | File type in uppercase | `SERVICE` |
-| `{{fileTypeNamePlural}}` | File type converted to plural | `services` |
-| `{{fileTypeNameSingular}}` | File type converted to singular | `service` |
-| `{{fileTypeWithExtention}}` | File type including extension | `service.ts` |
-| `{{fileExtension}}` | File extension | `ts` |
-| `{{date}}` | Current date | `2025-01-31` |
-| `{{year}}` | Current year | `2025` |
-| `{{time}}` | Current time | `12:34:56` |
-| `{{timestamp}}` | Unix timestamp | `1672531199` |
-| `{{timestampISO}}` | ISO timestamp | `2025-01-31T12:34:56Z` |
-| `{{author}}` | Project author | `Jane Doe` |
-| `{{owner}}` | Project owner | `Jane Doe` |
-| `{{maintainers}}` | Project maintainers | `Jane Doe, John Doe` |
-| `{{license}}` | Project license | `MIT` |
-| `{{version}}` | Project version | `1.0.0` |
+## Installation
 
-These variables allow you to create highly flexible templates that adapt to different file naming conventions and project structures.
+1. Open your VSCode-based editor (VSCode, VSCodium, WindSurf, Cursor).
+2. Go to **Extensions** (`Ctrl+Shift+X` / `Cmd+Shift+X`).
+3. Search for **"Auto TS Generator"** (author: Manuel Gil).
+4. Click **Install**.
+5. (Optional) Clone or download the repo and open it to test the latest dev version.
 
-## Follow Me
+## Resources
 
-Stay updated on the latest features, improvements, and future projects by following me:
+- **VSCode Marketplace**
+  [https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-typescript-generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-typescript-generator)
 
-- [GitHub](https://github.com/ManuelGil)
-- [Twitter (X)](https://twitter.com/imgildev)
+- **Open VSX**
+  [https://open-vsx.org/extension/imgildev/vscode-typescript-generator](https://open-vsx.org/extension/imgildev/vscode-typescript-generator)
 
-## VSXpert Template
-
-This extension was created using [VSXpert](https://vsxpert.com), a template designed to help you quickly create Visual Studio Code extensions with ease.
-
-## Other Extensions
-
-Explore other extensions developed by me:
-
-- [Angular File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-angular-generator)
-- [NestJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nestjs-generator)
-- [T3 Stack / NextJS / ReactJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nextjs-generator)
-- [Auto Barrel](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-auto-barrel)
-- [CodeIgniter 4 Spark](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-codeigniter4-spark)
+- **GitHub Repository**
+  [https://github.com/ManuelGil/vscode-typescript-generator](https://github.com/ManuelGil/vscode-typescript-generator)
 
 ## Contributing
 
-We welcome contributions from the community! To contribute, fork the [GitHub repository](https://github.com/ManuelGil/vscode-typescript-generator) and submit a pull request.
+Auto TS Generator is open-source and welcomes community contributions:
 
-Before contributing, please review our [Contribution Guidelines](./CONTRIBUTING.md) for details on coding standards and best practices.
+1. Fork the [GitHub repository](https://github.com/ManuelGil/vscode-typescript-generator).
+2. Create a new branch:
+
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+3. Make your changes, commit them, and push to your fork.
+4. Submit a Pull Request against the `main` branch.
+
+Before contributing, please review the [Contribution Guidelines](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/CONTRIBUTING.md) for coding standards, testing, and commit message conventions. Open an Issue if you find a bug or want to request a new feature.
 
 ## Code of Conduct
 
-We strive to create a welcoming, inclusive, and respectful environment for all contributors. Please read our [Code of Conduct](./CODE_OF_CONDUCT.md) before participating in this project.
+We are committed to providing a friendly, safe, and welcoming environment for all, regardless of gender, sexual orientation, disability, ethnicity, religion, or other personal characteristic. Please review our [Code of Conduct](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/CODE_OF_CONDUCT.md) before participating in our community.
 
 ## Changelog
 
-See the full list of changes in the [CHANGELOG.md](./CHANGELOG.md) file.
+For a complete list of changes, see the [CHANGELOG.md](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/CHANGELOG.md).
+
+## Authors
+
+- **Manuel Gil** – _Owner_ – [@ManuelGil](https://github.com/ManuelGil)
+
+See also the list of [contributors](https://github.com/ManuelGil/vscode-typescript-generator/contributors) who participated in this project.
+
+## Follow Me
+
+- **GitHub**: [![GitHub followers](https://img.shields.io/github/followers/ManuelGil?style=for-the-badge\&logo=github)](https://github.com/ManuelGil)
+- **X (formerly Twitter)**: [![X Follow](https://img.shields.io/twitter/follow/imgildev?style=for-the-badge\&logo=x)](https://twitter.com/imgildev)
+
+## Other Extensions
+
+- **[Auto Barrel](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-auto-barrel)**
+  Automatically generates and maintains barrel (`index.ts`) files for your TypeScript projects.
+
+- **[Angular File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-angular-generator)**
+  Generates boilerplate and navigates your Angular (9→20+) project from within the editor, with commands for components, services, directives, modules, pipes, guards, reactive snippets, and JSON2TS transformations.
+
+- **[NestJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nestjs-generator)**
+  Simplifies creation of controllers, services, modules, and more for NestJS projects, with custom commands and Swagger snippets.
+
+- **[NestJS Snippets](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nestjs-snippets-extension)**
+  Ready-to-use code patterns for creating controllers, services, modules, DTOs, filters, interceptors, and more in NestJS.
+
+- **[T3 Stack / NextJS / ReactJS File Generator](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-nextjs-generator)**
+  Automates file creation (components, pages, hooks, API routes, etc.) in T3 Stack (Next.js, React) projects and can start your dev server from VSCode.
+
+- **[Drizzle ORM Snippets](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-drizzle-snippets)**
+  Collection of code snippets to speed up Drizzle ORM usage, defines schemas, migrations, and common database operations in TypeScript/JavaScript.
+
+- **[CodeIgniter 4 Spark](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-codeigniter4-spark)**
+  Scaffolds controllers, models, migrations, libraries, and CLI commands in CodeIgniter 4 projects using Spark, directly from the editor.
+
+- **[CodeIgniter 4 Snippets](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-codeigniter4-snippets)**
+  Snippets for accelerating development with CodeIgniter 4, including controllers, models, validations, and more.
+
+- **[CodeIgniter 4 Shield Snippets](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-codeigniter4-shield-snippets)**
+  Snippets tailored to CodeIgniter 4 Shield for faster authentication and security-related code.
+
+- **[Mustache Template Engine – Snippets & Autocomplete](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-mustache-snippets)**
+  Snippets and autocomplete support for Mustache templates, making HTML templating faster and more reliable.
 
 ## License
 
-This extension is licensed under the MIT License. See the [MIT License](https://opensource.org/licenses/MIT) for more details.
+This project is licensed under the **MIT License**. See the [LICENSE](https://github.com/ManuelGil/vscode-typescript-generator/blob/main/LICENSE) file for details.

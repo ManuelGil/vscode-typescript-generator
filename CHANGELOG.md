@@ -7,12 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.0] - 2025-03-010
+## [1.7.0] - 2025-06-12
 
 ### Added
 
-- Add cursor position handling for gets the variable name in the active editor
-- Add vscode marketplace client dependency for version checks
+- Add support for React Components
+
+### Changed
+
+- Enhance overall reliability of file generation and auto-import functionality
+- Improve error handling with user-friendly notifications and proper error states
+
+### Fixed
+
+- Fix async handling in all command execution files
+- Fix file saving mechanism in `FileGeneratorService` to use proper async/await patterns
+
+## [1.6.0] - 2025-03-10
+
+### Added
+
+- Add `vscode-marketplace-client` dependency to check for extension updates and display a notification
 
 ### Changed
 
@@ -101,7 +116,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.6.0...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.7.0...HEAD
+[1.7.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.4.0...v1.4.1

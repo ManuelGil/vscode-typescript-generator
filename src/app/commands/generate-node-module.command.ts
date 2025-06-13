@@ -30,6 +30,6 @@ export class GenerateNodeModuleCommand extends BaseCommand {
    * @param {Uri} folderPath - The folder path
    */
   async execute(folderPath?: Uri): Promise<void> {
-    this.service.generateComponent(folderPath, 'node-module');
+    await this.service.generateComponent(folderPath, 'node-module');
   }
 }
