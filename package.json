@@ -2,7 +2,7 @@
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
 	"description": "Smart TypeScript file generator with customizable templates for classes, interfaces, types, and components. Boost your productivity!",
-	"version": "1.9.0",
+	"version": "1.8.0",
 	"icon": "icon.png",
 	"galleryBanner": {
 		"color": "#1597ff",
@@ -110,6 +110,7 @@
 	"l10n": "./l10n",
 	"files": [
 		"out",
+		"templates",
 		"package*.json",
 		"README.md",
 		"LICENSE",
