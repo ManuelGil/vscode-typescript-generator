@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 
+import { getErrorMessage } from './app/helpers';
 import { ExtensionRuntime } from './extension.runtime';
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -17,7 +18,10 @@ export async function activate(context: vscode.ExtensionContext) {
     runtime.start();
   } catch (error) {
     vscode.window.showErrorMessage(
-      vscode.l10n.t('Failed to activate extension: {0}', String(error)),
+      vscode.l10n.t(
+        'Failed to activate extension: {0}',
+        getErrorMessage(error),
+      ),
     );
   }
 }

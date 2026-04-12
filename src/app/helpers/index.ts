@@ -1,3 +1,4 @@
+export * from './context-detector.helper';
 export * from './custom-template.helper';
 export * from './error-message.helper';
 export * from './inflector.helper';

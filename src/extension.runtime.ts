@@ -5,6 +5,7 @@ import {
   l10n,
   MessageItem,
   QuickPickItem,
+  QuickPickItemKind,
   Uri,
   WorkspaceFolder,
   window,
@@ -43,7 +44,36 @@ import {
   USER_PUBLISHER,
 } from './app/configs';
 import { CommandInvoker } from './app/controllers';
-import { resolveFolderResource } from './app/helpers';
+import {
+  detectProjectContext,
+  getErrorMessage,
+  resolveFolderResource,
+} from './app/helpers';
+import { ProjectContext } from './app/types';
+
+type GenerateOption = QuickPickItem & {
+  commandId: CommandIds;
+  score: number;
+  signals: string[];
+  confidence: 'low' | 'medium' | 'high';
+  isSuggested?: boolean;
+};
+
+type GenerateQuickPickItem =
+  | GenerateOption
+  | {
+      label: string;
+      kind: QuickPickItemKind.Separator;
+    };
+
+type ProjectContextKey =
+  | ContextKeys.IsTypeScript
+  | ContextKeys.IsNode
+  | ContextKeys.HasExpress
+  | ContextKeys.HasFastify
+  | ContextKeys.IsReact;
+
+type ProjectContexts = Record<ProjectContextKey, boolean>;
 
 /**
  * Manages the lifecycle and core state of the extension.
@@ -84,6 +114,17 @@ export class ExtensionRuntime {
    * console.log(config.enable);
    */
   private config!: ExtensionConfig;
+
+  /**
+   * In-memory snapshot of detected project context keys.
+   */
+  private readonly detectedContexts: ProjectContexts = {
+    [ContextKeys.IsTypeScript]: false,
+    [ContextKeys.IsNode]: false,
+    [ContextKeys.HasExpress]: false,
+    [ContextKeys.HasFastify]: false,
+    [ContextKeys.IsReact]: false,
+  };
 
   // -----------------------------------------------------------------
   // Constructor
@@ -130,13 +171,14 @@ export class ExtensionRuntime {
    * }
    */
   async initialize(): Promise<boolean> {
-    const selectedWorkspace = await this.selectWorkspaceFolder();
+    const workspaceFolder = await this.selectWorkspaceFolder();
 
-    if (!selectedWorkspace) {
+    if (!workspaceFolder) {
       return false;
     }
 
-    this.initializeConfiguration(selectedWorkspace);
+    this.initializeConfiguration(workspaceFolder);
+    await this.setContextKeys(workspaceFolder.uri);
 
     if (!this.isExtensionEnabled()) {
       return false;
@@ -344,7 +386,7 @@ export class ExtensionRuntime {
         '{0}: No workspace folders are open. Please open a workspace folder to use this extension',
         EXTENSION_DISPLAY_NAME,
       );
-      window.showErrorMessage(errorMessage);
+      this.showError(errorMessage);
 
       return undefined;
     }
@@ -489,7 +531,7 @@ export class ExtensionRuntime {
     }
 
     if (!this.hasDisabledWarningBeenShown) {
-      window.showErrorMessage(
+      this.showError(
         l10n.t(
           'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
@@ -499,6 +541,53 @@ export class ExtensionRuntime {
     }
 
     return false;
+  }
+
+  /**
+   * Resolves project context signals and synchronizes VS Code context keys.
+   *
+   * The runtime intentionally orchestrates detection through shared helpers so
+   * context rules stay reusable and out of this class.
+   */
+  private async setContextKeys(resource?: Uri): Promise<void> {
+    const detectedContext = await detectProjectContext({
+      resource,
+      workspaceSelection: this.config.workspaceSelection,
+    });
+
+    await this.applyContext(detectedContext);
+  }
+
+  /**
+   * Applies the detected context to in-memory state and VS Code UI contexts.
+   */
+  private async applyContext(projectContext: ProjectContext): Promise<void> {
+    const resolvedContexts: ProjectContexts = {
+      [ContextKeys.IsTypeScript]: projectContext.isTypeScript,
+      [ContextKeys.IsNode]: projectContext.isNode,
+      [ContextKeys.HasExpress]: projectContext.hasExpress,
+      [ContextKeys.HasFastify]: projectContext.hasFastify,
+      [ContextKeys.IsReact]: projectContext.isReact,
+    };
+
+    const contextMappings: Array<[ProjectContextKey, boolean]> = [
+      [ContextKeys.IsTypeScript, resolvedContexts[ContextKeys.IsTypeScript]],
+      [ContextKeys.IsNode, resolvedContexts[ContextKeys.IsNode]],
+      [ContextKeys.HasExpress, resolvedContexts[ContextKeys.HasExpress]],
+      [ContextKeys.HasFastify, resolvedContexts[ContextKeys.HasFastify]],
+      [ContextKeys.IsReact, resolvedContexts[ContextKeys.IsReact]],
+    ];
+
+    await Promise.all(
+      contextMappings.map(async ([key, value]) => {
+        this.detectedContexts[key] = value;
+        await commands.executeCommand(
+          'setContext',
+          `${EXTENSION_ID}.${key}`,
+          value,
+        );
+      }),
+    );
   }
 
   /**
@@ -531,31 +620,24 @@ export class ExtensionRuntime {
       }
 
       try {
-        // if no args or first arg is not a Uri, resolve the active resource
-        if (!args.length || !(args[0] instanceof Uri)) {
-          const resource = await resolveFolderResource(undefined);
-          if (!resource) {
-            window.showErrorMessage(
-              l10n.t(
-                '{0} could not find an active folder. Select a workspace folder to continue.',
-                EXTENSION_DISPLAY_NAME,
-              ),
-            );
-            return;
-          }
-
-          return commandHandler(
-            ...([resource, ...args.slice(1)] as CommandArgs),
+        const resource = await this.resolveExecutionResource(args);
+        if (!resource) {
+          this.showError(
+            l10n.t(
+              '{0} could not find an active folder. Select a workspace folder to continue.',
+              EXTENSION_DISPLAY_NAME,
+            ),
           );
+          return;
         }
 
-        return commandHandler(...args);
+        return commandHandler(...([resource, ...args.slice(1)] as CommandArgs));
       } catch (error) {
-        window.showErrorMessage(
+        this.showError(
           l10n.t(
             '{0} failed: {1}. Verify your target folder and try again.',
             EXTENSION_DISPLAY_NAME,
-            String(error),
+            getErrorMessage(error),
           ),
         );
       }
@@ -599,6 +681,7 @@ export class ExtensionRuntime {
           this.config.update(updatedWorkspaceConfig);
 
           this.config.workspaceSelection = selectedFolder.uri.fsPath;
+          await this.setContextKeys(selectedFolder.uri);
 
           window.showInformationMessage(
             l10n.t('Switched to workspace folder: {0}', selectedFolder.name),
@@ -608,6 +691,202 @@ export class ExtensionRuntime {
     );
 
     this.context.subscriptions.push(disposableChangeWorkspace);
+  }
+
+  /**
+   * Resolves the execution resource for a command.
+   *
+   * If a URI is provided in the arguments, it is used directly.
+   * Otherwise, attempts to infer the active folder from the workspace context.
+   *
+   * @param args - Command arguments passed during execution.
+   * @returns The resolved URI or undefined if it cannot be determined.
+   */
+  private async resolveExecutionResource(
+    args: unknown[],
+  ): Promise<Uri | undefined> {
+    const firstArg = args[0];
+
+    if (firstArg instanceof Uri) {
+      return firstArg;
+    }
+
+    return resolveFolderResource(undefined);
+  }
+
+  /**
+   * Displays an error message to the user.
+   *
+   * This centralizes error handling to ensure consistency and allow
+   * future improvements (e.g., logging or telemetry) without changing call sites.
+   *
+   * @param message - The message to display.
+   */
+  private showError(message: string): void {
+    window.showErrorMessage(message);
+  }
+
+  /**
+   * Builds Smart Generate options with lightweight context-aware relevance.
+   *
+   * Context is used only to prioritize options.
+   * All commands remain available to avoid restricting user workflows.
+   *
+   * @param commandDefinitions Registered command definitions.
+   * @param context Project context flags.
+   * @returns Ordered options for Smart Generate quick pick.
+   */
+  private buildGenerateOptions(
+    commandDefinitions: Array<{
+      name: CommandIds;
+      label: string;
+      detail: string;
+    }>,
+    contexts: ProjectContexts,
+  ): GenerateOption[] {
+    const reactCommands = new Set<CommandIds>([
+      CommandIds.GenerateReactComponent,
+    ]);
+    const nodeCommands = new Set<CommandIds>([
+      CommandIds.GenerateNodeModule,
+      CommandIds.GenerateNodeServer,
+    ]);
+    const typeScriptCommands = new Set<CommandIds>([
+      CommandIds.GenerateInterface,
+      CommandIds.GenerateEnum,
+      CommandIds.GenerateType,
+    ]);
+    const expressCommands = new Set<CommandIds>([
+      CommandIds.GenerateExpressController,
+      CommandIds.GenerateExpressMiddleware,
+      CommandIds.GenerateExpressRoute,
+      CommandIds.GenerateExpressServer,
+    ]);
+    const fastifyCommands = new Set<CommandIds>([
+      CommandIds.GenerateFastifyController,
+      CommandIds.GenerateFastifyMiddleware,
+      CommandIds.GenerateFastifyRoute,
+      CommandIds.GenerateFastifyServer,
+    ]);
+
+    const options: GenerateOption[] = commandDefinitions.map(
+      (commandDefinition) => {
+        let score = 0;
+        const signals: string[] = [];
+
+        if (
+          reactCommands.has(commandDefinition.name) &&
+          contexts[ContextKeys.IsReact]
+        ) {
+          signals.push('react');
+          score += 100;
+        }
+
+        if (
+          typeScriptCommands.has(commandDefinition.name) &&
+          contexts[ContextKeys.IsTypeScript]
+        ) {
+          signals.push('typescript');
+          score += 30;
+        }
+
+        if (
+          nodeCommands.has(commandDefinition.name) &&
+          contexts[ContextKeys.IsNode]
+        ) {
+          signals.push('node');
+          score += 20;
+        }
+
+        if (
+          expressCommands.has(commandDefinition.name) &&
+          contexts[ContextKeys.HasExpress]
+        ) {
+          signals.push('express');
+          score += 80;
+        }
+
+        if (
+          fastifyCommands.has(commandDefinition.name) &&
+          contexts[ContextKeys.HasFastify]
+        ) {
+          signals.push('fastify');
+          score += 80;
+        }
+
+        const confidence: 'low' | 'medium' | 'high' =
+          signals.length >= 2
+            ? 'high'
+            : signals.length === 1
+              ? 'medium'
+              : 'low';
+
+        return {
+          label: commandDefinition.label,
+          detail: commandDefinition.detail,
+          commandId: commandDefinition.name,
+          score,
+          signals,
+          confidence,
+        };
+      },
+    );
+
+    const maxScore = Math.max(...options.map((option) => option.score), 0);
+    const topOptions = options.filter((option) => option.score === maxScore);
+
+    if (topOptions.length === 1 && topOptions[0].confidence === 'high') {
+      topOptions[0].isSuggested = true;
+    }
+
+    options.sort(
+      (leftOption, rightOption) =>
+        rightOption.score - leftOption.score ||
+        leftOption.label.localeCompare(rightOption.label),
+    );
+
+    return options;
+  }
+
+  /**
+   * Suggestion system v2:
+   * - Uses signals instead of raw score
+   * - Avoids false positives
+   * - Only suggests when confidence is high and unambiguous
+   *
+   * Options are shown in two sections only when there is a single, high-confidence
+   * suggestion. Otherwise, the full list stays flat and visible.
+   */
+  private buildSmartGenerateItems(
+    options: GenerateOption[],
+  ): GenerateQuickPickItem[] {
+    const suggestedOption = options.find(
+      (option) => option.isSuggested && option.confidence === 'high',
+    );
+    const otherOptions = options
+      .filter((option) => option !== suggestedOption)
+      .map((option) => ({ ...option, picked: false }));
+
+    if (!suggestedOption) {
+      return options;
+    }
+
+    return [
+      {
+        label: l10n.t('Suggested'),
+        kind: QuickPickItemKind.Separator,
+      },
+      {
+        ...suggestedOption,
+        picked:
+          suggestedOption.isSuggested && suggestedOption.confidence === 'high',
+      },
+      {
+        label: l10n.t('Other options'),
+        kind: QuickPickItemKind.Separator,
+      },
+      ...otherOptions,
+    ];
   }
 
   /**
@@ -802,12 +1081,15 @@ export class ExtensionRuntime {
     const disposableSmartGenerate = this.registerCommand(
       `${EXTENSION_ID}.${CommandIds.Generate}`,
       async (uri: Uri) => {
-        const items: Array<QuickPickItem & { commandId: CommandIds }> =
+        const options = this.buildGenerateOptions(
           commandList.map((commandDefinition) => ({
+            name: commandDefinition.name,
             label: commandDefinition.label,
             detail: commandDefinition.detail,
-            commandId: commandDefinition.name,
-          }));
+          })),
+          this.detectedContexts,
+        );
+        const items = this.buildSmartGenerateItems(options);
 
         const selectedItem = await window.showQuickPick(items, {
           placeHolder: l10n.t('Select a file type'),
@@ -815,7 +1097,7 @@ export class ExtensionRuntime {
           matchOnDetail: true,
         });
 
-        if (!selectedItem) {
+        if (!selectedItem || !('commandId' in selectedItem)) {
           return;
         }
 

@@ -40,7 +40,7 @@ importers:
         specifier: ^22.19.17
         version: 22.19.17
       '@types/vscode':
-        specifier: ^1.115.0
+        specifier: ^1.102.0
         version: 1.115.0
       '@vscode/l10n-dev':
         specifier: ^0.0.35

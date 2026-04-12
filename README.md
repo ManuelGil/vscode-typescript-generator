@@ -56,7 +56,7 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
 ## Usage
 
 1. **Explorer Context Menu**
-   Right-click on a folder → **Auto TS Generator** → choose what to generate:
+  Right-click on a folder → **Auto TS Generator** → select a file type:
    - **Generic**: Class · Interface · Enum · Type · Function · Variable
    - **Custom Component**: Your own user-defined template
    - **Node**: Module · Server
@@ -64,12 +64,15 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
    - **Fastify**: Controller · Middleware · Route · Server
    - **React**: Functional Component
 
+   All generation commands remain available from this menu. Context signals are used to improve ordering and recommendations, not to hide commands.
+
 2. **Command Palette**
    Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS), type `Auto TS`, and select any of the above commands.
 
    Recommended primary entry point:
 
-   - **Auto TS: Generate** → choose what to generate in one place.
+   - **Auto TS: Generate** → select a file type in one place.
+   - Smart Generate shows grouped options (**Recommended** and **Other**) and preselects the top contextual recommendation.
 
 3. **Automatic Update Check**
    On activation, the extension compares its version with the Marketplace's latest. If a newer version exists, you'll be prompted to update.

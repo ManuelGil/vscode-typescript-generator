@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-04-12
+
+### Changed
+
+- Keep context signals as non-restrictive UX hints by leaving generation commands visible in the Explorer submenu.
+- Improve Smart Generate usability with grouped options (`Recommended`, `Other`) and preselection of the top contextual match.
+- Clarify README usage to reflect context-driven prioritization without command blocking.
+
 ## [1.9.0] - 2026-04-12
 
 ### Added
@@ -158,7 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.9.0...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.6.0...v1.7.0

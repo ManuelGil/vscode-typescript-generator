@@ -2,7 +2,7 @@
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
 	"description": "Smart TypeScript file generator with customizable templates for classes, interfaces, types, and components. Boost your productivity!",
-	"version": "1.9.0",
+	"version": "1.10.0",
 	"icon": "icon.png",
 	"galleryBanner": {
 		"color": "#1597ff",
@@ -103,8 +103,7 @@
 		"url": "https://github.com/ManuelGil/vscode-typescript-generator/issues"
 	},
 	"activationEvents": [
-		"onLanguage:typescript",
-		"onLanguage:typescriptreact"
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"l10n": "./l10n",
@@ -525,7 +524,7 @@
 		"@types/mocha": "^10.0.10",
 		"@types/mustache": "^4.2.6",
 		"@types/node": "^22.19.17",
-		"@types/vscode": "^1.115.0",
+		"@types/vscode": "^1.102.0",
 		"@vscode/l10n-dev": "^0.0.35",
 		"@vscode/test-cli": "^0.0.12",
 		"@vscode/test-electron": "^2.5.2",

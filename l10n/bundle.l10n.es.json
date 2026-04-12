@@ -30,6 +30,8 @@
 	"The custom components list is empty. Please add custom components to the configuration": "La lista de componentes personalizados está vacía. Agregue componentes personalizados a la configuración",
 	"Select the template for the custom element generation": "Seleccione la plantilla para la generación del elemento personalizado",
 	"Select a file type": "Seleccione un tipo de archivo",
+	"Suggested": "Sugerencia",
+	"Other options": "Otras opciones",
 	"Class": "Clase",
 	"Generate a TypeScript class": "Genera una clase de TypeScript",
 	"Interface": "Interfaz",
