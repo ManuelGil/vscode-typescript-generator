@@ -34,6 +34,7 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
   - [Authors](#authors)
   - [Follow Me](#follow-me)
   - [Other Extensions](#other-extensions)
+  - [Recommended Browser Extension](#recommended-browser-extension)
   - [License](#license)
 
 ## Key Features
@@ -53,7 +54,6 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
 
 1. **Explorer Context Menu**
    Right-click on a folder → **Auto TS Generator** → choose what to generate:
-
    - **Generic**: Class · Interface · Enum · Type · Function · Variable
    - **Custom Component**: Your own user-defined template
    - **Node**: Module · Server
@@ -70,7 +70,6 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
 ## Project Setup
 
 1. **Open VS Code Command Palette**
-
    - Windows: `Ctrl + Shift + P`
    - macOS: `Cmd + Shift + P`
 
@@ -79,70 +78,44 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
 
 3. **Add Configuration to `.vscode/settings.json`**
 
-    ```json
-    {
-        "autoTS.enable": true,
-        "autoTS.files.defaultLanguage": "TypeScript",
-        "autoTS.files.fileExtension": "ts",
-        "autoTS.files.skipFolderConfirmation": false,
-        "autoTS.files.includeTypeInFileName": false,
-        "autoTS.files.skipTypeSelection": true,
-        "autoTS.files.autoImport": false,
-        "autoTS.files.defaultBarrelFileName": "index",
-        "autoTS.formatting.useSingleQuotes": true,
-        "autoTS.formatting.excludeSemiColonAtEndOfLine": false,
-        "autoTS.formatting.keepExtensionOnExport": false,
-        "autoTS.formatting.endOfLine": "lf",
-        "autoTS.formatting.useStrict": false,
-        "autoTS.formatting.headerCommentTemplate": [],
-        "autoTS.formatting.insertFinalNewline": true,
-        "autoTS.project.author": "Jane Doe",
-        "autoTS.project.owner": "Jane Doe",
-        "autoTS.project.maintainers": "Jane Doe, John Doe",
-        "autoTS.project.license": "MIT",
-        "autoTS.project.version": "1.0.0",
-        "autoTS.templates.customComponents": [
-            {
-                "name": "Service",
-                "description": "Generates a service file",
-                "type": "service",
-                "template": [
-                    "import { Injectable } from '@angular/core';",
-                    "",
-                    "@Injectable({",
-                    "  providedIn: 'root'",
-                    "})",
-                    "export class {{fileNamePascalCase}}Service {",
-                    "",
-                    "  constructor() { }",
-                    "",
-                    "}"
-                ]
-            },
-            {
-                "name": "Component",
-                "description": "Generates a component file",
-                "type": "component",
-                "template": [
-                    "import { Component, OnInit } from '@angular/core';",
-                    "",
-                    "@Component({",
-                    "  selector: 'app-{{fileName}}',",
-                    "  templateUrl: './{{fileName}}.component.html',",
-                    "  styleUrls: ['./{{fileName}}.component.scss']",
-                    "})",
-                    "export class {{fileNamePascalCase}}Component implements OnInit {",
-                    "",
-                    "  constructor() { }",
-                    "",
-                    "  ngOnInit(): void { }",
-                    "",
-                    "}"
-                ]
-            }
-        ]
-    }
-    ```
+   ```json
+   {
+     "autoTS.enable": true,
+     "autoTS.files.defaultLanguage": "TypeScript",
+     "autoTS.files.fileExtension": "ts",
+     "autoTS.files.skipFolderConfirmation": false,
+     "autoTS.files.includeTypeInFileName": false,
+     "autoTS.files.skipTypeSelection": true,
+     "autoTS.files.autoImport": false,
+     "autoTS.files.defaultBarrelFileName": "index",
+     "autoTS.formatting.useSingleQuotes": true,
+     "autoTS.formatting.excludeSemiColonAtEndOfLine": false,
+     "autoTS.formatting.keepExtensionOnExport": false,
+     "autoTS.formatting.endOfLine": "lf",
+     "autoTS.formatting.useStrict": false,
+     "autoTS.formatting.headerCommentTemplate": [],
+     "autoTS.formatting.insertFinalNewline": true,
+     "autoTS.project.author": "Jane Doe",
+     "autoTS.project.owner": "Jane Doe",
+     "autoTS.project.maintainers": "Jane Doe, John Doe",
+     "autoTS.project.license": "MIT",
+     "autoTS.project.version": "1.0.0",
+     "autoTS.templates.customComponents": [
+       {
+         "name": "Service",
+         "description": "Generates a service file",
+         "type": "service",
+         "template": ["import { Injectable } from '@angular/core';", "", "@Injectable({", "  providedIn: 'root'", "})", "export class {{fileNamePascalCase}}Service {", "", "  constructor() { }", "", "}"]
+       },
+       {
+         "name": "Component",
+         "description": "Generates a component file",
+         "type": "component",
+         "template": ["import { Component, OnInit } from '@angular/core';", "", "@Component({", "  selector: 'app-{{fileName}}',", "  templateUrl: './{{fileName}}.component.html',", "  styleUrls: ['./{{fileName}}.component.scss']", "})", "export class {{fileNamePascalCase}}Component implements OnInit {", "", "  constructor() { }", "", "  ngOnInit(): void { }", "", "}"]
+       }
+     ]
+   }
+   ```
 
 4. **Restart VS Code** to apply the settings.
 
@@ -191,8 +164,8 @@ Add user-defined templates under `autoTS.templates.customComponents`:
 | `{{fileNameCamelCase}}`            | CamelCase                            | `myNewFile`              |
 | `{{fileNamePascalCase}}`           | PascalCase                           | `MyNewFile`              |
 | `{{fileNameKebabCase}}`            | kebab-case                           | `my-new-file`            |
-| `{{fileNameSnakeCase}}`            | snake\_case                          | `my_new_file`            |
-| `{{fileNameConstantCase}}`         | CONSTANT\_CASE                       | `MY_NEW_FILE`            |
+| `{{fileNameSnakeCase}}`            | snake_case                           | `my_new_file`            |
+| `{{fileNameConstantCase}}`         | CONSTANT_CASE                        | `MY_NEW_FILE`            |
 | `{{fileNameDotCase}}`              | dot.case                             | `my.new.file`            |
 | `{{fileNamePathCase}}`             | path/case                            | `my/new/file`            |
 | `{{fileNameSentenceCase}}`         | Sentence case                        | `My new file`            |
@@ -209,8 +182,8 @@ Add user-defined templates under `autoTS.templates.customComponents`:
 | `{{fileTypeNameCamelCase}}`        | File type in camelCase               | `service`                |
 | `{{fileTypeNamePascalCase}}`       | File type in PascalCase              | `Service`                |
 | `{{fileTypeNameKebabCase}}`        | File type in kebab-case              | `service`                |
-| `{{fileTypeNameSnakeCase}}`        | File type in snake\_case             | `service`                |
-| `{{fileTypeNameConstantCase}}`     | File type in CONSTANT\_CASE          | `SERVICE`                |
+| `{{fileTypeNameSnakeCase}}`        | File type in snake_case              | `service`                |
+| `{{fileTypeNameConstantCase}}`     | File type in CONSTANT_CASE           | `SERVICE`                |
 | `{{fileTypeNameDotCase}}`          | File type in dot.case                | `service`                |
 | `{{fileTypeNamePathCase}}`         | File type in path/case               | `service`                |
 | `{{fileTypeNameSentenceCase}}`     | File type in Sentence case           | `Service`                |
@@ -278,12 +251,12 @@ For a complete list of changes, see the [CHANGELOG.md](https://github.com/Manuel
 
 - **Manuel Gil** – _Owner_ – [@ManuelGil](https://github.com/ManuelGil)
 
-See also the list of [contributors](https://github.com/ManuelGil/vscode-typescript-generator/contributors) who participated in this project.
+For a complete list of contributors, please refer to the [contributors](https://github.com/ManuelGil/vscode-typescript-generator/contributors) page.
 
 ## Follow Me
 
-- **GitHub**: [![GitHub followers](https://img.shields.io/github/followers/ManuelGil?style=for-the-badge\&logo=github)](https://github.com/ManuelGil)
-- **X (formerly Twitter)**: [![X Follow](https://img.shields.io/twitter/follow/imgildev?style=for-the-badge\&logo=x)](https://twitter.com/imgildev)
+- **GitHub**: [![GitHub followers](https://img.shields.io/github/followers/ManuelGil?style=for-the-badge&logo=github)](https://github.com/ManuelGil)
+- **X (formerly Twitter)**: [![X Follow](https://img.shields.io/twitter/follow/imgildev?style=for-the-badge&logo=x)](https://twitter.com/imgildev)
 
 ## Other Extensions
 
@@ -314,8 +287,17 @@ See also the list of [contributors](https://github.com/ManuelGil/vscode-typescri
 - **[CodeIgniter 4 Shield Snippets](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-codeigniter4-shield-snippets)**
   Snippets tailored to CodeIgniter 4 Shield for faster authentication and security-related code.
 
-- **[Mustache Template Engine – Snippets & Autocomplete](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-mustache-snippets)**
+- **[Mustache Template Engine - Snippets & Autocomplete](https://marketplace.visualstudio.com/items?itemName=imgildev.vscode-mustache-snippets)**
   Snippets and autocomplete support for Mustache templates, making HTML templating faster and more reliable.
+
+## Recommended Browser Extension
+
+For developers who work with `.vsix` files for offline installations or distribution, the complementary [**One-Click VSIX**](https://chromewebstore.google.com/detail/imojppdbcecfpeafjagncfplelddhigc?utm_source=item-share-cb) extension is recommended, available for both Chrome and Firefox.
+
+> **One-Click VSIX** integrates a direct "Download Extension" button into each VSCode Marketplace page, ensuring the file is saved with the `.vsix` extension, even if the server provides a `.zip` archive. This simplifies the process of installing or sharing extensions offline by eliminating the need for manual file renaming.
+
+- [Get One-Click VSIX for Chrome &rarr;](https://chromewebstore.google.com/detail/imojppdbcecfpeafjagncfplelddhigc?utm_source=item-share-cb)
+- [Get One-Click VSIX for Firefox &rarr;](https://addons.mozilla.org/es-ES/firefox/addon/one-click-vsix/)
 
 ## License
 

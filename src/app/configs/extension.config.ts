@@ -77,6 +77,17 @@ export class ExtensionConfig {
   enable: boolean;
 
   /**
+   * The workspace selection.
+   * @type {string | undefined}
+   * @public
+   * @memberof ExtensionConfig
+   * @example
+   * const config = new Config(workspace.getConfiguration());
+   * console.log(config.workspaceSelection);
+   */
+  workspaceSelection: string | undefined;
+
+  /**
    * The default language.
    * @type {'TypeScript' | 'JavaScript'}
    * @public

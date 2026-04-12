@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-04-11
+
+### Added
+
+- Introduce `ExtensionRuntime` to manage the extension lifecycle and core state.
+
+### Changed
+
+- Simplify `activate` by delegating initialization to `ExtensionRuntime`.
+- Centralize command registration, workspace selection, and update handling in a single runtime layer.
+- Improve configuration handling with workspace-specific support.
+- Enhance error handling and user feedback during activation and updates.
+
+### Removed
+
+- Remove unused code and outdated references.
+
+## [1.8.0] - 2026-01-29
+
+### Added
+
+- Validation scripts to ensure **l10n** keys used in source files match those defined in localization bundles.
+- Validation scripts to ensure **NLS** keys in `package.json` match those in `package.nls*.json`.
+- GitHub Actions workflows for automated checks.
+- Dependabot configuration for dependency updates.
+- Node.js version management via `.nvmrc`.
+- Environment management via `.envrc`.
+- A Makefile for common development tasks.
+
+### Changed
+
+- Migrate the repository to **pnpm** for dependency management.
+- Update project configuration and metadata.
+- Improve localization bundles and aligned them with actual key usage.
+- Update documentation and changelog structure.
+
+### Removed
+
+- Remove `package-lock.json` in favor of `pnpm-lock.yaml`.
+
 ## [1.7.0] - 2025-06-12
 
 ### Added
@@ -116,7 +156,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.7.0...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.4.1...v1.5.0

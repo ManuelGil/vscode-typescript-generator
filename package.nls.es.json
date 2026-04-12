@@ -36,5 +36,6 @@
 	"autoTS.generateFastifyController": "Generar Controlador de Fastify",
 	"autoTS.generateFastifyMiddleware": "Generar Middleware de Fastify",
 	"autoTS.generateFastifyRoute": "Generar Ruta de Fastify",
-	"autoTS.generateFastifyServer": "Generar Servidor de Fastify"
+	"autoTS.generateFastifyServer": "Generar Servidor de Fastify",
+	"autoTS.generateReactComponent": "Generar Componente de React"
 }

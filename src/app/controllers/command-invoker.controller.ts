@@ -4,14 +4,14 @@ import { EXTENSION_DISPLAY_NAME } from '../configs';
 import type { Command } from '../types';
 
 /**
- * The CommandInvoker class.
+ * Registers and executes commands behind a single enablement gate.
+ *
+ * This controller keeps the command wiring thin and centralizes the disabled
+ * state behavior for the extension entry point.
  *
  * @class
- * @classdesc The class that represents the example controller.
  * @export
  * @public
- * @example
- * const controller = new CommandInvoker(config);
  */
 export class CommandInvoker {
   // -----------------------------------------------------------------
@@ -34,13 +34,11 @@ export class CommandInvoker {
   // -----------------------------------------------------------------
 
   /**
-   * The CommandInvoker constructor.
+   * Creates a command invoker.
    *
-   * @param {boolean} isEnable - The enable the extension
-   * @constructor
-   * @memberof CommandInvoker
+   * @param isEnabled Whether the extension is enabled.
    */
-  constructor(private readonly isEnable: boolean) {}
+  constructor(private readonly isEnabled: boolean) {}
 
   // -----------------------------------------------------------------
   // Methods
@@ -49,34 +47,26 @@ export class CommandInvoker {
   // Public methods
 
   /**
-   * The register method.
+   * Registers a command handler by name.
    *
-   * @function register
-   * @param {string} commandName - The command name
-   * @param {Command} command - The command
-   * @public
-   * @memberof CommandInvoker
+   * @param commandName Command identifier.
+   * @param command Command implementation.
    */
   register(commandName: string, command: Command) {
     this.commands.set(commandName, command);
   }
 
   /**
-   * The execute method.
+   * Executes a registered command when the extension is enabled.
    *
-   * @function execute
-   * @returns {Promise<void>}
-   * @public
-   * @memberof CommandInvoker
-   *
-   * @param {string} commandName - The command name
-   * @param {Uri} folderPath - The folder path
+   * @param commandName Command identifier.
+   * @param folderPath Folder context supplied by VS Code.
    */
   async execute(commandName: string, folderPath?: Uri): Promise<void> {
-    if (!this.isEnable) {
+    if (!this.isEnabled) {
       const message = l10n.t(
         '{0} is disabled in settings. Enable it to use its features',
-        [EXTENSION_DISPLAY_NAME],
+        EXTENSION_DISPLAY_NAME,
       );
       window.showErrorMessage(message);
       return;

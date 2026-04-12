@@ -1,38 +1,53 @@
-import { existsSync, readFileSync } from 'fs';
-import { basename, dirname, extname, join, normalize, relative } from 'path';
-import * as mustache from 'mustache';
+import mustache from 'mustache';
 import {
+  basename,
+  dirname,
+  extname,
+  isAbsolute,
+  join,
+  normalize,
+  relative,
+} from 'path';
+import {
+  commands,
+  l10n,
   Position,
-  ProgressLocation,
   Uri,
   WorkspaceEdit,
   WorkspaceFolder,
-  commands,
-  l10n,
   window,
   workspace,
 } from 'vscode';
+
 import { ContentTemplate, ExtensionConfig } from '../configs';
 import {
   camelize,
   constantize,
+  generateQuickPickOption,
+  getCustomTemplateByName,
   kebabize,
   pascalize,
   pluralize,
+  readFileContent,
+  relativePath,
+  resolveFolderResource,
+  saveFile as saveWorkspaceFile,
   sentenceCase,
   singularize,
   snakeize,
   titleize,
+  toPosixPath,
 } from '../helpers';
 
 /**
- * The FileGeneratorService class.
- * This class is responsible for generating files.
+ * Generates files from templates and user input.
+ *
+ * The service owns the orchestration around template resolution, name prompts,
+ * path validation, content generation and file persistence.
  *
  * @class
  * @example
- * const service = new FileGeneratorService(config);
- * service.generateEntity('class', Uri.parse('path'), true);
+ * const service = new FileGeneratorService(config, extensionUri);
  */
 export class FileGeneratorService {
   // -----------------------------------------------------------------
@@ -58,19 +73,10 @@ export class FileGeneratorService {
   // Public methods
 
   /**
-   * The generateComponent method.
+   * Generates a typed component file in the selected workspace folder.
    *
-   * @function generateComponent
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateComponent(Uri.parse('path'), 'component');
-   *
-   * @param {Uri} folderPath - The folder path
-   * @param {string} componentType - The component type
-   *
-   * @returns {Promise<void>} - The promise with no return value
+   * @param folderPath Folder context supplied by VS Code.
+   * @param componentType Template family to generate.
    */
   async generateComponent(
     folderPath?: Uri,
@@ -86,45 +92,10 @@ export class FileGeneratorService {
   }
 
   /**
-   * The generateCustomComponent method.
+   * Builds the file content and writes the generated component to disk.
    *
-   * @function generateCustomComponent
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.generateCustomComponent(Uri.parse('path'));
-   *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
-   */
-  async generateCustomComponent(folderPath?: Uri): Promise<void> {
-    if (!folderPath) {
-      const message = l10n.t('Operation cancelled!');
-      window.showInformationMessage(message);
-      return;
-    }
-
-    await this.createCustomComponentFile(folderPath);
-  }
-
-  // Private methods
-
-  /**
-   * The createComponentFile method.
-   *
-   * @function createComponentFile
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.createComponentFile('class', Uri.parse('path'), true);
-   *
-   * @param {string} componentType - The entity type
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
+   * @param folderPath Folder context supplied by VS Code.
+   * @param componentType Template family to generate.
    */
   private async createComponentFile(
     folderPath: Uri,
@@ -144,19 +115,27 @@ export class FileGeneratorService {
     let relativeFolderPath: string = '';
 
     if (folderPath) {
-      workspaceFolder = workspace.getWorkspaceFolder(folderPath);
-      relativeFolderPath = workspace.asRelativePath(folderPath);
+      const targetFolderUri = await resolveFolderResource(folderPath);
+
+      if (targetFolderUri) {
+        workspaceFolder = workspace.getWorkspaceFolder(targetFolderUri);
+        relativeFolderPath = await relativePath(
+          targetFolderUri,
+          false,
+          this.config,
+        );
+      }
     } else if (
       workspace.workspaceFolders &&
       workspace.workspaceFolders.length === 1
     ) {
       workspaceFolder = workspace.workspaceFolders[0];
     } else {
-      const placeHolder = l10n.t(
+      const placeholder = l10n.t(
         'Select a workspace folder to use. This folder will be used to generate the file',
       );
       workspaceFolder = await window.showWorkspaceFolderPick({
-        placeHolder,
+        placeHolder: placeholder,
       });
     }
 
@@ -176,7 +155,7 @@ export class FileGeneratorService {
           'Enter the folder name where the {0} will be created',
           componentType,
         ),
-        l10n.t('Enter the folder name, e.g. models, services, utils, etc.'),
+        l10n.t('Enter the folder name, e.g. models, services, utils, etc'),
         relativeFolderPath,
         (path) =>
           !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
@@ -195,11 +174,26 @@ export class FileGeneratorService {
       folderName = relativeFolderPath;
     }
 
+    // Validate folder path to prevent absolute paths or path traversal
+    if (folderName) {
+      const normalizedFolder = normalize(folderName);
+      if (
+        isAbsolute(normalizedFolder) ||
+        /(^|[\\/])\.\.(?:[\\/]|$)/.test(normalizedFolder)
+      ) {
+        const message = l10n.t(
+          'The folder name is invalid. Please provide a relative path within the workspace and avoid ".."',
+        );
+        window.showErrorMessage(message);
+        return;
+      }
+    }
+
     const componentFileName = await this.promptInput(
       l10n.t(
         'Enter the file name for the custom component. The file extension will be added automatically',
       ),
-      l10n.t('Enter the file name, e.g. User, Product, Order, etc.'),
+      l10n.t('Enter the file name, e.g. User, Product, Order, etc'),
     );
 
     if (!componentFileName) {
@@ -208,7 +202,7 @@ export class FileGeneratorService {
       return;
     }
 
-    const template = this.getTemplate(componentType);
+    const template = await this.getTemplate(componentType);
 
     if (!template) {
       const message = l10n.t(
@@ -225,7 +219,7 @@ export class FileGeneratorService {
       selectedComponentType = await this.promptInput(
         l10n.t('Enter the {0} type (optional)', componentType),
         l10n.t(
-          'Enter the {0} type, e.g. model, service, util, etc.',
+          'Enter the {0} type, e.g. model, service, util, etc',
           componentType,
         ),
         undefined,
@@ -264,7 +258,12 @@ export class FileGeneratorService {
       : '';
     const fileName = `${componentFileName}${fileNameSuffix}.${fileExtension}`;
 
-    await this.saveFile(resolvedFolderPath, fileName, fileContent);
+    void saveWorkspaceFile(
+      resolvedFolderPath,
+      fileName,
+      fileContent,
+      this.config,
+    );
 
     if (autoImport) {
       const barrelFileExtension =
@@ -282,18 +281,24 @@ export class FileGeneratorService {
   }
 
   /**
-   * The createCustomComponentFile method.
+   * Generates a file from a user-selected custom template.
    *
-   * @function createCustomComponentFile
-   * @public
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.createCustomComponentFile(Uri.parse('path'));
+   * @param folderPath Folder context supplied by VS Code.
+   */
+  async generateCustomComponent(folderPath?: Uri): Promise<void> {
+    if (!folderPath) {
+      const message = l10n.t('Operation cancelled!');
+      window.showInformationMessage(message);
+      return;
+    }
+
+    await this.createCustomComponentFile(folderPath);
+  }
+
+  /**
+   * Resolves the selected custom template and writes the generated file.
    *
-   * @param {Uri} folderPath - The folder path
-   *
-   * @returns {Promise<void>} - The promise with no return value
+   * @param folderPath Folder context supplied by VS Code.
    */
   private async createCustomComponentFile(folderPath: Uri): Promise<void> {
     const {
@@ -310,19 +315,27 @@ export class FileGeneratorService {
     let relativeFolderPath: string = '';
 
     if (folderPath) {
-      workspaceFolder = workspace.getWorkspaceFolder(folderPath);
-      relativeFolderPath = workspace.asRelativePath(folderPath);
+      const targetFolderUri = await resolveFolderResource(folderPath);
+
+      if (targetFolderUri) {
+        workspaceFolder = workspace.getWorkspaceFolder(targetFolderUri);
+        relativeFolderPath = await relativePath(
+          targetFolderUri,
+          false,
+          this.config,
+        );
+      }
     } else if (
       workspace.workspaceFolders &&
       workspace.workspaceFolders.length === 1
     ) {
       workspaceFolder = workspace.workspaceFolders[0];
     } else {
-      const placeHolder = l10n.t(
+      const placeholder = l10n.t(
         'Select a workspace folder to use. This folder will be used to generate the file',
       );
       workspaceFolder = await window.showWorkspaceFolderPick({
-        placeHolder,
+        placeHolder: placeholder,
       });
     }
 
@@ -341,7 +354,7 @@ export class FileGeneratorService {
         l10n.t(
           'Enter the folder name where the custom component will be created',
         ),
-        l10n.t('Enter the folder name, e.g. components, shared, etc.'),
+        l10n.t('Enter the folder name, e.g. components, shared, etc'),
         relativeFolderPath,
         (path) =>
           !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
@@ -360,6 +373,21 @@ export class FileGeneratorService {
       folderName = relativeFolderPath;
     }
 
+    // Validate folder path to prevent absolute paths or path traversal
+    if (folderName) {
+      const normalizedFolder = normalize(folderName);
+      if (
+        isAbsolute(normalizedFolder) ||
+        /(^|[\\/])\.\.(?:[\\/]|$)/.test(normalizedFolder)
+      ) {
+        const message = l10n.t(
+          'The folder name is invalid. Please provide a relative path within the workspace and avoid ".."',
+        );
+        window.showErrorMessage(message);
+        return;
+      }
+    }
+
     if (customComponents.length === 0) {
       const message = l10n.t(
         'The custom components list is empty. Please add custom components to the configuration',
@@ -368,21 +396,15 @@ export class FileGeneratorService {
       return;
     }
 
-    const items = customComponents.map((item: any) => {
-      return {
-        label: item.name,
-        description: item.description,
-        detail: item.type,
-      };
-    });
+    const templateOptions = customComponents.map(generateQuickPickOption);
 
-    const option = await window.showQuickPick(items, {
+    const selectedTemplateOption = await window.showQuickPick(templateOptions, {
       placeHolder: l10n.t(
         'Select the template for the custom element generation',
       ),
     });
 
-    if (!option) {
+    if (!selectedTemplateOption) {
       const message = l10n.t('Operation cancelled!');
       window.showInformationMessage(message);
       return;
@@ -392,8 +414,7 @@ export class FileGeneratorService {
       l10n.t(
         'Enter the file name for the custom component. The file extension will be added automatically',
       ),
-      l10n.t('Enter the file name, e.g. User, Product, Order, etc.'),
-      undefined,
+      l10n.t('Enter the file name, e.g. User, Product, Order, etc'),
     );
 
     if (!componentFileName) {
@@ -402,11 +423,12 @@ export class FileGeneratorService {
       return;
     }
 
-    const template = customComponents.find(
-      (item: any) => item.name === option.label,
+    const selectedTemplate = getCustomTemplateByName(
+      customComponents,
+      selectedTemplateOption.label,
     );
 
-    if (!template) {
+    if (!selectedTemplate) {
       const message = l10n.t(
         'The template for the custom component does not exist. Please try again',
       );
@@ -414,26 +436,33 @@ export class FileGeneratorService {
       return;
     }
 
-    const content = this.generateFileContent(template.template);
+    const content = this.generateFileContent(selectedTemplate.template);
 
     const fileContent = mustache.render(
       content,
       this.getVariables(
         folderName,
         componentFileName,
-        template.type,
+        selectedTemplate.type,
         fileExtension,
       ),
     );
 
     const componentFullName = includeTypeInFileName
-      ? `${pascalize(componentFileName)}${titleize(template.type)}`
+      ? `${pascalize(componentFileName)}${titleize(selectedTemplate.type)}`
       : pascalize(componentFileName);
     const resolvedFolderPath = join(workspaceFolder.uri.fsPath, folderName);
-    const fileNameSuffix = includeTypeInFileName ? `.${template.type}` : '';
+    const fileNameSuffix = includeTypeInFileName
+      ? `.${selectedTemplate.type}`
+      : '';
     const fileName = `${componentFileName}${fileNameSuffix}.${fileExtension}`;
 
-    await this.saveFile(resolvedFolderPath, fileName, fileContent);
+    void saveWorkspaceFile(
+      resolvedFolderPath,
+      fileName,
+      fileContent,
+      this.config,
+    );
 
     if (autoImport) {
       const barrelFileExtension =
@@ -451,77 +480,55 @@ export class FileGeneratorService {
   }
 
   /**
-   * The promptInput method.
+   * Prompts the user for input with optional validation.
    *
-   * @function promptInput
-   * @private
-   * @async
-   * @memberof FilesController
-   * @example
-   * controller.promptInput('prompt', 'placeHolder', 'value', (input) => 'error');
-   *
-   * @param {string} prompt - The prompt
-   * @param {string} placeHolder - The place holder
-   * @param {string} value - The value
-   * @param {(input: string) => string | undefined} validateInput - The validate input
-   *
-   * @returns {Promise<string | undefined>} - The promise with the return value
+   * @param prompt Prompt text shown to the user.
+   * @param placeholder Input placeholder text.
+   * @param defaultValue Initial value.
+   * @param validateInput Validation callback.
    */
   private async promptInput(
     prompt: string,
-    placeHolder: string,
-    value?: string,
+    placeholder: string,
+    defaultValue?: string,
     validateInput?: (input: string) => string | undefined,
   ): Promise<string | undefined> {
-    return await window.showInputBox({
+    return window.showInputBox({
       prompt,
-      placeHolder,
-      value,
+      placeHolder: placeholder,
+      value: defaultValue,
       validateInput,
     });
   }
 
   /**
-   * The getTemplate method.
+   * Resolves the template definition for the requested component type.
    *
-   * @function getTemplate
-   * @private
-   * @memberof FilesController
-   * @example
-   * controller.getTemplate('command');
-   *
-   * @param {string} command - The command
-   *
-   * @returns {ContentTemplate | undefined} - The template or null
+   * @param command Component type to resolve.
    */
-  private getTemplate(command: string): ContentTemplate | undefined {
+  private async getTemplate(
+    command: string,
+  ): Promise<ContentTemplate | undefined> {
     const templatePath = Uri.joinPath(
       this.extensionUri,
       'templates',
       `${command}.json`,
     );
 
-    if (!existsSync(templatePath.fsPath)) {
+    try {
+      const text = await readFileContent(templatePath);
+      return JSON.parse(text);
+    } catch {
       return;
     }
-
-    return JSON.parse(readFileSync(templatePath.fsPath, 'utf-8'));
   }
 
   /**
-   * The generateFileContent method.
+   * Normalizes template content before rendering.
    *
-   * @function generateFileContent
-   * @param {string} entityName - The entity name
-   * @param {string[]} template - The template
-   * @memberof FilesController
-   * @private
-   * @example
-   * controller.generateFileContent(['template']);
-   *
-   * @returns {string} - The file content
+   * @param templateLines Raw template lines.
    */
-  private generateFileContent(template: string[]): string {
+  private generateFileContent(templateLines: string[]): string {
     const {
       excludeSemiColonAtEndOfLine,
       useSingleQuotes,
@@ -544,7 +551,7 @@ export class FileGeneratorService {
       content += `${quote}use strict${quote};${newline}${newline}`;
     }
 
-    content += template.join(newline);
+    content += templateLines.join(newline);
 
     // Add a final newline
     if (insertFinalNewline) {
@@ -559,22 +566,19 @@ export class FileGeneratorService {
   }
 
   /**
-   * The getVariables method.
+   * Builds the mustache variables used by template rendering.
    *
-   * @function getVariables
-   * @private
-   * @memberof FilesController
-   * @example
-   * controller.getVariables('folder', 'component', 'type', 'ext');
-   *
-   * @returns {Record<string, any>} - The variables
+   * @param folderName Relative folder name for the generated file.
+   * @param componentName Generated file base name.
+   * @param fileType Template type.
+   * @param fileExtension Selected file extension.
    */
   private getVariables(
     folderName: string,
     componentName: string,
     fileType: string,
     fileExtension: string,
-  ): Record<string, any> {
+  ): Record<string, string | number> {
     const { author, owner, maintainers, license, version } = this.config;
 
     return {
@@ -630,95 +634,13 @@ export class FileGeneratorService {
   }
 
   /**
-   * Writes data to the file specified in the path. If the file does not exist then the function will create it.
+   * Updates the nearest barrel file with the generated export.
    *
-   * @param {string} path - Path to the file
-   * @param {string} filename - Name of the file
-   * @param {string} data - Data to write to the file
-   * @example
-   * await saveFile('src', 'file.ts', 'console.log("Hello World")');
-   *
-   * @returns {Promise<void>} - Confirmation of the write operation
-   */
-  private async saveFile(
-    path: string,
-    filename: string,
-    data: string,
-  ): Promise<void> {
-    const dirUri = Uri.file(path);
-    const fileUri = Uri.joinPath(dirUri, filename);
-
-    await window.withProgress(
-      {
-        location: ProgressLocation.Notification,
-        title: `Creating file: ${filename}`,
-        cancellable: false,
-      },
-      async () => {
-        try {
-          await workspace.fs.createDirectory(dirUri);
-
-          let alreadyExists = false;
-
-          try {
-            await workspace.fs.stat(fileUri);
-            alreadyExists = true;
-          } catch (statError: any) {
-            if ((statError as { code?: string }).code !== 'FileNotFound') {
-              throw statError;
-            }
-          }
-
-          if (alreadyExists) {
-            const message = l10n.t(
-              'File already exists: {0}. Please choose a different name.',
-              filename,
-            );
-            window.showErrorMessage(message);
-            return;
-          }
-
-          const encoded = Buffer.from(data, 'utf8');
-          await workspace.fs.writeFile(fileUri, encoded);
-
-          const document = await workspace.openTextDocument(fileUri);
-          await window.showTextDocument(document);
-
-          // Ensure the directory exists
-          const message = l10n.t(
-            'File created successfully: {0}',
-            normalize(fileUri.fsPath),
-          );
-          window.showInformationMessage(message);
-        } catch (err: any) {
-          // Handle errors during file creation
-          const message = l10n.t(
-            'Error creating file: {0}. Please check the path and try again.',
-            err.message ?? err,
-          );
-          window.showErrorMessage(message);
-        }
-      },
-    );
-  }
-
-  /**
-   * Auto import functionality for files.
-   *
-   * @function autoImport
-   * @memberof FileController
-   * @private
-   * @async
-   * @example
-   * controller.autoImport('path', 'fileEntityName', 'entityImportName', 'dependencyFileName', true);
-   *
-   * @param {string} targetDirectoryPath - The path to the folder
-   * @param {string} importedFileName - The name of the file entity
-   * @param {string} entityImportName - The name of the entity to import
-   * @param {string} barrelFileName - The name of the dependency file
-   * @param {boolean} useTypeImport - The flag to use type import
-   *
-   * @returns {Promise<void>} The result of the operation
+   * @param targetDirectoryPath Directory that owns the generated file.
+   * @param importedFileName Generated file name.
+   * @param entityImportName Exported symbol name.
+   * @param barrelFileName Barrel file name.
+   * @param useTypeImport Whether the export should be type-only.
    */
   private async autoImport(
     targetDirectoryPath: string,
@@ -738,23 +660,40 @@ export class FileGeneratorService {
 
     try {
       let barrelFileUri = Uri.file(join(targetDirectoryPath, barrelFileName));
-      let barrelFileFound = false;
+      let barrelFileExists = false;
 
-      // Check if barrel file exists in the current directory
-      if (existsSync(barrelFileUri.fsPath)) {
-        barrelFileFound = true;
-      } else {
-        // Try to find barrel file in parent directory
+      // Check if barrel file exists in the current directory; if not, try parent directory
+      try {
+        await workspace.fs.stat(barrelFileUri);
+        barrelFileExists = true;
+      } catch (error: unknown) {
+        const errorCode =
+          error instanceof Error
+            ? (error as Error & { code?: string }).code
+            : undefined;
+
+        if (errorCode !== 'FileNotFound') {
+          throw error;
+        }
         const resolvedDirectoryPath = join(targetDirectoryPath, '..');
         barrelFileUri = Uri.file(join(resolvedDirectoryPath, barrelFileName));
+        try {
+          await workspace.fs.stat(barrelFileUri);
+          barrelFileExists = true;
+        } catch (nestedError: unknown) {
+          const nestedErrorCode =
+            nestedError instanceof Error
+              ? (nestedError as Error & { code?: string }).code
+              : undefined;
 
-        if (existsSync(barrelFileUri.fsPath)) {
-          barrelFileFound = true;
+          if (nestedErrorCode !== 'FileNotFound') {
+            throw nestedError;
+          }
         }
       }
 
       // If barrel file is not found in either location, show error and abort
-      if (!barrelFileFound) {
+      if (!barrelFileExists) {
         const message = l10n.t(
           'The barrel file {0} does not exist! Please create a barrel file first',
           barrelFileName,
@@ -773,13 +712,12 @@ export class FileGeneratorService {
         return;
       }
 
-      let relativePath = relative(
-        dirname(barrelFileUri.fsPath),
-        targetDirectoryPath,
-      ).replace(/\\/g, '/');
+      let relativeImportPath = toPosixPath(
+        relative(dirname(barrelFileUri.fsPath), targetDirectoryPath),
+      );
 
-      if (relativePath !== '') {
-        relativePath = relativePath + '/';
+      if (relativeImportPath !== '') {
+        relativeImportPath = `${relativeImportPath}/`;
       }
 
       let fileName: string;
@@ -796,13 +734,13 @@ export class FileGeneratorService {
         edit.insert(
           barrelFileUri,
           new Position(0, 0),
-          `export type { ${entityImportName} } from ${quote}./${relativePath}${fileName}${quote}${semi}\n`,
+          `export type { ${entityImportName} } from ${quote}./${relativeImportPath}${fileName}${quote}${semi}\n`,
         );
       } else {
         edit.insert(
           barrelFileUri,
           new Position(0, 0),
-          `export * from ${quote}./${relativePath}${fileName}${quote}${semi}\n`,
+          `export * from ${quote}./${relativeImportPath}${fileName}${quote}${semi}\n`,
         );
       }
 
