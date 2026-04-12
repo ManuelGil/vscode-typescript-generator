@@ -30,7 +30,7 @@
 		},
 		"autoTS.files.skipFolderConfirmation": {
 			"type": "boolean",
-			"default": false,
+			"default": true,
 			"scope": "resource",
 			"description": "Skip destination folder confirmation when generating files"
 		},
@@ -48,7 +48,7 @@
 		},
 		"autoTS.files.autoImport": {
 			"type": "boolean",
-			"default": false,
+			"default": true,
 			"scope": "resource",
 			"description": "Automatically import generated files"
 		},

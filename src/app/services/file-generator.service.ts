@@ -82,7 +82,7 @@ export class FileGeneratorService {
     folderPath?: Uri,
     componentType?: string,
   ): Promise<void> {
-    if (!folderPath || !componentType) {
+    if (!componentType) {
       const message = l10n.t('Operation cancelled!');
       window.showInformationMessage(message);
       return;
@@ -98,7 +98,7 @@ export class FileGeneratorService {
    * @param componentType Template family to generate.
    */
   private async createComponentFile(
-    folderPath: Uri,
+    folderPath: Uri | undefined,
     componentType: string,
   ): Promise<void> {
     const {
@@ -286,12 +286,6 @@ export class FileGeneratorService {
    * @param folderPath Folder context supplied by VS Code.
    */
   async generateCustomComponent(folderPath?: Uri): Promise<void> {
-    if (!folderPath) {
-      const message = l10n.t('Operation cancelled!');
-      window.showInformationMessage(message);
-      return;
-    }
-
     await this.createCustomComponentFile(folderPath);
   }
 
@@ -300,7 +294,9 @@ export class FileGeneratorService {
    *
    * @param folderPath Folder context supplied by VS Code.
    */
-  private async createCustomComponentFile(folderPath: Uri): Promise<void> {
+  private async createCustomComponentFile(
+    folderPath: Uri | undefined,
+  ): Promise<void> {
     const {
       fileExtension,
       skipFolderConfirmation,
@@ -757,8 +753,10 @@ export class FileGeneratorService {
         workspace.asRelativePath(barrelFileUri),
       );
       window.showInformationMessage(message);
-    } catch (error) {
-      const message = l10n.t('Auto-import failed! Please try again');
+    } catch (_error) {
+      const message = l10n.t(
+        'Auto-import failed. Verify that the barrel file exists and try again.',
+      );
       window.showErrorMessage(message);
     }
   }

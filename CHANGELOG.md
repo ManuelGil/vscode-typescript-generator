@@ -1,11 +1,25 @@
 # Change Log
 
-All notable changes to the "VueJS File Generator" extension will be documented in this file.
+All notable changes to the "Auto TS Generator" extension will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.9.0] - 2026-04-12
+
+### Added
+
+- Introduce a primary `Auto TS: Generate` command to centralize generation in a single contextual flow.
+
+### Changed
+
+- Enable quick-mode defaults: `autoTS.files.skipFolderConfirmation=true` and `autoTS.files.autoImport=true`.
+- Register generation commands through shared contextual resource resolution, reducing manual folder dependency.
+- Improve user-facing error messages with actionable guidance.
+- Highlight primary command and quick-mode workflow in the README.
+- Keep first-run onboarding informative and non-intrusive.
 
 ## [1.8.0] - 2026-04-11
 
@@ -144,7 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.8.0...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.9.0...HEAD
+[1.9.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.8.0...v1.9.0
 [1.8.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.5.0...v1.6.0

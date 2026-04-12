@@ -24,6 +24,7 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
   - [Usage](#usage)
   - [Project Setup](#project-setup)
   - [Settings Configuration](#settings-configuration)
+    - [Recommended Quick Mode](#recommended-quick-mode)
   - [Custom Templates](#custom-templates)
   - [Template Variables](#template-variables)
   - [Installation](#installation)
@@ -39,16 +40,18 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
 
 ## Key Features
 
-| Feature                            | Description                                                                                                                                   |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Customizable Templates**         | Define your own boilerplate for classes, interfaces, enums, services, components, and more.                                                   |
-| **Dynamic Variables**              | Over 30 template placeholders, naming formats (`PascalCase`, `kebab-case`, etc.), dates, metadata.                                            |
-| **Auto Import**                    | Automatically add new exports to barrel files or insert import statements in open files.                                                      |
-| **Rich Command Palette**           | Commands for generating `class`, `interface`, `enum`, `type`, `function`, `variable` and framework artifacts (React, Node, Express, Fastify). |
-| **Context Menu Integration**       | Right-click on any folder in Explorer, choose **Auto TS Generator**, and pick your artifact.                                                  |
-| **Project-Level Configuration**    | Control file extensions, formatting, naming conventions, header comments, and more via `settings.json`.                                       |
-| **VSCode-based Editor Support**    | Compatible with VSCode, VSCodium, WindSurf, Cursor, and any editor implementing the VSCode extension API.                                     |
-| **Version & Update Notifications** | First-run welcome message, release notes prompt after upgrades, and auto-check for new releases.                                              |
+| Feature                             | Description                                                                                                                                   |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Customizable Templates**          | Define your own boilerplate for classes, interfaces, enums, services, components, and more.                                                   |
+| **Dynamic Variables**               | Over 30 template placeholders, naming formats (`PascalCase`, `kebab-case`, etc.), dates, metadata.                                            |
+| **Smart Generate**                  | Use a single `Auto TS: Generate` command to pick what to scaffold from one contextual flow.                                                   |
+| **Auto Import**                     | Automatically add new exports to barrel files or insert import statements in open files.                                                      |
+| **Context-Aware Target Resolution** | Reuses the active folder/file context and selected workspace so generation starts where you are already working.                              |
+| **Rich Command Palette**            | Commands for generating `class`, `interface`, `enum`, `type`, `function`, `variable` and framework artifacts (React, Node, Express, Fastify). |
+| **Context Menu Integration**        | Right-click on any folder in Explorer, choose **Auto TS Generator**, and pick your artifact.                                                  |
+| **Project-Level Configuration**     | Control file extensions, formatting, naming conventions, header comments, and more via `settings.json`.                                       |
+| **VSCode-based Editor Support**     | Compatible with VSCode, VSCodium, WindSurf, Cursor, and any editor implementing the VSCode extension API.                                     |
+| **Version & Update Notifications**  | First-run welcome message, release notes prompt after upgrades, and auto-check for new releases.                                              |
 
 ## Usage
 
@@ -63,6 +66,10 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
 
 2. **Command Palette**
    Press `Ctrl+Shift+P` (Windows/Linux) or `Cmd+Shift+P` (macOS), type `Auto TS`, and select any of the above commands.
+
+   Recommended primary entry point:
+
+   - **Auto TS: Generate** → choose what to generate in one place.
 
 3. **Automatic Update Check**
    On activation, the extension compares its version with the Marketplace's latest. If a newer version exists, you'll be prompted to update.
@@ -83,10 +90,10 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
      "autoTS.enable": true,
      "autoTS.files.defaultLanguage": "TypeScript",
      "autoTS.files.fileExtension": "ts",
-     "autoTS.files.skipFolderConfirmation": false,
+    "autoTS.files.skipFolderConfirmation": true,
      "autoTS.files.includeTypeInFileName": false,
      "autoTS.files.skipTypeSelection": true,
-     "autoTS.files.autoImport": false,
+    "autoTS.files.autoImport": true,
      "autoTS.files.defaultBarrelFileName": "index",
      "autoTS.formatting.useSingleQuotes": true,
      "autoTS.formatting.excludeSemiColonAtEndOfLine": false,
@@ -126,10 +133,10 @@ You can customize the behavior of **Auto TS Generator** by modifying the setting
 - `autoTS.enable`: Toggle the extension on or off. Default is `true`.
 - `autoTS.files.defaultLanguage`: Set the default language for generated files. Default is `TypeScript`.
 - `autoTS.files.fileExtension`: Set the file extension for generated files. Default is `.ts`.
-- `autoTS.files.skipFolderConfirmation`: Skip the folder confirmation dialog when creating files. Default is `false`.
+- `autoTS.files.skipFolderConfirmation`: Skip the folder confirmation dialog when creating files. Default is `true`.
 - `autoTS.files.includeTypeInFileName`: Add the type to the file name (e.g., `myNewFile.component`). Default is `false`.
 - `autoTS.files.skipTypeSelection`: Skip the type selection dialog when creating files. Default is `true`.
-- `autoTS.files.autoImport`: Automatically imports generated files. Default is `false`.
+- `autoTS.files.autoImport`: Automatically imports generated files. Default is `true`.
 - `autoTS.files.defaultBarrelFileName`: Default name for barrel files (e.g., `index`). Default is `index`.
 - `autoTS.formatting.useSingleQuotes`: Format code with single quotes. Default is `true`.
 - `autoTS.formatting.excludeSemiColonAtEndOfLine`: Exclude semicolons at the end of lines. Default is `false`.
@@ -146,6 +153,25 @@ You can customize the behavior of **Auto TS Generator** by modifying the setting
 - `autoTS.templates.customComponents`: Custom templates for generating components (e.g., services, components). Default is an empty array.
 
 You can modify these settings to suit your project's requirements and coding standards.
+
+### Recommended Quick Mode
+
+To minimize prompts and speed up generation, keep these defaults enabled:
+
+```json
+{
+  "autoTS.files.skipFolderConfirmation": true,
+  "autoTS.files.autoImport": true
+}
+```
+
+Benefits:
+
+- Fewer interactive steps per generated file
+- Faster export/barrel updates without manual edits
+- Better flow when generating multiple files in sequence
+
+The extension also keeps your selected workspace folder in multi-root setups and automatically resolves generation context from your active editor when possible.
 
 ## Custom Templates
 

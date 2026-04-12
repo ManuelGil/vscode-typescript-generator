@@ -20,6 +20,7 @@
 	"autoTS.project.license": "Licencia del proyecto",
 	"autoTS.project.version": "Versión del proyecto",
 	"autoTS.templates.customComponents": "Templates de componentes personalizados",
+	"autoTS.generate": "Generar",
 	"autoTS.generateClass": "Generar Clase",
 	"autoTS.generateInterface": "Generar Interfaz",
 	"autoTS.generateEnum": "Generar Enum",

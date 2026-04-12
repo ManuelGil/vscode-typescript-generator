@@ -128,7 +128,7 @@ export const DEFAULT_FILE_EXTENSION: 'ts' | 'tsx' | 'js' | 'jsx' = 'ts';
  *
  * @returns {boolean} - The default skip folder confirmation of the extension
  */
-export const DEFAULT_SKIP_FOLDER_CONFIRMATION: boolean = false;
+export const DEFAULT_SKIP_FOLDER_CONFIRMATION: boolean = true;
 
 /**
  * DEFAULT_INCLUDE_TYPE_IN_FILE_NAME: The default include type in file name of the extension.
@@ -164,7 +164,7 @@ export const DEFAULT_SKIP_TYPE_SELECTION: boolean = true;
  *
  * @returns {boolean} - The default auto import of the extension
  */
-export const DEFAULT_AUTO_IMPORT: boolean = false;
+export const DEFAULT_AUTO_IMPORT: boolean = true;
 
 /**
  * DEFAULT_BARREL_FILE_NAME: The default barrel file name of the extension.

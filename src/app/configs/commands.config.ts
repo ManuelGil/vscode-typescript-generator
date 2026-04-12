@@ -1,5 +1,6 @@
 export enum CommandIds {
   ChangeWorkspace = 'changeWorkspace',
+  Generate = 'generate',
   GenerateClass = 'generateClass',
   GenerateInterface = 'generateInterface',
   GenerateEnum = 'generateEnum',

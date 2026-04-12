@@ -2,7 +2,7 @@
 	"name": "vscode-typescript-generator",
 	"displayName": "Auto TS Generator",
 	"description": "Smart TypeScript file generator with customizable templates for classes, interfaces, types, and components. Boost your productivity!",
-	"version": "1.8.0",
+	"version": "1.9.0",
 	"icon": "icon.png",
 	"galleryBanner": {
 		"color": "#1597ff",
@@ -158,7 +158,7 @@
 				},
 				"autoTS.files.skipFolderConfirmation": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"scope": "resource",
 					"description": "%autoTS.files.skipFolderConfirmation%"
 				},
@@ -176,7 +176,7 @@
 				},
 				"autoTS.files.autoImport": {
 					"type": "boolean",
-					"default": false,
+					"default": true,
 					"scope": "resource",
 					"description": "%autoTS.files.autoImport%"
 				},
@@ -297,6 +297,11 @@
 		},
 		"commands": [
 			{
+				"command": "autoTS.generate",
+				"title": "%autoTS.generate%",
+				"category": "Auto TS Generator"
+			},
+			{
 				"command": "autoTS.generateClass",
 				"title": "%autoTS.generateClass%",
 				"category": "Auto TS Generator"
@@ -394,6 +399,16 @@
 			}
 		],
 		"menus": {
+			"commandPalette": [
+				{
+					"command": "autoTS.generate",
+					"group": "0_primary@1"
+				},
+				{
+					"command": "autoTS.generateClass",
+					"group": "1_common@1"
+				}
+			],
 			"explorer/context": [
 				{
 					"submenu": "autoTS.folder.submenu",
@@ -402,6 +417,10 @@
 				}
 			],
 			"autoTS.folder.submenu": [
+				{
+					"command": "autoTS.generate",
+					"group": "0_primary@1"
+				},
 				{
 					"command": "autoTS.generateClass",
 					"group": "1_generics@1"

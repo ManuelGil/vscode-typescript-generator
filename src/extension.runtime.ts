@@ -4,6 +4,7 @@ import {
   env,
   l10n,
   MessageItem,
+  QuickPickItem,
   Uri,
   WorkspaceFolder,
   window,
@@ -69,8 +70,8 @@ export class ExtensionRuntime {
    * if (!extensionRuntime.isExtensionEnabled()) {
    *   // Warning will only be shown the first time this condition is met
    * }
-F   */
-  private hasWarningBeenShown = false;
+   */
+  private hasDisabledWarningBeenShown = false;
 
   /**
    * The current configuration instance, loaded based on the selected workspace folder.
@@ -483,18 +484,18 @@ F   */
     const isEnabled = this.config.enable;
 
     if (isEnabled) {
-      this.hasWarningBeenShown = false;
+      this.hasDisabledWarningBeenShown = false;
       return true;
     }
 
-    if (!this.hasWarningBeenShown) {
+    if (!this.hasDisabledWarningBeenShown) {
       window.showErrorMessage(
         l10n.t(
           'The {0} extension is disabled in settings. Enable it to use its features',
           EXTENSION_DISPLAY_NAME,
         ),
       );
-      this.hasWarningBeenShown = true;
+      this.hasDisabledWarningBeenShown = true;
     }
 
     return false;
@@ -536,9 +537,8 @@ F   */
           if (!resource) {
             window.showErrorMessage(
               l10n.t(
-                '{0} failed: {1}',
+                '{0} could not find an active folder. Select a workspace folder to continue.',
                 EXTENSION_DISPLAY_NAME,
-                'No active file or folder found',
               ),
             );
             return;
@@ -552,7 +552,11 @@ F   */
         return commandHandler(...args);
       } catch (error) {
         window.showErrorMessage(
-          l10n.t('{0} failed: {1}', EXTENSION_DISPLAY_NAME, String(error)),
+          l10n.t(
+            '{0} failed: {1}. Verify your target folder and try again.',
+            EXTENSION_DISPLAY_NAME,
+            String(error),
+          ),
         );
       }
     });
@@ -622,6 +626,8 @@ F   */
     const commandList = [
       {
         name: CommandIds.GenerateClass,
+        label: l10n.t('Class'),
+        detail: l10n.t('Generate a TypeScript class'),
         handler: new GenerateClassCommand(
           this.config,
           this.context.extensionUri,
@@ -629,6 +635,8 @@ F   */
       },
       {
         name: CommandIds.GenerateInterface,
+        label: l10n.t('Interface'),
+        detail: l10n.t('Generate a TypeScript interface'),
         handler: new GenerateInterfaceCommand(
           this.config,
           this.context.extensionUri,
@@ -636,6 +644,8 @@ F   */
       },
       {
         name: CommandIds.GenerateEnum,
+        label: l10n.t('Enum'),
+        detail: l10n.t('Generate a TypeScript enum'),
         handler: new GenerateEnumCommand(
           this.config,
           this.context.extensionUri,
@@ -643,6 +653,8 @@ F   */
       },
       {
         name: CommandIds.GenerateType,
+        label: l10n.t('Type'),
+        detail: l10n.t('Generate a TypeScript type alias'),
         handler: new GenerateTypeCommand(
           this.config,
           this.context.extensionUri,
@@ -650,6 +662,8 @@ F   */
       },
       {
         name: CommandIds.GenerateFunction,
+        label: l10n.t('Function'),
+        detail: l10n.t('Generate a function file'),
         handler: new GenerateFunctionCommand(
           this.config,
           this.context.extensionUri,
@@ -657,6 +671,8 @@ F   */
       },
       {
         name: CommandIds.GenerateVariable,
+        label: l10n.t('Variable'),
+        detail: l10n.t('Generate a variable file'),
         handler: new GenerateVariableCommand(
           this.config,
           this.context.extensionUri,
@@ -664,6 +680,8 @@ F   */
       },
       {
         name: CommandIds.GenerateCustomComponent,
+        label: l10n.t('Custom Template'),
+        detail: l10n.t('Generate from custom templates'),
         handler: new GenerateCustomComponentCommand(
           this.config,
           this.context.extensionUri,
@@ -671,6 +689,8 @@ F   */
       },
       {
         name: CommandIds.GenerateNodeModule,
+        label: l10n.t('Node Module'),
+        detail: l10n.t('Generate a Node.js module'),
         handler: new GenerateNodeModuleCommand(
           this.config,
           this.context.extensionUri,
@@ -678,6 +698,8 @@ F   */
       },
       {
         name: CommandIds.GenerateNodeServer,
+        label: l10n.t('Node Server'),
+        detail: l10n.t('Generate a Node.js server'),
         handler: new GenerateNodeServerCommand(
           this.config,
           this.context.extensionUri,
@@ -685,6 +707,8 @@ F   */
       },
       {
         name: CommandIds.GenerateExpressController,
+        label: l10n.t('Express Controller'),
+        detail: l10n.t('Generate an Express controller'),
         handler: new GenerateExpressControllerCommand(
           this.config,
           this.context.extensionUri,
@@ -692,6 +716,8 @@ F   */
       },
       {
         name: CommandIds.GenerateExpressMiddleware,
+        label: l10n.t('Express Middleware'),
+        detail: l10n.t('Generate an Express middleware'),
         handler: new GenerateExpressMiddlewareCommand(
           this.config,
           this.context.extensionUri,
@@ -699,6 +725,8 @@ F   */
       },
       {
         name: CommandIds.GenerateExpressRoute,
+        label: l10n.t('Express Route'),
+        detail: l10n.t('Generate an Express route'),
         handler: new GenerateExpressRouteCommand(
           this.config,
           this.context.extensionUri,
@@ -706,6 +734,8 @@ F   */
       },
       {
         name: CommandIds.GenerateExpressServer,
+        label: l10n.t('Express Server'),
+        detail: l10n.t('Generate an Express server'),
         handler: new GenerateExpressServerCommand(
           this.config,
           this.context.extensionUri,
@@ -713,6 +743,8 @@ F   */
       },
       {
         name: CommandIds.GenerateFastifyController,
+        label: l10n.t('Fastify Controller'),
+        detail: l10n.t('Generate a Fastify controller'),
         handler: new GenerateFastifyControllerCommand(
           this.config,
           this.context.extensionUri,
@@ -720,6 +752,8 @@ F   */
       },
       {
         name: CommandIds.GenerateFastifyMiddleware,
+        label: l10n.t('Fastify Middleware'),
+        detail: l10n.t('Generate a Fastify middleware'),
         handler: new GenerateFastifyMiddlewareCommand(
           this.config,
           this.context.extensionUri,
@@ -727,6 +761,8 @@ F   */
       },
       {
         name: CommandIds.GenerateFastifyRoute,
+        label: l10n.t('Fastify Route'),
+        detail: l10n.t('Generate a Fastify route'),
         handler: new GenerateFastifyRouteCommand(
           this.config,
           this.context.extensionUri,
@@ -734,6 +770,8 @@ F   */
       },
       {
         name: CommandIds.GenerateFastifyServer,
+        label: l10n.t('Fastify Server'),
+        detail: l10n.t('Generate a Fastify server'),
         handler: new GenerateFastifyServerCommand(
           this.config,
           this.context.extensionUri,
@@ -741,6 +779,8 @@ F   */
       },
       {
         name: CommandIds.GenerateReactComponent,
+        label: l10n.t('React Component'),
+        detail: l10n.t('Generate a React functional component'),
         handler: new GenerateReactComponentCommand(
           this.config,
           this.context.extensionUri,
@@ -751,12 +791,38 @@ F   */
     commandList.forEach(({ name, handler }) => {
       invoker.register(name, handler);
 
-      const disposable = commands.registerCommand(
+      const disposable = this.registerCommand(
         `${EXTENSION_ID}.${name}`,
         async (uri: Uri) => await invoker.execute(name, uri),
       );
 
       this.context.subscriptions.push(disposable);
     });
+
+    const disposableSmartGenerate = this.registerCommand(
+      `${EXTENSION_ID}.${CommandIds.Generate}`,
+      async (uri: Uri) => {
+        const items: Array<QuickPickItem & { commandId: CommandIds }> =
+          commandList.map((commandDefinition) => ({
+            label: commandDefinition.label,
+            detail: commandDefinition.detail,
+            commandId: commandDefinition.name,
+          }));
+
+        const selectedItem = await window.showQuickPick(items, {
+          placeHolder: l10n.t('Select a file type'),
+          matchOnDescription: true,
+          matchOnDetail: true,
+        });
+
+        if (!selectedItem) {
+          return;
+        }
+
+        await invoker.execute(selectedItem.commandId, uri);
+      },
+    );
+
+    this.context.subscriptions.push(disposableSmartGenerate);
   }
 }
