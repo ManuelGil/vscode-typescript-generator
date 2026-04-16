@@ -1,3 +1,8 @@
+/**
+ * Helpers module exports.
+ *
+ * @category Helpers
+ */
 export * from './context-detector.helper';
 export * from './custom-template.helper';
 export * from './error-message.helper';

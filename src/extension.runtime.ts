@@ -4,8 +4,6 @@ import {
   env,
   l10n,
   MessageItem,
-  QuickPickItem,
-  QuickPickItemKind,
   Uri,
   WorkspaceFolder,
   window,
@@ -34,6 +32,8 @@ import {
   GenerateVariableCommand,
 } from './app/commands';
 import {
+  COMMANDS,
+  CommandDefinition,
   CommandIds,
   ContextKeys,
   EXTENSION_DISPLAY_NAME,
@@ -44,131 +44,82 @@ import {
   USER_PUBLISHER,
 } from './app/configs';
 import { CommandInvoker } from './app/controllers';
+import { detectProjectContext, getErrorMessage } from './app/helpers';
+import { SmartGenerateService } from './app/services';
 import {
-  detectProjectContext,
-  getErrorMessage,
-  resolveFolderResource,
-} from './app/helpers';
-import { ProjectContext } from './app/types';
+  Command,
+  ContextKey,
+  EMPTY_PROJECT_CONTEXT,
+  isContextActive,
+  ProjectContext,
+} from './app/types';
 
-type GenerateOption = QuickPickItem & {
-  commandId: CommandIds;
-  score: number;
-  signals: string[];
-  confidence: 'low' | 'medium' | 'high';
-  isSuggested?: boolean;
+type ContextSignal = ContextKey;
+
+type RegisteredCommandMeta = CommandDefinition & {
+  handler: Command;
 };
 
-type GenerateQuickPickItem =
-  | GenerateOption
-  | {
-      label: string;
-      kind: QuickPickItemKind.Separator;
-    };
-
-type ProjectContextKey =
-  | ContextKeys.IsTypeScript
-  | ContextKeys.IsNode
-  | ContextKeys.HasExpress
-  | ContextKeys.HasFastify
-  | ContextKeys.IsReact;
-
-type ProjectContexts = Record<ProjectContextKey, boolean>;
+const CONTEXT_TO_VSCODE_KEY: Record<ContextSignal, string> = {
+  react: `${EXTENSION_ID}.react`,
+  express: `${EXTENSION_ID}.express`,
+  fastify: `${EXTENSION_ID}.fastify`,
+};
 
 /**
- * Manages the lifecycle and core state of the extension.
+ * Orchestrates extension lifecycle, configuration, context, and command wiring.
  *
- * This class is responsible for initializing the extension environment,
- * tracking the active workspace folder, managing configuration changes,
- * performing version checks, and registering commands.
+ * @remarks
+ * This runtime is the application boundary between VS Code APIs and internal
+ * command/services layers.
+ *
+ * It coordinates workflow but intentionally avoids business rules that belong
+ * to helpers and services.
+ *
+ * This runtime does NOT:
+ * - Render generation templates
+ * - Implement command ranking logic
+ * - Perform low-level file writes directly
+ *
+ * @category Runtime
+ * @internal
  */
 export class ExtensionRuntime {
-  // -----------------------------------------------------------------
-  // Properties
-  // -----------------------------------------------------------------
-
-  // Public properties
-
   /**
-   * Tracks whether the user has already been warned about the extension being disabled,
-   * preventing redundant popup messages.
-   *
-   * @type {boolean}
-   * @private
-   * @memberof ExtensionRuntime
-   * @example
-   * if (!extensionRuntime.isExtensionEnabled()) {
-   *   // Warning will only be shown the first time this condition is met
-   * }
+   * Avoids repeated disabled-state notifications across command invocations.
    */
   private hasDisabledWarningBeenShown = false;
 
   /**
-   * The current configuration instance, loaded based on the selected workspace folder.
-   *
-   * @type {ExtensionConfig}
-   * @private
-   * @memberof ExtensionRuntime
-   * @example
-   * const config = extensionRuntime.extensionConfig;
-   * console.log(config.enable);
+   * Current workspace-scoped extension configuration.
    */
   private config!: ExtensionConfig;
 
   /**
    * In-memory snapshot of detected project context keys.
    */
-  private readonly detectedContexts: ProjectContexts = {
-    [ContextKeys.IsTypeScript]: false,
-    [ContextKeys.IsNode]: false,
-    [ContextKeys.HasExpress]: false,
-    [ContextKeys.HasFastify]: false,
-    [ContextKeys.IsReact]: false,
+  private readonly detectedContexts: ProjectContext = {
+    ...EMPTY_PROJECT_CONTEXT,
   };
 
-  // -----------------------------------------------------------------
-  // Constructor
-  // -----------------------------------------------------------------
+  /**
+   * Stateless service instance used to rank Smart Generate command options.
+   */
+  private readonly smartGenerateService = new SmartGenerateService();
 
   /**
-   * Constructs a new instance of the extension runtime.
+   * Creates the runtime with activation context from VS Code.
    *
-   * @param context - The context provided by VS Code upon activation.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * export function activate(context: ExtensionContext) {
-   *   const extensionRuntime = new ExtensionRuntime(context);
-   *   extensionRuntime.initialize().then((initialized) => {
-   *     if (initialized) {
-   *       extensionRuntime.start();
-   *     }
-   *   });
+   * @param context - Activation context provided by VS Code.
    */
   constructor(private readonly context: ExtensionContext) {}
 
-  // -----------------------------------------------------------------
-  // Methods
-  // -----------------------------------------------------------------
-
-  // Public methods
-
   /**
-   * Initializes the extension runtime.
-   * Selects the active workspace, loads configuration, and handles version notifications.
-   * This must complete successfully before start() is invoked.
+   * Initializes workspace selection, configuration, and startup checks.
    *
-   * @returns A promise that resolves to true if initialization succeeded, false otherwise.
-   *
-   * @memberof ExtensionRuntime
-   *
+   * @returns `true` when runtime can start command registration.
    * @example
-   * const extensionRuntime = new ExtensionRuntime(context);
-   * const initialized = await extensionRuntime.initialize();
-   * if (initialized) {
-   *   extensionRuntime.start();
-   * }
+   * const ready = await runtime.initialize();
    */
   async initialize(): Promise<boolean> {
     const workspaceFolder = await this.selectWorkspaceFolder();
@@ -190,15 +141,10 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Starts the extension by registering all commands and providers.
-   * This should only be called after successful initialization.
+   * Starts command registration after successful initialization.
    *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * if (initialized) {
-   *   extensionRuntime.start();
-   * }
+   * @remarks
+   * Keeps orchestration in runtime while generation behavior remains in services.
    */
   start(): void {
     this.registerWorkspaceCommands();
@@ -206,14 +152,7 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Starts version-related checks without blocking extension activation.
-   * Local notifications are fast and run immediately, while the marketplace
-   * check runs in the background because it requires a network request.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * extensionRuntime.startVersionChecks();
+   * Runs non-blocking version checks after startup.
    */
   private startVersionChecks(): void {
     void this.handleLocalVersionNotifications();
@@ -221,32 +160,14 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Returns the version declared in the extension's package.json.
-   * If the version cannot be resolved, a fallback value of '0.0.0' is returned.
-   *
-   * @returns The current version string.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * const currentVersion = extensionRuntime.getCurrentVersion();
-   * console.log(`Current extension version: ${currentVersion}`);
+   * Returns the extension version declared in package metadata.
    */
   private getCurrentVersion(): string {
     return this.context.extension.packageJSON?.version ?? '0.0.0';
   }
 
   /**
-   * Handles version notifications that depend only on local information.
-   * This includes first activation messages and update notifications.
-   * This method runs synchronously during activation since it does not require any network requests.
-   *
-   * @returns A promise that resolves when all notifications have been handled.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * await extensionRuntime.handleLocalVersionNotifications();
+   * Handles first-run and local update notifications.
    */
   private async handleLocalVersionNotifications(): Promise<void> {
     const previousVersion = this.context.globalState.get<string>(
@@ -255,7 +176,6 @@ export class ExtensionRuntime {
 
     const currentVersion = this.getCurrentVersion();
 
-    // Handle first activation of the extension
     if (!previousVersion) {
       const welcomeMessage = l10n.t(
         'Welcome to {0} version {1}! The extension is now active',
@@ -273,7 +193,6 @@ export class ExtensionRuntime {
       return;
     }
 
-    // Handle extension update
     if (previousVersion !== currentVersion) {
       const actionReleaseNotes: MessageItem = {
         title: l10n.t('Release Notes'),
@@ -292,13 +211,11 @@ export class ExtensionRuntime {
         ...availableActions,
       );
 
-      // Open the changelog in the marketplace if requested by the user
       if (userSelection?.title === actionReleaseNotes.title) {
         const changelogUrl = `${REPOSITORY_URL}/blob/main/CHANGELOG.md`;
         env.openExternal(Uri.parse(changelogUrl));
       }
 
-      // Persist the new version locally
       await this.context.globalState.update(
         ContextKeys.Version,
         currentVersion,
@@ -307,16 +224,7 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Checks the VS Code Marketplace for a newer extension version.
-   * This operation requires a network request and therefore runs in the background.
-   * If a newer version is found, the user is notified with an option to update immediately.
-   *
-   * @returns A promise that resolves when the check is complete and any notifications have been handled.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * await extensionRuntime.checkMarketplaceVersion();
+   * Checks Marketplace for a newer published extension version.
    */
   private async checkMarketplaceVersion(): Promise<void> {
     const currentVersion = this.getCurrentVersion();
@@ -327,7 +235,6 @@ export class ExtensionRuntime {
         EXTENSION_NAME,
       );
 
-      // No action required if the extension is already up to date
       if (latestVersion === currentVersion) {
         return;
       }
@@ -347,7 +254,6 @@ export class ExtensionRuntime {
         ...availableActions,
       );
 
-      // Trigger the VS Code command to install the new version
       if (userSelection?.title === actionUpdateNow.title) {
         await commands.executeCommand(
           'workbench.extensions.action.install.anotherVersion',
@@ -355,32 +261,16 @@ export class ExtensionRuntime {
         );
       }
     } catch (error) {
-      // Marketplace queries may fail due to network issues, so we log it silently
       console.error('Error retrieving extension version:', error);
     }
   }
 
   /**
-   * Selects the workspace folder to use for the extension.
-   * VS Code does not guarantee a workspace folder exists during activation,
-   * so this method explicitly handles missing workspace scenarios.
-   *
-   * @returns A promise that resolves to the selected WorkspaceFolder, or undefined if none.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * const selectedFolder = await extensionRuntime.selectWorkspaceFolder();
-   * if (selectedFolder) {
-   *   console.log(`Selected workspace folder: ${selectedFolder.name}`);
-   * } else {
-   *   console.log('No workspace folder selected');
-   * }
+   * Selects the workspace folder that scopes configuration and generation.
    */
   private async selectWorkspaceFolder(): Promise<WorkspaceFolder | undefined> {
     const availableWorkspaceFolders = workspace.workspaceFolders;
 
-    // Check if there are any workspace folders open
     if (!availableWorkspaceFolders || availableWorkspaceFolders.length === 0) {
       const errorMessage = l10n.t(
         '{0}: No workspace folders are open. Please open a workspace folder to use this extension',
@@ -391,27 +281,22 @@ export class ExtensionRuntime {
       return undefined;
     }
 
-    // Try to load the previously selected workspace folder from global state
     const previousFolderUriString = this.context.globalState.get<string>(
       ContextKeys.SelectedWorkspaceFolder,
     );
     let previousFolder: WorkspaceFolder | undefined;
 
-    // Find the workspace folder by matching URI
     if (previousFolderUriString) {
       previousFolder = availableWorkspaceFolders.find(
         (folder) => folder.uri.toString() === previousFolderUriString,
       );
     }
 
-    // If only one workspace folder is available, use it directly
     if (availableWorkspaceFolders.length === 1) {
       return availableWorkspaceFolders[0];
     }
 
-    // Use the previously selected workspace folder if available
     if (previousFolder) {
-      // Notify the user which workspace is being used
       window.showInformationMessage(
         l10n.t('Using workspace folder: {0}', previousFolder.name),
       );
@@ -419,7 +304,6 @@ export class ExtensionRuntime {
       return previousFolder;
     }
 
-    // Multiple workspace folders are available and no previous selection exists
     const pickerPlaceholder = l10n.t(
       '{0}: Select a workspace folder to use. This folder will be used to load workspace-specific configuration for the extension',
       EXTENSION_DISPLAY_NAME,
@@ -428,7 +312,6 @@ export class ExtensionRuntime {
       placeHolder: pickerPlaceholder,
     });
 
-    // Remember the user's selection for future use
     if (selectedFolder) {
       this.context.globalState.update(
         ContextKeys.SelectedWorkspaceFolder,
@@ -440,30 +323,19 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Initializes configuration and sets up a listener for configuration changes.
-   * The listener updates context keys and notifies users when the enable state changes.
+   * Initializes workspace configuration and registers configuration listeners.
    *
    * @param selectedWorkspaceFolder - The workspace folder used to load the configuration.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * const selectedFolder = await extensionRuntime.selectWorkspaceFolder();
-   * if (selectedFolder) {
-   *   extensionRuntime.initializeConfiguration(selectedFolder);
-   * }
    */
   private initializeConfiguration(
     selectedWorkspaceFolder: WorkspaceFolder,
   ): void {
-    // Get the configuration for the extension within the selected workspace
     this.config = new ExtensionConfig(
       workspace.getConfiguration(EXTENSION_ID, selectedWorkspaceFolder.uri),
     );
 
     this.config.workspaceSelection = selectedWorkspaceFolder.uri.fsPath;
 
-    // Watch for changes in the workspace configuration
     workspace.onDidChangeConfiguration((configurationChangeEvent) => {
       const updatedWorkspaceConfig = workspace.getConfiguration(
         EXTENSION_ID,
@@ -508,19 +380,10 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Checks if the extension is enabled based on the current configuration.
-   * If disabled, shows a warning message to the user (only once).
+   * Returns whether commands should execute under current configuration.
    *
-   * @returns true if the extension is enabled, false otherwise.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * if (extensionRuntime.isExtensionEnabled()) {
-   *   // Execute command handler logic
-   * } else {
-   *   // Command handler will be skipped and a warning will be shown (only on the first check)
-   * }
+   * @remarks
+   * Shows a disabled warning once until the extension is re-enabled.
    */
   private isExtensionEnabled(): boolean {
     const isEnabled = this.config.enable;
@@ -544,10 +407,11 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Resolves project context signals and synchronizes VS Code context keys.
+   * Detects project context and synchronizes runtime context keys.
    *
-   * The runtime intentionally orchestrates detection through shared helpers so
-   * context rules stay reusable and out of this class.
+   * @remarks
+   * Runtime only applies already detected signals; context detection rules are
+   * isolated in helpers.
    */
   private async setContextKeys(resource?: Uri): Promise<void> {
     const detectedContext = await detectProjectContext({
@@ -559,56 +423,32 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Applies the detected context to in-memory state and VS Code UI contexts.
+   * Applies detected context to runtime state and VS Code UI context keys.
    */
   private async applyContext(projectContext: ProjectContext): Promise<void> {
-    const resolvedContexts: ProjectContexts = {
-      [ContextKeys.IsTypeScript]: projectContext.isTypeScript,
-      [ContextKeys.IsNode]: projectContext.isNode,
-      [ContextKeys.HasExpress]: projectContext.hasExpress,
-      [ContextKeys.HasFastify]: projectContext.hasFastify,
-      [ContextKeys.IsReact]: projectContext.isReact,
-    };
-
-    const contextMappings: Array<[ProjectContextKey, boolean]> = [
-      [ContextKeys.IsTypeScript, resolvedContexts[ContextKeys.IsTypeScript]],
-      [ContextKeys.IsNode, resolvedContexts[ContextKeys.IsNode]],
-      [ContextKeys.HasExpress, resolvedContexts[ContextKeys.HasExpress]],
-      [ContextKeys.HasFastify, resolvedContexts[ContextKeys.HasFastify]],
-      [ContextKeys.IsReact, resolvedContexts[ContextKeys.IsReact]],
-    ];
+    this.detectedContexts.express = projectContext.express;
+    this.detectedContexts.fastify = projectContext.fastify;
+    this.detectedContexts.react = projectContext.react;
 
     await Promise.all(
-      contextMappings.map(async ([key, value]) => {
-        this.detectedContexts[key] = value;
-        await commands.executeCommand(
-          'setContext',
-          `${EXTENSION_ID}.${key}`,
-          value,
-        );
-      }),
+      (Object.keys(CONTEXT_TO_VSCODE_KEY) as ContextSignal[]).map(
+        async (signal) => {
+          await commands.executeCommand(
+            'setContext',
+            CONTEXT_TO_VSCODE_KEY[signal],
+            isContextActive(this.detectedContexts, signal),
+          );
+        },
+      ),
     );
   }
 
   /**
-   * Registers a VS Code command that is gated by the extension's enabled state.
-   * If the extension is disabled when the command is invoked, the handler is skipped.
+   * Registers a command that always enforces the extension enablement gate.
    *
    * @param commandId - The unique identifier for the command.
    * @param commandHandler - The function to execute when the command is invoked.
    * @returns A disposable that removes the command registration when disposed.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * const disposable = extensionRuntime.registerCommand(
-   *   'autoTS.myCommand',
-   *   () => {
-   *     // Command handler logic that only runs if the extension is enabled
-   *   }
-   * );
-   * // Remember to dispose of the command when it's no longer needed
-   * disposable.dispose();
    */
   private registerCommand<CommandArgs extends unknown[]>(
     commandId: string,
@@ -645,20 +485,9 @@ export class ExtensionRuntime {
   }
 
   /**
-   * Registers the command that lets users switch the active workspace folder.
-   *
-   * This command is important for multi-root workspaces where users may want to change which folder the extension operates on.
-   * The command updates the global state with the new selection and reloads the configuration accordingly.
-   * It also provides user feedback about the workspace change.
-   *
-   * @memberof ExtensionRuntime
-   *
-   * @example
-   * // The command can be invoked from the command palette or programmatically
-   * await commands.executeCommand('autoTS.changeWorkspace');
+   * Registers workspace selection command for multi-root workspaces.
    */
   private registerWorkspaceCommands(): void {
-    // Register a command to change the selected workspace folder
     const disposableChangeWorkspace = commands.registerCommand(
       `${EXTENSION_ID}.${CommandIds.ChangeWorkspace}`,
       async () => {
@@ -673,7 +502,6 @@ export class ExtensionRuntime {
             selectedFolder.uri.toString(),
           );
 
-          // Update configuration for the new workspace folder
           const updatedWorkspaceConfig = workspace.getConfiguration(
             EXTENSION_ID,
             selectedFolder.uri,
@@ -711,368 +539,58 @@ export class ExtensionRuntime {
       return firstArg;
     }
 
-    return resolveFolderResource(undefined);
+    const availableWorkspaceFolders = workspace.workspaceFolders;
+
+    if (!availableWorkspaceFolders?.length) {
+      this.showError(
+        l10n.t(
+          'No workspace folder found. Open a folder before generating files.',
+        ),
+      );
+      return undefined;
+    }
+
+    if (availableWorkspaceFolders.length === 1) {
+      return availableWorkspaceFolders[0].uri;
+    }
+
+    const selectedFolder = await window.showWorkspaceFolderPick({
+      placeHolder: l10n.t('Select a target folder'),
+    });
+
+    return selectedFolder?.uri;
   }
 
   /**
-   * Displays an error message to the user.
-   *
-   * This centralizes error handling to ensure consistency and allow
-   * future improvements (e.g., logging or telemetry) without changing call sites.
-   *
-   * @param message - The message to display.
+   * Shows a user-facing error through VS Code notifications.
    */
   private showError(message: string): void {
     window.showErrorMessage(message);
   }
 
   /**
-   * Builds Smart Generate options with lightweight context-aware relevance.
+   * Registers generator commands and the Smart Generate picker entrypoint.
    *
-   * Context is used only to prioritize options.
-   * All commands remain available to avoid restricting user workflows.
-   *
-   * @param commandDefinitions Registered command definitions.
-   * @param context Project context flags.
-   * @returns Ordered options for Smart Generate quick pick.
-   */
-  private buildGenerateOptions(
-    commandDefinitions: Array<{
-      name: CommandIds;
-      label: string;
-      detail: string;
-    }>,
-    contexts: ProjectContexts,
-  ): GenerateOption[] {
-    const reactCommands = new Set<CommandIds>([
-      CommandIds.GenerateReactComponent,
-    ]);
-    const nodeCommands = new Set<CommandIds>([
-      CommandIds.GenerateNodeModule,
-      CommandIds.GenerateNodeServer,
-    ]);
-    const typeScriptCommands = new Set<CommandIds>([
-      CommandIds.GenerateInterface,
-      CommandIds.GenerateEnum,
-      CommandIds.GenerateType,
-    ]);
-    const expressCommands = new Set<CommandIds>([
-      CommandIds.GenerateExpressController,
-      CommandIds.GenerateExpressMiddleware,
-      CommandIds.GenerateExpressRoute,
-      CommandIds.GenerateExpressServer,
-    ]);
-    const fastifyCommands = new Set<CommandIds>([
-      CommandIds.GenerateFastifyController,
-      CommandIds.GenerateFastifyMiddleware,
-      CommandIds.GenerateFastifyRoute,
-      CommandIds.GenerateFastifyServer,
-    ]);
-
-    const options: GenerateOption[] = commandDefinitions.map(
-      (commandDefinition) => {
-        let score = 0;
-        const signals: string[] = [];
-
-        if (
-          reactCommands.has(commandDefinition.name) &&
-          contexts[ContextKeys.IsReact]
-        ) {
-          signals.push('react');
-          score += 100;
-        }
-
-        if (
-          typeScriptCommands.has(commandDefinition.name) &&
-          contexts[ContextKeys.IsTypeScript]
-        ) {
-          signals.push('typescript');
-          score += 30;
-        }
-
-        if (
-          nodeCommands.has(commandDefinition.name) &&
-          contexts[ContextKeys.IsNode]
-        ) {
-          signals.push('node');
-          score += 20;
-        }
-
-        if (
-          expressCommands.has(commandDefinition.name) &&
-          contexts[ContextKeys.HasExpress]
-        ) {
-          signals.push('express');
-          score += 80;
-        }
-
-        if (
-          fastifyCommands.has(commandDefinition.name) &&
-          contexts[ContextKeys.HasFastify]
-        ) {
-          signals.push('fastify');
-          score += 80;
-        }
-
-        const confidence: 'low' | 'medium' | 'high' =
-          signals.length >= 2
-            ? 'high'
-            : signals.length === 1
-              ? 'medium'
-              : 'low';
-
-        return {
-          label: commandDefinition.label,
-          detail: commandDefinition.detail,
-          commandId: commandDefinition.name,
-          score,
-          signals,
-          confidence,
-        };
-      },
-    );
-
-    const maxScore = Math.max(...options.map((option) => option.score), 0);
-    const topOptions = options.filter((option) => option.score === maxScore);
-
-    if (topOptions.length === 1 && topOptions[0].confidence === 'high') {
-      topOptions[0].isSuggested = true;
-    }
-
-    options.sort(
-      (leftOption, rightOption) =>
-        rightOption.score - leftOption.score ||
-        leftOption.label.localeCompare(rightOption.label),
-    );
-
-    return options;
-  }
-
-  /**
-   * Suggestion system v2:
-   * - Uses signals instead of raw score
-   * - Avoids false positives
-   * - Only suggests when confidence is high and unambiguous
-   *
-   * Options are shown in two sections only when there is a single, high-confidence
-   * suggestion. Otherwise, the full list stays flat and visible.
-   */
-  private buildSmartGenerateItems(
-    options: GenerateOption[],
-  ): GenerateQuickPickItem[] {
-    const suggestedOption = options.find(
-      (option) => option.isSuggested && option.confidence === 'high',
-    );
-    const otherOptions = options
-      .filter((option) => option !== suggestedOption)
-      .map((option) => ({ ...option, picked: false }));
-
-    if (!suggestedOption) {
-      return options;
-    }
-
-    return [
-      {
-        label: l10n.t('Suggested'),
-        kind: QuickPickItemKind.Separator,
-      },
-      {
-        ...suggestedOption,
-        picked:
-          suggestedOption.isSuggested && suggestedOption.confidence === 'high',
-      },
-      {
-        label: l10n.t('Other options'),
-        kind: QuickPickItemKind.Separator,
-      },
-      ...otherOptions,
-    ];
-  }
-
-  /**
-   * Registers all commands related to file operations.
-   *
-   * Commands are registered with handlers that delegate to the FileGeneratorService, which encapsulates the logic for each operation.
-   * This keeps the command registration clean and focused on wiring up user actions to controller logic.
-   *
-   * The registered commands include creating a barrel file, updating a barrel file in a folder, and updating a specific barrel file.
-   *
-   * @memberof ExtensionRuntime
+   * @remarks
+   * This method wires UI and handlers, while generation behavior remains in
+   * command and service layers.
    */
   private registerGeneratorCommands(): void {
     const invoker = new CommandInvoker(this.config.enable);
 
-    const commandList = [
-      {
-        name: CommandIds.GenerateClass,
-        label: l10n.t('Class'),
-        detail: l10n.t('Generate a TypeScript class'),
-        handler: new GenerateClassCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateInterface,
-        label: l10n.t('Interface'),
-        detail: l10n.t('Generate a TypeScript interface'),
-        handler: new GenerateInterfaceCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateEnum,
-        label: l10n.t('Enum'),
-        detail: l10n.t('Generate a TypeScript enum'),
-        handler: new GenerateEnumCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateType,
-        label: l10n.t('Type'),
-        detail: l10n.t('Generate a TypeScript type alias'),
-        handler: new GenerateTypeCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateFunction,
-        label: l10n.t('Function'),
-        detail: l10n.t('Generate a function file'),
-        handler: new GenerateFunctionCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateVariable,
-        label: l10n.t('Variable'),
-        detail: l10n.t('Generate a variable file'),
-        handler: new GenerateVariableCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateCustomComponent,
-        label: l10n.t('Custom Template'),
-        detail: l10n.t('Generate from custom templates'),
-        handler: new GenerateCustomComponentCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateNodeModule,
-        label: l10n.t('Node Module'),
-        detail: l10n.t('Generate a Node.js module'),
-        handler: new GenerateNodeModuleCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateNodeServer,
-        label: l10n.t('Node Server'),
-        detail: l10n.t('Generate a Node.js server'),
-        handler: new GenerateNodeServerCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateExpressController,
-        label: l10n.t('Express Controller'),
-        detail: l10n.t('Generate an Express controller'),
-        handler: new GenerateExpressControllerCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateExpressMiddleware,
-        label: l10n.t('Express Middleware'),
-        detail: l10n.t('Generate an Express middleware'),
-        handler: new GenerateExpressMiddlewareCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateExpressRoute,
-        label: l10n.t('Express Route'),
-        detail: l10n.t('Generate an Express route'),
-        handler: new GenerateExpressRouteCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateExpressServer,
-        label: l10n.t('Express Server'),
-        detail: l10n.t('Generate an Express server'),
-        handler: new GenerateExpressServerCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateFastifyController,
-        label: l10n.t('Fastify Controller'),
-        detail: l10n.t('Generate a Fastify controller'),
-        handler: new GenerateFastifyControllerCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateFastifyMiddleware,
-        label: l10n.t('Fastify Middleware'),
-        detail: l10n.t('Generate a Fastify middleware'),
-        handler: new GenerateFastifyMiddlewareCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateFastifyRoute,
-        label: l10n.t('Fastify Route'),
-        detail: l10n.t('Generate a Fastify route'),
-        handler: new GenerateFastifyRouteCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateFastifyServer,
-        label: l10n.t('Fastify Server'),
-        detail: l10n.t('Generate a Fastify server'),
-        handler: new GenerateFastifyServerCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-      {
-        name: CommandIds.GenerateReactComponent,
-        label: l10n.t('React Component'),
-        detail: l10n.t('Generate a React functional component'),
-        handler: new GenerateReactComponentCommand(
-          this.config,
-          this.context.extensionUri,
-        ),
-      },
-    ];
+    const registeredCommands: RegisteredCommandMeta[] = COMMANDS.map(
+      (meta) => ({
+        ...meta,
+        handler: this.createCommandHandler(meta.id),
+      }),
+    );
 
-    commandList.forEach(({ name, handler }) => {
-      invoker.register(name, handler);
+    registeredCommands.forEach(({ id, handler }) => {
+      invoker.register(id, handler);
 
       const disposable = this.registerCommand(
-        `${EXTENSION_ID}.${name}`,
-        async (uri: Uri) => await invoker.execute(name, uri),
+        `${EXTENSION_ID}.${id}`,
+        async (uri: Uri) => await invoker.execute(id, uri),
       );
 
       this.context.subscriptions.push(disposable);
@@ -1081,17 +599,17 @@ export class ExtensionRuntime {
     const disposableSmartGenerate = this.registerCommand(
       `${EXTENSION_ID}.${CommandIds.Generate}`,
       async (uri: Uri) => {
-        const options = this.buildGenerateOptions(
-          commandList.map((commandDefinition) => ({
-            name: commandDefinition.name,
-            label: commandDefinition.label,
-            detail: commandDefinition.detail,
-          })),
+        const sortedCommands = this.smartGenerateService.sortByContextRelevance(
+          COMMANDS,
           this.detectedContexts,
         );
-        const items = this.buildSmartGenerateItems(options);
+        const quickPickItems = sortedCommands.map((command) => ({
+          label: l10n.t(command.ui.label),
+          detail: l10n.t(command.ui.detail),
+          commandId: command.id,
+        }));
 
-        const selectedItem = await window.showQuickPick(items, {
+        const selectedItem = await window.showQuickPick(quickPickItems, {
           placeHolder: l10n.t('Select a file type'),
           matchOnDescription: true,
           matchOnDetail: true,
@@ -1106,5 +624,97 @@ export class ExtensionRuntime {
     );
 
     this.context.subscriptions.push(disposableSmartGenerate);
+  }
+
+  /**
+   * Resolves a concrete command handler by command identifier.
+   */
+  private createCommandHandler(commandId: CommandIds): Command {
+    const commandHandlers: Partial<Record<CommandIds, Command>> = {
+      [CommandIds.GenerateClass]: new GenerateClassCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateInterface]: new GenerateInterfaceCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateEnum]: new GenerateEnumCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateType]: new GenerateTypeCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateFunction]: new GenerateFunctionCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateVariable]: new GenerateVariableCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateCustomComponent]: new GenerateCustomComponentCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateNodeModule]: new GenerateNodeModuleCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateNodeServer]: new GenerateNodeServerCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateExpressController]:
+        new GenerateExpressControllerCommand(
+          this.config,
+          this.context.extensionUri,
+        ),
+      [CommandIds.GenerateExpressMiddleware]:
+        new GenerateExpressMiddlewareCommand(
+          this.config,
+          this.context.extensionUri,
+        ),
+      [CommandIds.GenerateExpressRoute]: new GenerateExpressRouteCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateExpressServer]: new GenerateExpressServerCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateFastifyController]:
+        new GenerateFastifyControllerCommand(
+          this.config,
+          this.context.extensionUri,
+        ),
+      [CommandIds.GenerateFastifyMiddleware]:
+        new GenerateFastifyMiddlewareCommand(
+          this.config,
+          this.context.extensionUri,
+        ),
+      [CommandIds.GenerateFastifyRoute]: new GenerateFastifyRouteCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateFastifyServer]: new GenerateFastifyServerCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+      [CommandIds.GenerateReactComponent]: new GenerateReactComponentCommand(
+        this.config,
+        this.context.extensionUri,
+      ),
+    };
+
+    const handler = commandHandlers[commandId];
+
+    if (!handler) {
+      throw new Error(`Missing command handler for "${commandId}"`);
+    }
+
+    return handler;
   }
 }

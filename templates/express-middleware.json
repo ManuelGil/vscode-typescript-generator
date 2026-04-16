@@ -5,8 +5,12 @@
 	"template": [
 		"import { Request, Response, NextFunction } from 'express';",
 		"",
-		"export function {{fileNamePascalCase}}(req: Request, res: Response, next: NextFunction): void {",
-		"  console.log('{{fileNamePascalCase}} executed');",
+		"/**",
+		" * Runs the {{fileNamePascalCase}} middleware.",
+		" */",
+		"export function {{fileNamePascalCase}}(request: Request, response: Response, next: NextFunction): void {",
+		"  const requestId = request.header('x-request-id')?.trim() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;",
+		"  response.setHeader('x-request-id', requestId);",
 		"  next();",
 		"}"
 	]

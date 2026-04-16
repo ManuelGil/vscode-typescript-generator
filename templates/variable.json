@@ -3,8 +3,10 @@
 	"description": "Template for generating a TypeScript variable",
 	"type": "variable",
 	"template": [
-		"export const {{fileNameCamelCase}} = {",
-		"  // Define variable properties here",
+		"export const {{fileNameCamelCase}}: Record<string, unknown> = {",
+		"  isEnabled: true,",
+		"  timeoutMs: 5000,",
+		"  retries: 3",
 		"};"
 	]
 }

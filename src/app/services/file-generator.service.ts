@@ -7,6 +7,8 @@ import {
   join,
   normalize,
   relative,
+  resolve,
+  sep,
 } from 'path';
 import {
   commands,
@@ -18,6 +20,7 @@ import {
   window,
   workspace,
 } from 'vscode';
+import { z } from 'zod';
 
 import { ContentTemplate, ExtensionConfig } from '../configs';
 import {
@@ -25,13 +28,14 @@ import {
   constantize,
   generateQuickPickOption,
   getCustomTemplateByName,
+  getErrorMessage,
   kebabize,
   pascalize,
   pluralize,
   readFileContent,
   relativePath,
   resolveFolderResource,
-  saveFile as saveWorkspaceFile,
+  saveFile,
   sentenceCase,
   singularize,
   snakeize,
@@ -39,44 +43,50 @@ import {
   toPosixPath,
 } from '../helpers';
 
+const templateSchema = z
+  .object({
+    name: z.string().trim().min(1),
+    description: z.string().optional(),
+    type: z.string().trim().min(1),
+    template: z.array(z.string()).min(1),
+    tags: z.array(z.string()).optional(),
+    context: z.unknown().optional(),
+  })
+  .passthrough();
+
 /**
- * Generates files from templates and user input.
+ * Orchestrates template-based file generation flows.
  *
- * The service owns the orchestration around template resolution, name prompts,
- * path validation, content generation and file persistence.
+ * @remarks
+ * The service keeps no evolving internal state; behavior is driven by explicit
+ * method inputs and current extension configuration.
  *
- * @class
- * @example
- * const service = new FileGeneratorService(config, extensionUri);
+ * Side effects (file writes, prompts, editor actions) are intentional and
+ * localized to generation workflows.
+ *
+ * This service does NOT:
+ * - Detect project context
+ * - Register or execute VS Code commands
+ * - Decide Smart Generate ranking
+ * @category Services
+ * @internal
  */
 export class FileGeneratorService {
-  // -----------------------------------------------------------------
-  // Constructor
-  // -----------------------------------------------------------------
-
   /**
-   * The constructor.
-   *
-   * @param {ExtensionConfig} config - The extension configuration.
-   * @param {string} extensionUri - The extension URI.
-   * @memberof FileGeneratorService
+   * Creates a file generator bound to extension configuration and URI.
    */
   constructor(
     private readonly config: ExtensionConfig,
     private readonly extensionUri: Uri,
   ) {}
 
-  // -----------------------------------------------------------------
-  // Methods
-  // -----------------------------------------------------------------
-
-  // Public methods
-
   /**
    * Generates a typed component file in the selected workspace folder.
    *
    * @param folderPath Folder context supplied by VS Code.
    * @param componentType Template family to generate.
+   * @example
+   * await service.generateComponent(folderUri, 'class');
    */
   async generateComponent(
     folderPath?: Uri,
@@ -174,7 +184,6 @@ export class FileGeneratorService {
       folderName = relativeFolderPath;
     }
 
-    // Validate folder path to prevent absolute paths or path traversal
     if (folderName) {
       const normalizedFolder = normalize(folderName);
       if (
@@ -202,11 +211,21 @@ export class FileGeneratorService {
       return;
     }
 
+    const sanitizedComponentFileName = this.sanitizeFileName(componentFileName);
+
+    if (!sanitizedComponentFileName) {
+      const message = l10n.t(
+        'The file name is invalid! Please enter a valid file name',
+      );
+      window.showErrorMessage(message);
+      return;
+    }
+
     const template = await this.getTemplate(componentType);
 
     if (!template) {
       const message = l10n.t(
-        'The template for the {0} does not exist. Please try again',
+        'Template not found for command/template: {0}. Please verify the template file and try again',
         componentType,
       );
       window.showErrorMessage(message);
@@ -233,13 +252,28 @@ export class FileGeneratorService {
       );
     }
 
-    const content = this.generateFileContent(template.template);
+    const templateContent = this.generateFileContent(template.template);
+
+    const warnings = this.detectTemplateWarnings(templateContent);
+
+    if (warnings.length > 0) {
+      console.warn(l10n.t('Template warnings: {0}', warnings.join(', ')));
+    }
+
+    try {
+      mustache.parse(templateContent);
+    } catch (error) {
+      this.showError(
+        l10n.t('Invalid template syntax: {0}', getErrorMessage(error)),
+      );
+      return;
+    }
 
     const fileContent = mustache.render(
-      content,
+      templateContent,
       this.getVariables(
         folderName,
-        componentFileName,
+        sanitizedComponentFileName,
         selectedComponentType || template.type,
         fileExtension,
       ),
@@ -247,36 +281,45 @@ export class FileGeneratorService {
 
     const componentFullName = selectedComponentType
       ? includeTypeInFileName
-        ? `${pascalize(componentFileName)}${titleize(selectedComponentType)}`
-        : `${pascalize(componentFileName)}${titleize(template.type)}`
-      : pascalize(componentFileName);
+        ? `${pascalize(sanitizedComponentFileName)}${titleize(selectedComponentType)}`
+        : `${pascalize(sanitizedComponentFileName)}${titleize(template.type)}`
+      : pascalize(sanitizedComponentFileName);
     const resolvedFolderPath = join(workspaceFolder.uri.fsPath, folderName);
     const fileNameSuffix = includeTypeInFileName
       ? selectedComponentType
         ? `.${selectedComponentType}`
         : `.${template.type}`
       : '';
-    const fileName = `${componentFileName}${fileNameSuffix}.${fileExtension}`;
+    const fileName = `${sanitizedComponentFileName}${fileNameSuffix}.${fileExtension}`;
 
-    void saveWorkspaceFile(
-      resolvedFolderPath,
-      fileName,
-      fileContent,
-      this.config,
-    );
+    try {
+      const safePath = this.resolveSafePath(resolvedFolderPath, fileName);
 
-    if (autoImport) {
-      const barrelFileExtension =
-        defaultLanguage === 'TypeScript' ? 'ts' : 'js';
-      const barrelFileName = `${defaultBarrelFileName}.${barrelFileExtension}`;
-
-      this.autoImport(
-        resolvedFolderPath,
-        fileName,
-        componentFullName,
-        barrelFileName,
-        componentType === 'interface' || componentType === 'type',
+      void saveFile(
+        dirname(safePath),
+        basename(safePath),
+        fileContent,
+        this.config,
       );
+
+      if (autoImport) {
+        const barrelFileExtension =
+          defaultLanguage === 'TypeScript' ? 'ts' : 'js';
+        const barrelFileName = `${defaultBarrelFileName}.${barrelFileExtension}`;
+
+        this.autoImport(
+          dirname(safePath),
+          basename(safePath),
+          componentFullName,
+          barrelFileName,
+          componentType === 'interface' || componentType === 'type',
+        );
+      }
+    } catch (_error) {
+      const message = l10n.t(
+        'The file path is invalid. Please use a valid folder and file name.',
+      );
+      window.showErrorMessage(message);
     }
   }
 
@@ -284,6 +327,8 @@ export class FileGeneratorService {
    * Generates a file from a user-selected custom template.
    *
    * @param folderPath Folder context supplied by VS Code.
+   * @example
+   * await service.generateCustomComponent(folderUri);
    */
   async generateCustomComponent(folderPath?: Uri): Promise<void> {
     await this.createCustomComponentFile(folderPath);
@@ -369,7 +414,6 @@ export class FileGeneratorService {
       folderName = relativeFolderPath;
     }
 
-    // Validate folder path to prevent absolute paths or path traversal
     if (folderName) {
       const normalizedFolder = normalize(folderName);
       if (
@@ -419,6 +463,16 @@ export class FileGeneratorService {
       return;
     }
 
+    const sanitizedComponentFileName = this.sanitizeFileName(componentFileName);
+
+    if (!sanitizedComponentFileName) {
+      const message = l10n.t(
+        'The file name is invalid! Please enter a valid file name',
+      );
+      window.showErrorMessage(message);
+      return;
+    }
+
     const selectedTemplate = getCustomTemplateByName(
       customComponents,
       selectedTemplateOption.label,
@@ -426,52 +480,77 @@ export class FileGeneratorService {
 
     if (!selectedTemplate) {
       const message = l10n.t(
-        'The template for the custom component does not exist. Please try again',
+        'Template not found for command/template: {0}. Please verify customComponents configuration and try again',
+        selectedTemplateOption.label,
       );
       window.showErrorMessage(message);
       return;
     }
 
-    const content = this.generateFileContent(selectedTemplate.template);
+    const templateContent = this.generateFileContent(selectedTemplate.template);
+
+    const warnings = this.detectTemplateWarnings(templateContent);
+
+    if (warnings.length > 0) {
+      console.warn(l10n.t('Template warnings: {0}', warnings.join(', ')));
+    }
+
+    try {
+      mustache.parse(templateContent);
+    } catch (error) {
+      this.showError(
+        l10n.t('Invalid template syntax: {0}', getErrorMessage(error)),
+      );
+      return;
+    }
 
     const fileContent = mustache.render(
-      content,
+      templateContent,
       this.getVariables(
         folderName,
-        componentFileName,
+        sanitizedComponentFileName,
         selectedTemplate.type,
         fileExtension,
       ),
     );
 
     const componentFullName = includeTypeInFileName
-      ? `${pascalize(componentFileName)}${titleize(selectedTemplate.type)}`
-      : pascalize(componentFileName);
+      ? `${pascalize(sanitizedComponentFileName)}${titleize(selectedTemplate.type)}`
+      : pascalize(sanitizedComponentFileName);
     const resolvedFolderPath = join(workspaceFolder.uri.fsPath, folderName);
     const fileNameSuffix = includeTypeInFileName
       ? `.${selectedTemplate.type}`
       : '';
-    const fileName = `${componentFileName}${fileNameSuffix}.${fileExtension}`;
+    const fileName = `${sanitizedComponentFileName}${fileNameSuffix}.${fileExtension}`;
 
-    void saveWorkspaceFile(
-      resolvedFolderPath,
-      fileName,
-      fileContent,
-      this.config,
-    );
+    try {
+      const safePath = this.resolveSafePath(resolvedFolderPath, fileName);
 
-    if (autoImport) {
-      const barrelFileExtension =
-        defaultLanguage === 'TypeScript' ? 'ts' : 'js';
-      const barrelFileName = `${defaultBarrelFileName}.${barrelFileExtension}`;
-
-      this.autoImport(
-        resolvedFolderPath,
-        fileName,
-        componentFullName,
-        barrelFileName,
-        false,
+      void saveFile(
+        dirname(safePath),
+        basename(safePath),
+        fileContent,
+        this.config,
       );
+
+      if (autoImport) {
+        const barrelFileExtension =
+          defaultLanguage === 'TypeScript' ? 'ts' : 'js';
+        const barrelFileName = `${defaultBarrelFileName}.${barrelFileExtension}`;
+
+        this.autoImport(
+          dirname(safePath),
+          basename(safePath),
+          componentFullName,
+          barrelFileName,
+          false,
+        );
+      }
+    } catch (_error) {
+      const message = l10n.t(
+        'The file path is invalid. Please use a valid folder and file name.',
+      );
+      window.showErrorMessage(message);
     }
   }
 
@@ -498,6 +577,88 @@ export class FileGeneratorService {
   }
 
   /**
+   * Removes unsafe characters from generated file names.
+   *
+   * @param name Raw file name.
+   */
+  private sanitizeFileName(name: string): string {
+    return name
+      .replace(/[^a-zA-Z0-9-_.]/g, '')
+      .replace(/-{2,}/g, '-')
+      .replace(/_{2,}/g, '_')
+      .trim();
+  }
+
+  /**
+   * Resolves a file path and blocks traversal outside the base directory.
+   *
+   * @param basePath Folder where the file must be created.
+   * @param fileName File name to resolve.
+   */
+  private resolveSafePath(basePath: string, fileName: string): string {
+    const fileExtension = extname(fileName);
+    const fileNameWithoutExtension = basename(fileName, fileExtension);
+    const sanitizedFileName = this.sanitizeFileName(fileNameWithoutExtension);
+
+    if (!sanitizedFileName) {
+      throw new Error(l10n.t('Invalid file name'));
+    }
+
+    const fullPath = resolve(basePath, `${sanitizedFileName}${fileExtension}`);
+    const normalizedBase = resolve(basePath);
+
+    if (
+      fullPath !== normalizedBase &&
+      !fullPath.startsWith(`${normalizedBase}${sep}`)
+    ) {
+      throw new Error(
+        l10n.t('Invalid path: Attempt to write outside workspace'),
+      );
+    }
+
+    return fullPath;
+  }
+
+  /**
+   * Detects lightweight template quality warnings without blocking generation.
+   *
+   * @remarks
+   * These warnings are advisory only.
+   *
+   * IMPORTANT:
+   * Keep this check fast and non-blocking.
+   * It must never reject generation by itself.
+   *
+   * @param templateContent Renderable template content.
+   */
+  private detectTemplateWarnings(templateContent: string): string[] {
+    const warnings: string[] = [];
+
+    if (templateContent.includes('console.log')) {
+      warnings.push(l10n.t('Template contains console.log'));
+    }
+
+    if (templateContent.includes(': any')) {
+      warnings.push(l10n.t('Template uses "any" type'));
+    }
+
+    if (templateContent.includes('TODO')) {
+      warnings.push(l10n.t('Template contains TODO comments'));
+    }
+
+    return warnings;
+  }
+
+  /**
+   * Displays an error message using the existing user-facing flow.
+   *
+   * @param message Error message to display.
+   */
+  private showError(message: string): void {
+    window.showErrorMessage(message);
+  }
+
+  /**
    * Resolves the template definition for the requested component type.
    *
    * @param command Component type to resolve.
@@ -513,8 +674,31 @@ export class FileGeneratorService {
 
     try {
       const text = await readFileContent(templatePath);
-      return JSON.parse(text);
+      const rawTemplate: unknown = JSON.parse(text);
+      const parsedTemplate = templateSchema.safeParse(rawTemplate);
+
+      if (!parsedTemplate.success) {
+        console.warn(
+          `Template validation failed for "${command}": ${parsedTemplate.error.issues
+            .map((issue) => issue.message)
+            .join('; ')}`,
+        );
+        return;
+      }
+
+      const validatedTemplate = parsedTemplate.data;
+
+      return {
+        name: validatedTemplate.name,
+        description:
+          validatedTemplate.description ?? `Template for generating ${command}`,
+        type: validatedTemplate.type,
+        template: validatedTemplate.template,
+      };
     } catch {
+      console.warn(
+        `Template "${command}" is invalid JSON and will be skipped.`,
+      );
       return;
     }
   }
@@ -549,7 +733,6 @@ export class FileGeneratorService {
 
     content += templateLines.join(newline);
 
-    // Add a final newline
     if (insertFinalNewline) {
       content += newline;
     }
@@ -658,7 +841,6 @@ export class FileGeneratorService {
       let barrelFileUri = Uri.file(join(targetDirectoryPath, barrelFileName));
       let barrelFileExists = false;
 
-      // Check if barrel file exists in the current directory; if not, try parent directory
       try {
         await workspace.fs.stat(barrelFileUri);
         barrelFileExists = true;
@@ -688,7 +870,6 @@ export class FileGeneratorService {
         }
       }
 
-      // If barrel file is not found in either location, show error and abort
       if (!barrelFileExists) {
         const message = l10n.t(
           'The barrel file {0} does not exist! Please create a barrel file first',

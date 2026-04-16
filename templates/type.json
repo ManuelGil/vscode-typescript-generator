@@ -3,8 +3,8 @@
 	"description": "Template for generating a TypeScript type alias",
 	"type": "type",
 	"template": [
-		"export type {{fileNamePascalCase}} = {",
-		"  // Define type properties here",
-		"};"
+		"export type {{fileNamePascalCase}}<T> =",
+		"  | { success: true; data: T }",
+		"  | { success: false; error: string };"
 	]
 }

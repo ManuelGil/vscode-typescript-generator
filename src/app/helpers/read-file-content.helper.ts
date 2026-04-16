@@ -14,6 +14,7 @@ const utf8Decoder = new TextDecoder('utf-8');
  *
  * @param fileUri - URI of the file to read.
  * @returns Decoded text content of the file.
+ * @category Helpers
  */
 export const readFileContent = async (fileUri: Uri): Promise<string> => {
   const fileBytes = await workspace.fs.readFile(fileUri);

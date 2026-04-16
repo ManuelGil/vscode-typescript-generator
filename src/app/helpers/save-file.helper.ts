@@ -19,13 +19,26 @@ import { getErrorMessage } from './error-message.helper';
 import { getWorkspaceRoot } from './workspace-root.helper';
 
 /**
- * Writes data to a file inside the current workspace.
- * If the file does not exist, it will be created safely.
+ * Safely writes a generated file into the active workspace.
+ *
+ * @remarks
+ * The helper validates workspace boundaries, handles collisions, and keeps
+ * user feedback consistent across success and failure paths.
+ *
+ * Contract:
+ * - Path traversal outside the workspace root is rejected.
+ * - Existing files are never overwritten silently.
+ *
+ * This helper does NOT:
+ * - Render templates
+ * - Choose generation targets
+ * - Manage command orchestration
  *
  * @param directoryPath - Absolute or workspace-relative directory path.
  * @param filename - Name of the file to create.
  * @param fileContent - Text content to write.
  * @param config - Active extension configuration.
+ * @category Helpers
  */
 export const saveFile = async (
   directoryPath: string,
@@ -51,21 +64,10 @@ export const saveFile = async (
 
   const workspaceRootUri = Uri.file(activeWorkspaceRoot);
 
-  /**
-   * Build the target directory URI safely.
-   *
-   * Absolute paths are used directly.
-   * Relative paths are resolved against the workspace root.
-   */
   const resolvedDirectoryUri = isAbsolute(normalizedDirPath)
     ? providedDirectoryUri!
     : Uri.joinPath(workspaceRootUri, normalizedDirPath);
 
-  /**
-   * Security check:
-   * Ensure the resolved path stays inside the workspace root.
-   * Prevents directory traversal and unintended writes.
-   */
   const relativeCheck = workspace.asRelativePath(resolvedDirectoryUri, false);
   if (relativeCheck.startsWith('..')) {
     window.showErrorMessage(l10n.t('Invalid directory path'));
@@ -89,12 +91,10 @@ export const saveFile = async (
             return;
           }
 
-          // Ensure directory exists (safe if already exists)
           if (resolvedDirectoryUri.toString() !== workspaceRootUri.toString()) {
             await workspace.fs.createDirectory(resolvedDirectoryUri);
           }
 
-          // Detect file collision
           let doesFileExist = false;
           try {
             await workspace.fs.stat(resolvedFileUri);
@@ -109,7 +109,6 @@ export const saveFile = async (
             return;
           }
 
-          // Handle existing file
           if (doesFileExist) {
             const openFileLabel = l10n.t('Open File');
             const userChoice = await window.showWarningMessage(
@@ -125,7 +124,6 @@ export const saveFile = async (
             return;
           }
 
-          // Write file content
           const encodedFileContent = new TextEncoder().encode(fileContent);
           await workspace.fs.writeFile(resolvedFileUri, encodedFileContent);
 
@@ -133,15 +131,12 @@ export const saveFile = async (
             return;
           }
 
-          // Open created file
           const newTextDocument =
             await workspace.openTextDocument(resolvedFileUri);
           window.showTextDocument(newTextDocument);
 
-          // Mark success; show notification after progress resolves
           successfullyCreatedFilePath = resolvedFileUri.fsPath;
         } catch (innerError: unknown) {
-          // Show a helpful error message including the underlying error if available
           window.showErrorMessage(
             l10n.t(
               'Error creating file: {0}. Please check the path and try again',
@@ -152,14 +147,12 @@ export const saveFile = async (
       },
     );
 
-    // Show success notification after progress dialog closes
     if (successfullyCreatedFilePath) {
       window.showInformationMessage(
         l10n.t('File created successfully: {0}', successfullyCreatedFilePath),
       );
     }
   } catch (outerError: unknown) {
-    // Catch failures from withProgress or other unexpected issues
     window.showErrorMessage(
       l10n.t(
         'Error creating file: {0}. Please check the path and try again',

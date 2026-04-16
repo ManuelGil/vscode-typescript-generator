@@ -1,15 +1,30 @@
 {
-	"name": "Node.js HTTP Server",
+	"name": "Node.js Server",
 	"description": "Template for generating a simple Node.js HTTP server",
 	"type": "server",
 	"template": [
-		"import { createServer } from 'http';",
+		"import { createServer, IncomingMessage, ServerResponse } from 'http';",
 		"",
-		"const server = createServer((req, res) => {",
-		"  res.writeHead(200, { 'Content-Type': 'text/plain' });",
-		"  res.end('Hello, Node.js Server!');",
+		"const requestedPort = Number(process.env.PORT ?? 3000);",
+		"const port = Number.isNaN(requestedPort) ? 3000 : requestedPort;",
+		"",
+		"const server = createServer((request: IncomingMessage, response: ServerResponse) => {",
+		"  if (request.url === '/health') {",
+		"    response.writeHead(200, { 'Content-Type': 'application/json' });",
+		"    response.end(JSON.stringify({ status: 'ok' }));",
+		"    return;",
+		"  }",
+		"",
+		"  if (request.method !== 'GET') {",
+		"    response.writeHead(405, { 'Content-Type': 'application/json' });",
+		"    response.end(JSON.stringify({ error: 'Method not allowed' }));",
+		"    return;",
+		"  }",
+		"",
+		"  response.writeHead(200, { 'Content-Type': 'application/json' });",
+		"  response.end(JSON.stringify({ message: 'Hello, Node.js Server!' }));",
 		"});",
 		"",
-		"server.listen(3000, () => console.log('Server running on port 3000'));"
+		"server.listen(port);"
 	]
 }

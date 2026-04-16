@@ -1,4 +1,5 @@
 {
+	"autoTS.configuration.title": "Configuración de Auto TS Generator",
 	"autoTS.enable": "Habilitar o deshabilitar Auto TS Generator",
 	"autoTS.files.defaultLanguage": "Lenguaje predeterminado para archivos generados",
 	"autoTS.files.fileExtension": "Extensión de archivo para archivos generados",
@@ -20,6 +21,11 @@
 	"autoTS.project.license": "Licencia del proyecto",
 	"autoTS.project.version": "Versión del proyecto",
 	"autoTS.templates.customComponents": "Templates de componentes personalizados",
+	"autoTS.templates.customComponents.name": "Nombre del template",
+	"autoTS.templates.customComponents.description": "Descripción del template",
+	"autoTS.templates.customComponents.type": "Tipo de template",
+	"autoTS.templates.customComponents.template": "Contenido del template",
+	"templateGenerator.validation.enabled": "Habilita validación ligera para templates (name, type, template). Los templates inválidos se omiten con una advertencia.",
 	"autoTS.generate": "Generar",
 	"autoTS.generateClass": "Generar Clase",
 	"autoTS.generateInterface": "Generar Interfaz",

@@ -1,3 +1,8 @@
+/**
+ * Commands module exports.
+ *
+ * @category Commands
+ */
 export * from './base.command';
 export * from './generate-class.command';
 export * from './generate-custom-component.command';

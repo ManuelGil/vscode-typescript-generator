@@ -12,10 +12,20 @@ type PackageJsonData = {
 /**
  * Detects project context using lightweight multi-signal checks.
  *
+ * @remarks
  * The implementation is intentionally bounded to avoid expensive workspace scans:
  * - `package.json` is read once when available
- * - `tsconfig.json` lookup is capped to 1 result
  * - `*.ts` / `*.tsx` lookup is capped to 3 results
+ *
+ * This helper does NOT:
+ * - Reorder commands
+ * - Execute generation
+ * - Persist extension state
+ *
+ * @example
+ * const context = await detectProjectContext({ resource: folderUri });
+ * @category Helpers
+ * @internal
  */
 export const detectProjectContext = async (options: {
   resource?: Uri;
@@ -31,13 +41,7 @@ export const detectProjectContext = async (options: {
   }
 
   const packageSignals = await detectPackageJsonSignals(workspaceFolder);
-  const hasTsConfig = await detectTsConfig(workspaceFolder);
   const tsFilesSignals = await detectTsFiles(workspaceFolder);
-
-  const hasTypeScriptDependency =
-    packageSignals.dependencyNames.has('typescript') ||
-    packageSignals.dependencyNames.has('ts-node') ||
-    packageSignals.dependencyNames.has('tsx');
 
   const hasReactDependency =
     packageSignals.dependencyNames.has('react') ||
@@ -45,12 +49,9 @@ export const detectProjectContext = async (options: {
     packageSignals.dependencyNames.has('next');
 
   return {
-    isTypeScript:
-      hasTsConfig || tsFilesSignals.hasTsFiles || hasTypeScriptDependency,
-    isNode: packageSignals.hasPackageJson,
-    hasExpress: packageSignals.dependencyNames.has('express'),
-    hasFastify: packageSignals.dependencyNames.has('fastify'),
-    isReact:
+    express: packageSignals.dependencyNames.has('express'),
+    fastify: packageSignals.dependencyNames.has('fastify'),
+    react:
       hasReactDependency ||
       (tsFilesSignals.hasTsFiles && tsFilesSignals.containsTsxFiles),
   };
@@ -81,14 +82,13 @@ const resolveWorkspaceFolder = (
  */
 const detectPackageJsonSignals = async (
   workspaceFolder: WorkspaceFolder,
-): Promise<{ hasPackageJson: boolean; dependencyNames: Set<string> }> => {
+): Promise<{ dependencyNames: Set<string> }> => {
   try {
     const packageJsonUri = Uri.joinPath(workspaceFolder.uri, 'package.json');
     const packageJsonText = await readFileContent(packageJsonUri);
     const packageJson = JSON.parse(packageJsonText) as PackageJsonData;
 
     return {
-      hasPackageJson: true,
       dependencyNames: new Set<string>([
         ...Object.keys(packageJson.dependencies ?? {}),
         ...Object.keys(packageJson.devDependencies ?? {}),
@@ -98,28 +98,8 @@ const detectPackageJsonSignals = async (
     };
   } catch {
     return {
-      hasPackageJson: false,
       dependencyNames: new Set<string>(),
     };
-  }
-};
-
-/**
- * Detects whether a `tsconfig.json` exists in the target workspace.
- */
-const detectTsConfig = async (
-  workspaceFolder: WorkspaceFolder,
-): Promise<boolean> => {
-  try {
-    const results = await workspace.findFiles(
-      new RelativePattern(workspaceFolder, '**/tsconfig.json'),
-      '**/node_modules/**',
-      1,
-    );
-
-    return results.length > 0;
-  } catch {
-    return false;
   }
 };
 

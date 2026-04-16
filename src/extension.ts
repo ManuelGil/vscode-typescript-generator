@@ -3,18 +3,29 @@ import * as vscode from 'vscode';
 import { getErrorMessage } from './app/helpers';
 import { ExtensionRuntime } from './extension.runtime';
 
+/**
+ * Activates the extension runtime and starts command orchestration.
+ *
+ * @remarks
+ * Activation only wires runtime boundaries; command and generation logic stays
+ * in runtime, controllers, services, and helpers.
+ *
+ * This entrypoint does NOT contain generation logic or context detection rules.
+ *
+ * @example
+ * await activate(context);
+ * @category Runtime
+ * @internal
+ */
 export async function activate(context: vscode.ExtensionContext) {
   try {
     const runtime = new ExtensionRuntime(context);
-
-    // Initialize the runtime environment
     const initialized = await runtime.initialize();
 
     if (!initialized) {
       return;
     }
 
-    // Start the extension logic
     runtime.start();
   } catch (error) {
     vscode.window.showErrorMessage(
@@ -26,4 +37,9 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 }
 
+/**
+ * Handles extension deactivation lifecycle hook.
+ * @category Runtime
+ * @internal
+ */
 export function deactivate() {}

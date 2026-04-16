@@ -1,8 +1,10 @@
-import { FileType, Uri, window, workspace } from 'vscode';
+import { dirname } from 'path';
+import { FileType, l10n, Uri, window, workspace } from 'vscode';
 
 /**
  * Resolves the destination folder URI where a barrel file should be created or updated.
  *
+ * @remarks
  * The returned URI always represents a directory, ensuring compatibility with
  * folder-based barrel generation workflows.
  *
@@ -13,6 +15,10 @@ import { FileType, Uri, window, workspace } from 'vscode';
  *
  * @param inputUri Optional URI provided by VS Code command execution
  * @returns A directory URI or undefined if no valid context exists
+ * @example
+ * const folderUri = await resolveFolderResource(activeResource);
+ * @category Helpers
+ * @internal
  */
 export const resolveFolderResource = async (
   inputUri?: Uri,
@@ -37,7 +43,7 @@ export const resolveFolderResource = async (
   }
 
   const selectedFolder = await window.showWorkspaceFolderPick({
-    placeHolder: 'Select a workspace folder to use',
+    placeHolder: l10n.t('Select a workspace folder to use'),
   });
 
   return selectedFolder?.uri;
@@ -49,6 +55,7 @@ export const resolveFolderResource = async (
  *
  * @param uri File or directory URI
  * @returns Directory URI
+ * @category Helpers
  */
 export const asDirectoryUri = async (uri: Uri): Promise<Uri> => {
   try {
@@ -58,7 +65,7 @@ export const asDirectoryUri = async (uri: Uri): Promise<Uri> => {
       return uri;
     }
 
-    return Uri.joinPath(uri, '..');
+    return Uri.file(dirname(uri.fsPath));
   } catch {
     return uri;
   }

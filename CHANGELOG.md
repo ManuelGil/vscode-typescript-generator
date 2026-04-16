@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-04-15
+
+### Added
+
+- Enhance templates with richer defaults and improved structure.
+
+### Changed
+
+- Improve extension activation logic and documentation.
+- Update TypeScript templates with more practical patterns and utilities.
+- Enhance Express and Fastify templates with service integration, error handling, and health checks.
+- Improve Node templates with better configuration and runtime behavior.
+- Refine React component template with clearer structure and props.
+- Standardize function, interface, type, and variable templates for better usability.
+
 ## [1.10.0] - 2026-04-12
 
 ### Changed

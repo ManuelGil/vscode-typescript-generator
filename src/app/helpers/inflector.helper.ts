@@ -1,11 +1,6 @@
 /**
- * Changes a string of words separated by spaces or underscores to camel case.
- *
- * @param {string} str - The string to camelize
- * @example
- * camelize('foo bar');
- *
- * @returns {string} - The camelized string
+ * Converts a tokenized string to camelCase.
+ * @category Helpers
  */
 export const camelize = (str: string): string => {
   return str
@@ -20,13 +15,8 @@ export const camelize = (str: string): string => {
 };
 
 /**
- * Changes a string of words separated by spaces or underscores to pascal case.
- *
- * @param {string} str - The string to pascalize
- * @example
- * pascalize('foo bar');
- *
- * @returns {string} - The pascalized string
+ * Converts a tokenized string to PascalCase.
+ * @category Helpers
  */
 export const pascalize = (str: string): string => {
   return str
@@ -39,13 +29,8 @@ export const pascalize = (str: string): string => {
 };
 
 /**
- * Changes a string to kebab-case.
- *
- * @param {string} str - The string to kebabize
- * @example
- * kebabize('foo bar');
- *
- * @returns {string} - The kebabized string
+ * Converts a tokenized string to kebab-case.
+ * @category Helpers
  */
 export const kebabize = (str: string): string => {
   return str
@@ -57,13 +42,8 @@ export const kebabize = (str: string): string => {
 };
 
 /**
- * Changes a string to snake_case.
- *
- * @param {string} str - The string to snakeize
- * @example
- * snakeize('foo bar');
- *
- * @returns {string} - The snakeized string
+ * Converts a tokenized string to snake_case.
+ * @category Helpers
  */
 export const snakeize = (str: string): string => {
   return str
@@ -75,13 +55,8 @@ export const snakeize = (str: string): string => {
 };
 
 /**
- * Changes a string to CONSTANT_CASE.
- *
- * @param {string} str - The string to constantize
- * @example
- * constantize('foo bar');
- *
- * @returns {string} - The constantized string
+ * Converts a tokenized string to CONSTANT_CASE.
+ * @category Helpers
  */
 export const constantize = (str: string): string => {
   return str
@@ -93,13 +68,8 @@ export const constantize = (str: string): string => {
 };
 
 /**
- * Changes a string to Title Case.
- *
- * @param {string} str - The string to titleize
- * @example
- * titleize('foo bar');
- *
- * @returns {string} - The titleized string
+ * Converts a string to Title Case.
+ * @category Helpers
  */
 export const titleize = (str: string): string => {
   return str
@@ -109,26 +79,16 @@ export const titleize = (str: string): string => {
 };
 
 /**
- * Changes a string to Sentence case.
- *
- * @param {string} str - The string to sentenceCase
- * @example
- * sentenceCase('foo bar');
- *
- * @returns {string} - The sentence-cased string
+ * Converts a string to sentence case.
+ * @category Helpers
  */
 export const sentenceCase = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
 /**
- * Changes a string to its plural form.
- *
- * @param {string} str - The string to pluralize
- * @example
- * pluralize('foo');
- *
- * @returns {string} - The pluralized string
+ * Converts a string to a simple plural form.
+ * @category Helpers
  */
 export const pluralize = (str: string): string => {
   if (str.endsWith('y')) {
@@ -141,13 +101,8 @@ export const pluralize = (str: string): string => {
 };
 
 /**
- * Changes a string to its singular form.
- *
- * @param {string} str - The string to singularize
- * @example
- * singularize('foos');
- *
- * @returns {string} - The singularized string
+ * Converts a string to a simple singular form.
+ * @category Helpers
  */
 export const singularize = (str: string): string => {
   if (str.endsWith('ies')) {

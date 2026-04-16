@@ -1,4 +1,5 @@
 {
+	"autoTS.configuration.title": "Auto TS Generator Configuration",
 	"autoTS.enable": "Enable or disable Auto TS Generator",
 	"autoTS.files.defaultLanguage": "Default language for generated files",
 	"autoTS.files.fileExtension": "File extension for generated files",
@@ -20,6 +21,11 @@
 	"autoTS.project.license": "Project license",
 	"autoTS.project.version": "Project version",
 	"autoTS.templates.customComponents": "Custom components templates",
+	"autoTS.templates.customComponents.name": "Name of the template",
+	"autoTS.templates.customComponents.description": "Description of the template",
+	"autoTS.templates.customComponents.type": "The template type",
+	"autoTS.templates.customComponents.template": "The template content",
+	"templateGenerator.validation.enabled": "Enable lightweight validation for templates (name, type, template). Invalid templates are skipped with a warning.",
 	"autoTS.generate": "Generate",
 	"autoTS.generateClass": "Generate Class",
 	"autoTS.generateInterface": "Generate Interface",

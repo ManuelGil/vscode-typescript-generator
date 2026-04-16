@@ -3,8 +3,21 @@
 	"description": "Template for generating a Node.js module",
 	"type": "module",
 	"template": [
-		"export function {{fileNameCamelCase}}() {",
-		"  console.log('{{fileNameCamelCase}} loaded');",
+		"interface {{fileNamePascalCase}}Options {",
+		"  name?: string;",
+		"  enabled?: boolean;",
+		"}",
+		"",
+		"/**",
+		" * Creates a module configuration object.",
+		" */",
+		"export function {{fileNameCamelCase}}(options: {{fileNamePascalCase}}Options = {}): { name: string; enabled: boolean } {",
+		"  const name = options.name?.trim() || '{{fileNameCamelCase}}';",
+		"",
+		"  return {",
+		"    name,",
+		"    enabled: options.enabled ?? true",
+		"  };",
 		"}"
 	]
 }

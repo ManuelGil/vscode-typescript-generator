@@ -26,317 +26,42 @@ import {
 } from './constants.config';
 
 /**
- * The Config class.
+ * Encapsulates workspace configuration values consumed by generation flows.
  *
- * @class
- * @classdesc The class that represents the configuration of the extension.
- * @export
- * @public
- * @property {WorkspaceConfiguration} config - The workspace configuration
- * @property {boolean} enable - The enable the extension
- * @property {'TypeScript' | 'JavaScript'} defaultLanguage - The default language
- * @property {'ts' | 'tsx' | 'js' | 'jsx'} fileExtension - The file extension
- * @property {boolean} skipFolderConfirmation - The skip folder confirmation
- * @property {boolean} includeTypeInFileName - The include type in file name
- * @property {boolean} skipTypeSelection - The skip type selection
- * @property {boolean} autoImport - The auto import
- * @property {string} defaultBarrelFileName - The default barrel file name
- * @property {boolean} useSingleQuotes - The use single quotes
- * @property {boolean} excludeSemiColonAtEndOfLine - The exclude semi-colon at the end of line
- * @property {boolean} keepExtensionOnExport - The keep extension on export
- * @property {'crlf' | 'lf'} endOfLine - The end of line
- * @property {boolean} useStrict - The use strict
- * @property {string[]} headerCommentTemplate - The header comment template
- * @property {boolean} insertFinalNewline - The insert final newline
- * @property {string} author - The author
- * @property {string} owner - The owner
- * @property {string} maintainers - The maintainers
- * @property {string} license - The license
- * @property {string} version - The version
- * @property {ContentTemplate[]} customComponents - The custom components
- * @example
- * const config = new Config(workspace.getConfiguration());
- * console.log(config.enable);
+ * @remarks
+ * This class centralizes defaults and runtime updates so command and service
+ * layers read a single normalized configuration model.
+ *
+ * @category Config
  */
 export class ExtensionConfig {
-  // -----------------------------------------------------------------
-  // Properties
-  // -----------------------------------------------------------------
-
-  // Public properties
-  /**
-   * The enable the extension.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.enable);
-   * @default true
-   */
   enable: boolean;
-
-  /**
-   * The workspace selection.
-   * @type {string | undefined}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.workspaceSelection);
-   */
   workspaceSelection: string | undefined;
-
-  /**
-   * The default language.
-   * @type {'TypeScript' | 'JavaScript'}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.defaultLanguage);
-   * @default 'TypeScript'
-   */
   defaultLanguage: 'TypeScript' | 'JavaScript';
-
-  /**
-   * The file extension.
-   * @type {'ts' | 'tsx' | 'js' | 'jsx'}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.fileExtension);
-   * @default 'ts'
-   */
   fileExtension: 'ts' | 'tsx' | 'js' | 'jsx';
-
-  /**
-   * The skip folder confirmation.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.skipFolderConfirmation);
-   * @default false
-   */
   skipFolderConfirmation: boolean;
-
-  /**
-   * The include type in file name.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.includeTypeInFileName);
-   * @default false
-   */
   includeTypeInFileName: boolean;
-
-  /**
-   * The skip type selection.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.skipTypeSelection);
-   * @default true
-   */
   skipTypeSelection: boolean;
-
-  /**
-   * The auto import.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.autoImport);
-   * @default false
-   */
   autoImport: boolean;
-
-  /**
-   * The default barrel file name.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.defaultBarrelFileName);
-   * @default 'index.ts'
-   */
   defaultBarrelFileName: string;
-
-  /**
-   * The use single quotes.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.useSingleQuotes);
-   * @default true
-   */
   useSingleQuotes: boolean;
-
-  /**
-   * The exclude semi-colon at the end of line.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.excludeSemiColonAtEndOfLine);
-   * @default false
-   */
   excludeSemiColonAtEndOfLine: boolean;
-
-  /**
-   * The keep extension on export.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.keepExtensionOnExport);
-   * @default false
-   */
   keepExtensionOnExport: boolean;
-
-  /**
-   * The end of line.
-   * @type {'crlf' | 'lf'}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.endOfLine);
-   * @default 'lf'
-   */
   endOfLine: 'crlf' | 'lf';
-
-  /**
-   * The use strict.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.useStrict);
-   * @default false
-   */
   useStrict: boolean;
-
-  /**
-   * The header comment template.
-   * @type {string[]}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.headerCommentTemplate);
-   * @default []
-   */
   headerCommentTemplate: string[];
-
-  /**
-   * The insert final newline.
-   * @type {boolean}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * console.log(config.insertFinalNewline);
-   * @default true
-   */
   insertFinalNewline: boolean;
-
-  /**
-   * The author.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new ExtensionConfig(workspace.getConfiguration());
-   * console.log(config.author);
-   * @default ''
-   */
   author: string;
-
-  /**
-   * The owner.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new ExtensionConfig(workspace.getConfiguration());
-   * console.log(config.owner);
-   * @default ''
-   */
   owner: string;
-
-  /**
-   * The maintainers.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new ExtensionConfig(workspace.getConfiguration());
-   * console.log(config.maintainers);
-   * @default ''
-   */
   maintainers: string;
-
-  /**
-   * The license.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new ExtensionConfig(workspace.getConfiguration());
-   * console.log(config.license);
-   * @default ''
-   */
   license: string;
-
-  /**
-   * The version.
-   * @type {string}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new ExtensionConfig(workspace.getConfiguration());
-   * console.log(config.version);
-   * @default ''
-   */
   version: string;
-
-  /**
-   * The custom components.
-   * @type {object[]}
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new ExtensionConfig(workspace.getConfiguration());
-   * console.log(config.customComponents);
-   */
   customComponents: ContentTemplate[];
 
-  // -----------------------------------------------------------------
-  // Constructor
-  // -----------------------------------------------------------------
-
   /**
-   * Constructor for the Config class.
+   * Builds a configuration snapshot from workspace settings.
    *
-   * @constructor
-   * @param {WorkspaceConfiguration} config - The workspace configuration
-   * @public
-   * @memberof ExtensionConfig
+   * @param config - Workspace configuration source.
    */
   constructor(readonly config: WorkspaceConfiguration) {
     this.enable = config.get<boolean>('enable', DEFAULT_ENABLE);
@@ -410,21 +135,10 @@ export class ExtensionConfig {
     );
   }
 
-  // -----------------------------------------------------------------
-  // Methods
-  // -----------------------------------------------------------------
-
-  // Public methods
   /**
-   * The update method.
+   * Refreshes the in-memory configuration snapshot from workspace settings.
    *
-   * @function update
-   * @param {WorkspaceConfiguration} config - The workspace configuration
-   * @public
-   * @memberof ExtensionConfig
-   * @example
-   * const config = new Config(workspace.getConfiguration());
-   * config.update(workspace.getConfiguration());
+   * @param config - Updated workspace configuration source.
    */
   update(config: WorkspaceConfiguration): void {
     this.enable = config.get<boolean>('enable', this.enable);

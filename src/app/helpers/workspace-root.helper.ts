@@ -20,6 +20,7 @@ import { ExtensionConfig } from '../configs';
  * @param config - The active extension configuration instance.
  * @returns Absolute filesystem path to the workspace root,
  *   or `undefined` if no workspace is available.
+ * @category Helpers
  */
 export const getWorkspaceRoot = (
   config: ExtensionConfig,

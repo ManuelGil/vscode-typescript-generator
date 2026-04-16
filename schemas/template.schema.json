@@ -1,0 +1,42 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"required": ["name", "type", "template"],
+	"properties": {
+		"name": {
+			"type": "string",
+			"description": "Template name"
+		},
+		"type": {
+			"type": "string",
+			"description": "Template type identifier"
+		},
+		"template": {
+			"oneOf": [
+				{
+					"type": "string",
+					"description": "Template content"
+				},
+				{
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"description": "Template content lines"
+				}
+			]
+		},
+		"description": {
+			"type": "string"
+		},
+		"tags": {
+			"type": "array",
+			"items": { "type": "string" }
+		},
+		"context": {
+			"type": "array",
+			"items": { "type": "string" }
+		}
+	},
+	"additionalProperties": true
+}

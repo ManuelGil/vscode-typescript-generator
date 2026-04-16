@@ -72,7 +72,8 @@ _A powerful VSCode-based editor extension that accelerates TypeScript developmen
    Recommended primary entry point:
 
    - **Auto TS: Generate** → select a file type in one place.
-   - Smart Generate shows grouped options (**Recommended** and **Other**) and preselects the top contextual recommendation.
+   - Smart Generate shows grouped options (**Recommended** and **Other**), keeps all options visible, and prioritizes them based on project context.
+   - The extension may suggest a recommended option based on your project setup.
 
 3. **Automatic Update Check**
    On activation, the extension compares its version with the Marketplace's latest. If a newer version exists, you'll be prompted to update.

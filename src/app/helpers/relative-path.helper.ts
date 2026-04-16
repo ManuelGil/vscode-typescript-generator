@@ -31,6 +31,7 @@ import { getWorkspaceRoot } from './workspace-root.helper';
  * @param isRootContext - Selects the resolution mode (see above).
  * @param config - The extension configuration instance.
  * @returns The workspace-relative directory path, or an empty string when no path is provided.
+ * @category Helpers
  */
 export const relativePath = async (
   targetUri: Uri | undefined,

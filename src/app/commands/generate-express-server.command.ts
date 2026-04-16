@@ -2,32 +2,21 @@ import { Uri } from 'vscode';
 import { BaseCommand } from './base.command';
 
 /**
- * The GenerateExpressServerCommand class.
+ * Command entry point for generating a specific artifact template.
  *
- * @class
- * @classdesc The class that represents the generate express server command.
- * @extends {BaseCommand}
- * @export
- * @public
- * @example
- * const command = new GenerateExpressServerCommand(config);
+ * @remarks
+ * Delegates generation to FileGeneratorService through BaseCommand.
+ *
+ * @category Commands
+ * @internal
  */
 export class GenerateExpressServerCommand extends BaseCommand {
-  // -----------------------------------------------------------------
-  // Methods
-  // -----------------------------------------------------------------
-
-  // Public methods
-
   /**
-   * The execute method.
+   * Executes the command for the provided folder context.
    *
-   * @async
-   * @method execute
-   * @public
-   * @memberof GenerateExpressServerCommand
-   *
-   * @param {Uri} folderPath - The folder path
+   * @param folderPath - Optional folder target selected in VS Code.
+   * @example
+   * await command.execute(folderUri);
    */
   async execute(folderPath?: Uri): Promise<void> {
     await this.service.generateComponent(folderPath, 'express-server');

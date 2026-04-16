@@ -3,21 +3,21 @@
 	"description": "Template for generating a React functional component",
 	"type": "component",
 	"template": [
-		"// React Component",
-		"",
 		"interface {{fileNamePascalCase}}Props {",
-		"  // Define your props here",
 		"  children?: React.ReactNode;",
+		"  title?: string;",
 		"}",
 		"",
-		"export function {{fileNamePascalCase}}({ children, ...props }: {{fileNamePascalCase}}Props) {",
+		"/**",
+		" * Renders the {{fileNamePascalCase}} component.",
+		" */",
+		"export function {{fileNamePascalCase}}({ children, title = '{{fileNamePascalCase}}' }: {{fileNamePascalCase}}Props) {",
 		"  return (",
-		"    <div className=\"{{fileNameKebabCase}}-container\">",
-		"      <h1>{{fileNamePascalCase}}</h1>",
+		"    <section className=\"{{fileNameKebabCase}}-container\">",
+		"      <h1>{title}</h1>",
 		"      {children}",
-		"    </div>",
+		"    </section>",
 		"  );",
-		"}",
-		""
+		"}"
 	]
 }

@@ -1,3 +1,8 @@
+/**
+ * Declares command identifiers registered by the extension runtime.
+ *
+ * @category Config
+ */
 export enum CommandIds {
   ChangeWorkspace = 'changeWorkspace',
   Generate = 'generate',

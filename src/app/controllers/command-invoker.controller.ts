@@ -6,32 +6,18 @@ import type { Command } from '../types';
 /**
  * Registers and executes commands behind a single enablement gate.
  *
- * This controller keeps the command wiring thin and centralizes the disabled
- * state behavior for the extension entry point.
+ * @remarks
+ * This controller keeps runtime orchestration thin by centralizing enablement
+ * checks and command dispatch.
  *
- * @class
- * @export
- * @public
+ * This controller does NOT:
+ * - Generate files directly
+ * - Detect workspace context
+ * - Decide command ordering
+ * @category Controllers
  */
 export class CommandInvoker {
-  // -----------------------------------------------------------------
-  // Properties
-  // -----------------------------------------------------------------
-
-  // Private properties
-
-  /**
-   * The commands.
-   *
-   * @type {Map<string, Command>}
-   * @private
-   * @memberof CommandInvoker
-   */
   private commands: Map<string, Command> = new Map();
-
-  // -----------------------------------------------------------------
-  // Constructor
-  // -----------------------------------------------------------------
 
   /**
    * Creates a command invoker.
@@ -39,12 +25,6 @@ export class CommandInvoker {
    * @param isEnabled Whether the extension is enabled.
    */
   constructor(private readonly isEnabled: boolean) {}
-
-  // -----------------------------------------------------------------
-  // Methods
-  // -----------------------------------------------------------------
-
-  // Public methods
 
   /**
    * Registers a command handler by name.

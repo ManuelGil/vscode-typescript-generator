@@ -6,6 +6,7 @@ import { ContentTemplate } from '../configs';
  *
  * @param template - The content template definition.
  * @returns Quick Pick item representation for UI selection.
+ * @category Helpers
  */
 export const generateQuickPickOption = (
   template: ContentTemplate,
@@ -23,6 +24,7 @@ export const generateQuickPickOption = (
  * @param customComponents - Available custom component templates.
  * @param selectedTemplateName - Template name selected by the user.
  * @returns Matching template or undefined when no template matches.
+ * @category Helpers
  */
 export const getCustomTemplateByName = (
   customComponents: ContentTemplate[],

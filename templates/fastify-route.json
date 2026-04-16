@@ -6,8 +6,12 @@
 		"import { FastifyInstance } from 'fastify';",
 		"import { {{fileNamePascalCase}} } from '../controllers/{{fileName}}.{{fileType}}';",
 		"",
-		"export default async function (fastify: FastifyInstance) {",
-		"  fastify.get('/{{fileName}}', {{fileNamePascalCase}});",
+		"/**",
+		" * Registers the {{fileName}} route.",
+		" */",
+		"export default async function register{{fileNamePascalCase}}Route(fastify: FastifyInstance): Promise<void> {",
+		"  fastify.get('/{{fileName}}/health', async () => ({ status: 'ok' }));",
+		"  fastify.post('/{{fileName}}', {{fileNamePascalCase}});",
 		"}"
 	]
 }

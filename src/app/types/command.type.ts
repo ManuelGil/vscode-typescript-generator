@@ -1,19 +1,13 @@
 import { Uri } from 'vscode';
 
 /**
- * The Command interface.
+ * Contract implemented by executable extension commands.
  *
- * @interface
- * @export
- * @public
- * @property {Promise<void>} execute - The execute method
- * @property {Uri} folderPath - The folder path
- * @example
- * class Command implements Command {
- *   async execute(folderPath?: Uri): Promise<void> {
- *     console.log('Hello, World!');
- *   }
- * }
+ * @remarks
+ * Commands receive the folder context resolved by runtime orchestration.
+ * Implementations should encapsulate generation behavior for one command id.
+ *
+ * @category Types
  */
 export interface Command {
   execute(folderPath?: Uri): Promise<void>;

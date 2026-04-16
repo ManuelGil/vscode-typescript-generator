@@ -3,8 +3,17 @@
 	"description": "Template for generating a TypeScript function",
 	"type": "function",
 	"template": [
-		"export function {{fileNameCamelCase}}(): void {",
-		"  // TODO: Implement function logic",
+		"/**",
+		" * Formats a value into a consistent label.",
+		" */",
+		"export function {{fileNameCamelCase}}(value: string): string {",
+		"  const normalizedValue = value.trim();",
+		"",
+		"  if (!normalizedValue) {",
+		"    throw new Error('Value is required');",
+		"  }",
+		"",
+		"  return normalizedValue.replace(/\\s+/g, ' ');",
 		"}"
 	]
 }

@@ -3,12 +3,16 @@
 	"description": "Template for generating an Express.js route",
 	"type": "route",
 	"template": [
-		"import { Router } from 'express';",
+		"import { Request, Response, Router } from 'express';",
 		"import { {{fileNamePascalCase}}{{fileTypeName}} } from '../controllers/{{fileName}}.{{fileType}}';",
 		"",
 		"const router = Router();",
 		"",
-		"router.get('/{{fileName}}', {{fileNamePascalCase}}{{fileTypeName}}.handle);",
+		"router.get('/{{fileName}}/health', (_request: Request, response: Response) => {",
+		"  response.status(200).json({ status: 'ok' });",
+		"});",
+		"",
+		"router.post('/{{fileName}}', {{fileNamePascalCase}}{{fileTypeName}}.handle);",
 		"",
 		"export default router;"
 	]

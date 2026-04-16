@@ -5,8 +5,16 @@
 	"template": [
 		"import { FastifyRequest, FastifyReply } from 'fastify';",
 		"",
-		"export async function {{fileNamePascalCase}}(req: FastifyRequest, res: FastifyReply) {",
-		"  console.log('{{fileNamePascalCase}} executed');",
+		"/**",
+		" * Runs the {{fileNamePascalCase}} middleware.",
+		" */",
+		"export async function {{fileNamePascalCase}}(request: FastifyRequest, reply: FastifyReply): Promise<void> {",
+		"  const headerValue = request.headers['x-request-id'];",
+		"  const requestId = typeof headerValue === 'string' && headerValue.trim()",
+		"    ? headerValue.trim()",
+		"    : `${Date.now()}-${Math.random().toString(16).slice(2)}`;",
+		"",
+		"  reply.header('x-request-id', requestId);",
 		"}"
 	]
 }

@@ -4,7 +4,10 @@
 	"type": "interface",
 	"template": [
 		"export interface {{fileNamePascalCase}} {",
-		"  // Define interface properties here",
+		"  id: string;",
+		"  name: string;",
+		"  createdAt: Date;",
+		"  updatedAt?: Date;",
 		"}"
 	]
 }

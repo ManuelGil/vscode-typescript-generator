@@ -3,16 +3,25 @@
 	"description": "Template for generating an Express.js server",
 	"type": "server",
 	"template": [
-		"import express from 'express';",
+		"import express, { NextFunction, Request, Response } from 'express';",
 		"import cors from 'cors';",
 		"",
 		"const app = express();",
+		"const requestedPort = Number(process.env.PORT ?? 3000);",
+		"const port = Number.isNaN(requestedPort) ? 3000 : requestedPort;",
 		"",
 		"app.use(cors());",
 		"app.use(express.json());",
 		"",
-		"app.get('/', (req, res) => res.send('Hello Express!'));",
+		"app.get('/health', (_request: Request, response: Response) => {",
+		"  response.status(200).json({ status: 'ok' });",
+		"});",
 		"",
-		"app.listen(3000, () => console.log('Server running on port 3000'));"
+		"app.use((error: unknown, _request: Request, response: Response, _next: NextFunction) => {",
+		"  const message = error instanceof Error ? error.message : 'Unexpected server error';",
+		"  response.status(500).json({ error: message });",
+		"});",
+		"",
+		"app.listen(port);"
 	]
 }

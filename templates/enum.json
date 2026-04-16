@@ -4,8 +4,9 @@
 	"type": "enum",
 	"template": [
 		"export enum {{fileNamePascalCase}} {",
-		"  VALUE_ONE = \"value_one\",",
-		"  VALUE_TWO = \"value_two\"",
+		"  ACTIVE = 'active',",
+		"  INACTIVE = 'inactive',",
+		"  ARCHIVED = 'archived'",
 		"}"
 	]
 }
