@@ -553,7 +553,7 @@
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.12",
+		"@biomejs/biome": "2.4.13",
 		"@commitlint/cli": "^19.8.1",
 		"@commitlint/config-conventional": "^19.8.1",
 		"@types/mocha": "^10.0.10",
@@ -574,7 +574,7 @@
 		"mustache": "^4.2.0",
 		"ignore": "^5.3.2",
 		"zod": "^3.25.76",
-		"vscode-marketplace-client": "^1.1.1"
+		"vscode-marketplace-client": "^1.2.1"
 	},
 	"pnpm": {
 		"overrides": {
