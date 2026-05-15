@@ -50,6 +50,7 @@ import {
   Command,
   ContextKey,
   EMPTY_PROJECT_CONTEXT,
+  FolderContext,
   isContextActive,
   ProjectContext,
 } from './app/types';
@@ -106,6 +107,23 @@ export class ExtensionRuntime {
    * Stateless service instance used to rank Smart Generate command options.
    */
   private readonly smartGenerateService = new SmartGenerateService();
+
+  /**
+   * Session-scoped folder memory for file generation.
+   * Tracks the last folder used and provides it as default for next generation.
+   * Resets when the extension is deactivated.
+   */
+  private lastUsedGenerationFolder: string | undefined;
+
+  /**
+   * Implements the FolderContext interface for passing to commands.
+   */
+  private readonly folderContext: FolderContext = {
+    getLastUsedFolder: () => this.lastUsedGenerationFolder,
+    setLastUsedFolder: (folder: string) => {
+      this.lastUsedGenerationFolder = folder;
+    },
+  };
 
   /**
    * Creates the runtime with activation context from VS Code.
@@ -634,78 +652,96 @@ export class ExtensionRuntime {
       [CommandIds.GenerateClass]: new GenerateClassCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateInterface]: new GenerateInterfaceCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateEnum]: new GenerateEnumCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateType]: new GenerateTypeCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateFunction]: new GenerateFunctionCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateVariable]: new GenerateVariableCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateCustomComponent]: new GenerateCustomComponentCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateNodeModule]: new GenerateNodeModuleCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateNodeServer]: new GenerateNodeServerCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateExpressController]:
         new GenerateExpressControllerCommand(
           this.config,
           this.context.extensionUri,
+          this.folderContext,
         ),
       [CommandIds.GenerateExpressMiddleware]:
         new GenerateExpressMiddlewareCommand(
           this.config,
           this.context.extensionUri,
+          this.folderContext,
         ),
       [CommandIds.GenerateExpressRoute]: new GenerateExpressRouteCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateExpressServer]: new GenerateExpressServerCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateFastifyController]:
         new GenerateFastifyControllerCommand(
           this.config,
           this.context.extensionUri,
+          this.folderContext,
         ),
       [CommandIds.GenerateFastifyMiddleware]:
         new GenerateFastifyMiddlewareCommand(
           this.config,
           this.context.extensionUri,
+          this.folderContext,
         ),
       [CommandIds.GenerateFastifyRoute]: new GenerateFastifyRouteCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateFastifyServer]: new GenerateFastifyServerCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
       [CommandIds.GenerateReactComponent]: new GenerateReactComponentCommand(
         this.config,
         this.context.extensionUri,
+        this.folderContext,
       ),
     };
 

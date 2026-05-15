@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-05-14
+
+### Added
+
+- Remember the last target folder during a session and reuse it in generation prompts.
+
+### Changed
+
+- Resolve generation folders from explorer context or session context before prompting.
+- Update extension dependencies to keep update checks and runtime compatibility current.
+
+### Fixed
+
+- Fix workspace-root relative folder resolution and stabilize command palette folder reuse.
+
 ## [1.11.0] - 2026-04-15
 
 ### Added
@@ -181,7 +196,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release of the extension starter kit minimal.
 
-[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.11.0...HEAD
+[unreleased]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.9.0...v1.10.0
 [1.9.0]: https://github.com/ManuelGil/vscode-typescript-generator/compare/v1.8.0...v1.9.0

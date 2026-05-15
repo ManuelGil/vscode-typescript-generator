@@ -42,6 +42,7 @@ import {
   titleize,
   toPosixPath,
 } from '../helpers';
+import type { FolderContext } from '../types';
 
 const templateSchema = z
   .object({
@@ -73,11 +74,12 @@ const templateSchema = z
  */
 export class FileGeneratorService {
   /**
-   * Creates a file generator bound to extension configuration and URI.
+   * Creates a file generator bound to extension configuration, URI, and session folder context.
    */
   constructor(
     private readonly config: ExtensionConfig,
     private readonly extensionUri: Uri,
+    private readonly folderContext: FolderContext,
   ) {}
 
   /**
@@ -121,70 +123,32 @@ export class FileGeneratorService {
       defaultBarrelFileName,
     } = this.config;
 
-    let workspaceFolder: WorkspaceFolder | undefined;
-    let relativeFolderPath: string = '';
+    const workspaceSelection = await this.resolveWorkspaceFolder(folderPath);
 
-    if (folderPath) {
-      const targetFolderUri = await resolveFolderResource(folderPath);
-
-      if (targetFolderUri) {
-        workspaceFolder = workspace.getWorkspaceFolder(targetFolderUri);
-        relativeFolderPath = await relativePath(
-          targetFolderUri,
-          false,
-          this.config,
-        );
-      }
-    } else if (
-      workspace.workspaceFolders &&
-      workspace.workspaceFolders.length === 1
-    ) {
-      workspaceFolder = workspace.workspaceFolders[0];
-    } else {
-      const placeholder = l10n.t(
-        'Select a workspace folder to use. This folder will be used to generate the file',
-      );
-      workspaceFolder = await window.showWorkspaceFolderPick({
-        placeHolder: placeholder,
-      });
-    }
-
-    if (!workspaceFolder) {
-      const message = l10n.t(
-        'The workspace folder does not exist. Please select a valid workspace folder to use',
-      );
-      window.showErrorMessage(message);
+    if (!workspaceSelection) {
       return;
     }
 
-    let folderName: string | undefined;
+    const { workspaceFolder, relativeFolderPath } = workspaceSelection;
 
-    if (!folderPath || !skipFolderConfirmation) {
-      folderName = await this.promptInput(
-        l10n.t(
-          'Enter the folder name where the {0} will be created',
-          componentType,
-        ),
-        l10n.t('Enter the folder name, e.g. models, services, utils, etc'),
-        relativeFolderPath,
-        (path) =>
-          !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
-            ? l10n.t(
-                'The folder name is invalid! Please enter a valid folder name',
-              )
-            : undefined,
-      );
+    const folderName = await this.resolveFolderName({
+      folderPath,
+      skipFolderConfirmation,
+      relativeFolderPath,
+      prompt: l10n.t(
+        'Enter the folder name where the {0} will be created',
+        componentType,
+      ),
+      placeholder: l10n.t(
+        'Enter the folder name, e.g. models, services, utils, etc',
+      ),
+    });
 
-      if (!folderName) {
-        const message = l10n.t('Operation cancelled!');
-        window.showInformationMessage(message);
-        return;
-      }
-    } else {
-      folderName = relativeFolderPath;
+    if (folderName === undefined) {
+      return;
     }
 
-    if (folderName) {
+    if (folderName !== '') {
       const normalizedFolder = normalize(folderName);
       if (
         isAbsolute(normalizedFolder) ||
@@ -295,12 +259,14 @@ export class FileGeneratorService {
     try {
       const safePath = this.resolveSafePath(resolvedFolderPath, fileName);
 
-      void saveFile(
+      await saveFile(
         dirname(safePath),
         basename(safePath),
         fileContent,
         this.config,
       );
+
+      this.folderContext.setLastUsedFolder(folderName);
 
       if (autoImport) {
         const barrelFileExtension =
@@ -352,69 +318,31 @@ export class FileGeneratorService {
       customComponents,
     } = this.config;
 
-    let workspaceFolder: WorkspaceFolder | undefined;
-    let relativeFolderPath: string = '';
+    const workspaceSelection = await this.resolveWorkspaceFolder(folderPath);
 
-    if (folderPath) {
-      const targetFolderUri = await resolveFolderResource(folderPath);
-
-      if (targetFolderUri) {
-        workspaceFolder = workspace.getWorkspaceFolder(targetFolderUri);
-        relativeFolderPath = await relativePath(
-          targetFolderUri,
-          false,
-          this.config,
-        );
-      }
-    } else if (
-      workspace.workspaceFolders &&
-      workspace.workspaceFolders.length === 1
-    ) {
-      workspaceFolder = workspace.workspaceFolders[0];
-    } else {
-      const placeholder = l10n.t(
-        'Select a workspace folder to use. This folder will be used to generate the file',
-      );
-      workspaceFolder = await window.showWorkspaceFolderPick({
-        placeHolder: placeholder,
-      });
-    }
-
-    if (!workspaceFolder) {
-      const message = l10n.t(
-        'The workspace folder does not exist. Please select a valid workspace folder to use',
-      );
-      window.showErrorMessage(message);
+    if (!workspaceSelection) {
       return;
     }
 
-    let folderName: string | undefined;
+    const { workspaceFolder, relativeFolderPath } = workspaceSelection;
 
-    if (!folderPath || !skipFolderConfirmation) {
-      folderName = await this.promptInput(
-        l10n.t(
-          'Enter the folder name where the custom component will be created',
-        ),
-        l10n.t('Enter the folder name, e.g. components, shared, etc'),
-        relativeFolderPath,
-        (path) =>
-          !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
-            ? l10n.t(
-                'The folder name is invalid! Please enter a valid folder name',
-              )
-            : undefined,
-      );
+    const folderName = await this.resolveFolderName({
+      folderPath,
+      skipFolderConfirmation,
+      relativeFolderPath,
+      prompt: l10n.t(
+        'Enter the folder name where the custom component will be created',
+      ),
+      placeholder: l10n.t(
+        'Enter the folder name, e.g. components, shared, etc',
+      ),
+    });
 
-      if (!folderName) {
-        const message = l10n.t('Operation cancelled!');
-        window.showInformationMessage(message);
-        return;
-      }
-    } else {
-      folderName = relativeFolderPath;
+    if (folderName === undefined) {
+      return;
     }
 
-    if (folderName) {
+    if (folderName !== '') {
       const normalizedFolder = normalize(folderName);
       if (
         isAbsolute(normalizedFolder) ||
@@ -526,12 +454,14 @@ export class FileGeneratorService {
     try {
       const safePath = this.resolveSafePath(resolvedFolderPath, fileName);
 
-      void saveFile(
+      await saveFile(
         dirname(safePath),
         basename(safePath),
         fileContent,
         this.config,
       );
+
+      this.folderContext.setLastUsedFolder(folderName);
 
       if (autoImport) {
         const barrelFileExtension =
@@ -574,6 +504,115 @@ export class FileGeneratorService {
       value: defaultValue,
       validateInput,
     });
+  }
+
+  /**
+   * Resolves the workspace folder and relative folder path used for generation.
+   *
+   * @param folderPath Folder context supplied by VS Code.
+   */
+  private async resolveWorkspaceFolder(
+    folderPath: Uri | undefined,
+  ): Promise<
+    { workspaceFolder: WorkspaceFolder; relativeFolderPath: string } | undefined
+  > {
+    let workspaceFolder: WorkspaceFolder | undefined;
+    let relativeFolderPath = '';
+
+    if (folderPath) {
+      const targetFolderUri = await resolveFolderResource(folderPath);
+
+      if (targetFolderUri) {
+        workspaceFolder = workspace.getWorkspaceFolder(targetFolderUri);
+        relativeFolderPath = await relativePath(
+          targetFolderUri,
+          false,
+          this.config,
+        );
+      }
+    } else if (
+      workspace.workspaceFolders &&
+      workspace.workspaceFolders.length === 1
+    ) {
+      workspaceFolder = workspace.workspaceFolders[0];
+    } else {
+      const placeholder = l10n.t(
+        'Select a workspace folder to use. This folder will be used to generate the file',
+      );
+      workspaceFolder = await window.showWorkspaceFolderPick({
+        placeHolder: placeholder,
+      });
+    }
+
+    if (!workspaceFolder) {
+      const message = l10n.t(
+        'The workspace folder does not exist. Please select a valid workspace folder to use',
+      );
+      window.showErrorMessage(message);
+      return undefined;
+    }
+
+    return { workspaceFolder, relativeFolderPath };
+  }
+
+  /**
+   * Resolves the folder name to use for generation.
+   *
+   * @param folderPath Folder context supplied by VS Code.
+   * @param skipFolderConfirmation Whether the explorer-confirmation prompt is skipped.
+   * @param relativeFolderPath Relative folder path inferred from the workspace selection.
+   * @param prompt Prompt text shown to the user when manual input is required.
+   * @param placeholder Input placeholder shown to the user.
+   */
+  private async resolveFolderName({
+    folderPath,
+    skipFolderConfirmation,
+    relativeFolderPath,
+    prompt,
+    placeholder,
+  }: {
+    folderPath: Uri | undefined;
+    skipFolderConfirmation: boolean;
+    relativeFolderPath: string;
+    prompt: string;
+    placeholder: string;
+  }): Promise<string | undefined> {
+    const lastUsedFolder = this.folderContext.getLastUsedFolder();
+
+    if (skipFolderConfirmation) {
+      const hasExplicitFolderSelection = relativeFolderPath !== '';
+
+      if (hasExplicitFolderSelection) {
+        return relativeFolderPath;
+      }
+
+      if (lastUsedFolder !== undefined) {
+        return lastUsedFolder;
+      }
+
+      return '';
+    }
+
+    const defaultFolderValue = lastUsedFolder ?? relativeFolderPath;
+    const folderName = await this.promptInput(
+      prompt,
+      placeholder,
+      defaultFolderValue,
+      (path) =>
+        !/^(?!\/)[^\sÀ-ÿ]+?$/.test(path)
+          ? l10n.t(
+              'The folder name is invalid! Please enter a valid folder name',
+            )
+          : undefined,
+    );
+
+    if (folderName === undefined) {
+      const message = l10n.t('Operation cancelled!');
+      window.showInformationMessage(message);
+      return undefined;
+    }
+
+    return folderName;
   }
 
   /**

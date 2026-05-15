@@ -9,6 +9,7 @@ import { relative } from 'path';
 import { Uri, workspace } from 'vscode';
 
 import { ExtensionConfig } from '../configs';
+import { toPosixPath } from './path-format.helper';
 import { asDirectoryUri } from './resolve.helper';
 import { getWorkspaceRoot } from './workspace-root.helper';
 
@@ -40,18 +41,19 @@ export const relativePath = async (
 ): Promise<string> => {
   const resolvedUri = targetUri ? await asDirectoryUri(targetUri) : undefined;
 
-  let resultingFolderPath = '';
-
-  if (isRootContext) {
-    const activeWorkspaceRoot = getWorkspaceRoot(config, resolvedUri);
-    if (activeWorkspaceRoot && resolvedUri) {
-      resultingFolderPath = relative(activeWorkspaceRoot, resolvedUri.fsPath);
-    }
-  } else {
-    resultingFolderPath = resolvedUri
-      ? workspace.asRelativePath(resolvedUri.fsPath, false)
-      : '';
+  if (!resolvedUri) {
+    return '';
   }
 
-  return resultingFolderPath;
+  const basePath = isRootContext
+    ? getWorkspaceRoot(config, resolvedUri)
+    : workspace.getWorkspaceFolder(resolvedUri)?.uri.fsPath;
+
+  if (!basePath) {
+    return '';
+  }
+
+  const resultingFolderPath = relative(basePath, resolvedUri.fsPath);
+
+  return resultingFolderPath === '.' ? '' : toPosixPath(resultingFolderPath);
 };

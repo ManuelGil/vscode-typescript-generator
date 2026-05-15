@@ -1,7 +1,7 @@
 import { Uri } from 'vscode';
 import { ExtensionConfig } from '../configs';
 import { FileGeneratorService } from '../services';
-import type { Command } from '../types';
+import type { Command, FolderContext } from '../types';
 
 /**
  * Base abstraction for command implementations that delegate file generation.
@@ -21,9 +21,18 @@ export abstract class BaseCommand implements Command {
    *
    * @param config - Extension configuration snapshot.
    * @param extensionUri - Extension URI used to resolve built-in templates.
+   * @param folderContext - Session-scoped folder memory for last generation target.
    */
-  constructor(config: ExtensionConfig, extensionUri: Uri) {
-    this.service = new FileGeneratorService(config, extensionUri);
+  constructor(
+    config: ExtensionConfig,
+    extensionUri: Uri,
+    folderContext: FolderContext,
+  ) {
+    this.service = new FileGeneratorService(
+      config,
+      extensionUri,
+      folderContext,
+    );
   }
 
   /**
