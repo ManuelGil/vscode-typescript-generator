@@ -132,7 +132,6 @@ export class FileGeneratorService {
     const { workspaceFolder, relativeFolderPath } = workspaceSelection;
 
     const folderName = await this.resolveFolderName({
-      folderPath,
       skipFolderConfirmation,
       relativeFolderPath,
       prompt: l10n.t(
@@ -327,7 +326,6 @@ export class FileGeneratorService {
     const { workspaceFolder, relativeFolderPath } = workspaceSelection;
 
     const folderName = await this.resolveFolderName({
-      folderPath,
       skipFolderConfirmation,
       relativeFolderPath,
       prompt: l10n.t(
@@ -565,13 +563,11 @@ export class FileGeneratorService {
    * @param placeholder Input placeholder shown to the user.
    */
   private async resolveFolderName({
-    folderPath,
     skipFolderConfirmation,
     relativeFolderPath,
     prompt,
     placeholder,
   }: {
-    folderPath: Uri | undefined;
     skipFolderConfirmation: boolean;
     relativeFolderPath: string;
     prompt: string;
