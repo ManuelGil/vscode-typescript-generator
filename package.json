@@ -573,7 +573,7 @@
 	"dependencies": {
 		"ignore": "^5.3.2",
 		"mustache": "^4.2.0",
-		"vscode-marketplace-client": "^1.2.2",
+		"vscode-marketplace-client": "^1.2.3",
 		"zod": "^3.25.76"
 	},
 	"pnpm": {
