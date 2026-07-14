@@ -554,12 +554,12 @@
 		"prepare": "husky"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.5.2",
+		"@biomejs/biome": "2.5.3",
 		"@commitlint/cli": "^19.8.1",
 		"@commitlint/config-conventional": "^19.8.1",
 		"@types/mocha": "^10.0.10",
 		"@types/mustache": "^4.2.6",
-		"@types/node": "^22.20.0",
+		"@types/node": "^22.20.1",
 		"@types/vscode": "^1.102.0",
 		"@vscode/l10n-dev": "^0.0.35",
 		"@vscode/test-cli": "^0.0.15",
